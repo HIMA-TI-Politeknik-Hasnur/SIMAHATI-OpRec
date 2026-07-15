@@ -1,14 +1,5 @@
-# ===== BACKEND (Laravel) =====
-/vendor/
-node_modules/
-.env
-*.log
-/storage/*.key
-
-# ===== FRONTEND (React + Vite) =====
-/frontend/node_modules/
-/frontend/dist/
-/frontend/.env
+# Masing-masing folder (backend & frontend) sudah punya .gitignore sendiri.
+# File ini hanya mencakup file di root level.
 
 # ===== OS =====
 .DS_Store
