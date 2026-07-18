@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Peserta extends Model
 {
@@ -37,9 +38,9 @@ class Peserta extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function pendaftaran(): HasMany
+    public function pendaftaran(): HasOne
     {
-        return $this->hasMany(Pendaftaran::class);
+        return $this->hasOne(Pendaftaran::class);
     }
 
     public function uploads(): HasMany
