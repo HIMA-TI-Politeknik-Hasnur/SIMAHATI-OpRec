@@ -1,0 +1,56 @@
+.announcement-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 6px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.announcement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(234, 88, 12, 0.1);
+}
+
+.type-info  { border-left-color: #f97316; background-color: #fff7ed; }
+.type-warning { border-left-color: #f59e0b; background-color: #fffbeb; }
+.type-success { border-left-color: #10b981; background-color: #ecfdf5; }
+.type-danger  { border-left-color: #ef4444; background-color: #fef2f2; }
+
+.announcement-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.announcement-icon {
+  font-size: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+.announcement-title {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.announcement-body {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.announcement-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 0.75rem;
+}
+
+.announcement-date {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
