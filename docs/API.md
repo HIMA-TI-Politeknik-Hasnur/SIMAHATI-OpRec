@@ -2329,23 +2329,209 @@ Mulai tulis di sini 👇
 
 ### Penjelasan
 
-Divisi adalah departemen/bidang di HMTI yang bisa dipilih peserta saat mendaftar. Setiap divisi punya nama, deskripsi, dan kuota (batas maksimal anggota).
+Divisi adalah departemen/bidang di HMTI yang bisa dipilih peserta saat mendaftar. Setiap divisi punya nama, deskripsi, dan kuota (batas maksimal anggota). Endpoint di grup ini dipakai admin untuk mengelola divisi dan peserta untuk melihat pilihan yang tersedia.
 
-Endpoint di grup ini dipakai admin buat mengelola divisi, dan peserta buat melihat pilihan divisi yang tersedia.
+---
 
-### ✏️ Tugas Anton:
+### `GET /api/divisi` — Lihat Daftar Semua Divisi
 
-Tulis dokumentasi lengkap untuk 5 endpoint berikut. Format penulisan ikuti contoh dari grup **Autentikasi** milik Reyhan.
+📝 **Deskripsi:** Mengambil daftar semua divisi yang tersedia beserta informasi kuota.
 
-| Method | URI | Fungsi |
-|--------|-----|--------|
-| GET | /api/divisi | Lihat daftar semua divisi |
-| POST | /api/divisi | Buat divisi baru |
-| GET | /api/divisi/{id} | Detail divisi + daftar peserta |
-| PUT | /api/divisi/{id} | Update data divisi |
-| DELETE | /api/divisi/{id} | Hapus divisi |
+Bayangin kamu buka **katalog jurusan** di kampus — semua jurusan ditampilkan lengkap dengan deskripsi dan kapasitasnya. Endpoint ini persis sama: menampilkan semua divisi HMTI yang bisa dipilih peserta.
 
-Mulai tulis di sini 👇
+🔓 **Siapa yang bisa akses:** Semua yang sudah login (Bearer Token wajib)
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "nama": "Pengembangan Perangkat Lunak",
+      "deskripsi": "Divisi yang fokus pada pengembangan aplikasi web, mobile, dan desktop.",
+      "kuota": 10,
+      "created_at": "2026-07-18T16:02:46.000000Z",
+      "updated_at": "2026-07-18T16:02:46.000000Z"
+    },
+    {
+      "id": 2,
+      "nama": "Jaringan dan Infrastruktur",
+      "deskripsi": "Mengelola infrastruktur IT himpunan termasuk server dan jaringan.",
+      "kuota": 8,
+      "created_at": "2026-07-18T16:02:46.000000Z",
+      "updated_at": "2026-07-18T16:02:46.000000Z"
+    }
+  ]
+}
+```
+
+| Field | Penjelasan |
+|---|---|
+| `data[].id` | ID unik divisi — dipakai saat peserta memilih divisi di form pendaftaran |
+| `data[].nama` | Nama divisi |
+| `data[].deskripsi` | Penjelasan lengkap tugas dan kegiatan divisi |
+| `data[].kuota` | Batas maksimal anggota yang bisa diterima |
+
+---
+
+### `POST /api/divisi` — Buat Divisi Baru
+
+📝 **Deskripsi:** Membuat divisi baru di sistem.
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`
+
+📦 **Request Body:**
+
+```json
+{
+  "nama": "Multimedia dan Desain",
+  "deskripsi": "Bertanggung jawab atas konten visual, desain grafis, dan dokumentasi kegiatan himpunan.",
+  "kuota": 6
+}
+```
+
+| Field | Wajib? | Penjelasan |
+|---|---|---|
+| `nama` | ✅ Wajib | Nama divisi — harus unik, tidak boleh sama dengan yang sudah ada |
+| `deskripsi` | ✅ Wajib | Deskripsi tugas dan kegiatan divisi |
+| `kuota` | ✅ Wajib | Batas maksimal anggota, minimal 1 |
+
+✅ **Response Sukses (201):**
+
+```json
+{
+  "success": true,
+  "message": "Divisi berhasil dibuat.",
+  "data": {
+    "id": 3,
+    "nama": "Multimedia dan Desain",
+    "deskripsi": "Bertanggung jawab atas konten visual, desain grafis, dan dokumentasi kegiatan himpunan.",
+    "kuota": 6,
+    "created_at": "2026-07-18T16:10:00.000000Z",
+    "updated_at": "2026-07-18T16:10:00.000000Z"
+  }
+}
+```
+
+❌ **Response Error (422 — Nama sudah dipakai):**
+
+```json
+{
+  "message": "The nama has already been taken.",
+  "errors": {
+    "nama": ["The nama has already been taken."]
+  }
+}
+```
+
+---
+
+### `GET /api/divisi/{id}` — Detail Divisi
+
+📝 **Deskripsi:** Mengambil detail satu divisi berdasarkan ID-nya.
+
+Ganti `{id}` dengan angka ID divisi. Contoh: `GET /api/divisi/1`.
+
+🔐 **Siapa yang bisa akses:** Semua yang sudah login
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "nama": "Pengembangan Perangkat Lunak",
+    "deskripsi": "Divisi yang fokus pada pengembangan aplikasi web, mobile, dan desktop.",
+    "kuota": 10,
+    "created_at": "2026-07-18T16:02:46.000000Z",
+    "updated_at": "2026-07-18T16:02:46.000000Z"
+  }
+}
+```
+
+❌ **Response Error (404):**
+
+```json
+{
+  "message": "No query results for model [App\\Models\\Divisi]."
+}
+```
+
+---
+
+### `PUT /api/divisi/{id}` — Update Data Divisi
+
+📝 **Deskripsi:** Mengubah data divisi yang sudah ada (nama, deskripsi, atau kuota).
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`
+
+📦 **Request Body:** (semua field opsional — kirim hanya field yang mau diubah)
+
+```json
+{
+  "nama": "Pengembangan Perangkat Lunak (PPL)",
+  "kuota": 12
+}
+```
+
+| Field | Wajib? | Penjelasan |
+|---|---|---|
+| `nama` | ❌ Opsional | Nama baru — harus unik, tidak boleh sama dengan divisi lain |
+| `deskripsi` | ❌ Opsional | Deskripsi baru |
+| `kuota` | ❌ Opsional | Kuota baru, minimal 1 |
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "message": "Divisi berhasil diupdate.",
+  "data": {
+    "id": 1,
+    "nama": "Pengembangan Perangkat Lunak (PPL)",
+    "deskripsi": "Divisi yang fokus pada pengembangan aplikasi web, mobile, dan desktop.",
+    "kuota": 12,
+    "created_at": "2026-07-18T16:02:46.000000Z",
+    "updated_at": "2026-07-19T09:00:00.000000Z"
+  }
+}
+```
+
+---
+
+### `DELETE /api/divisi/{id}` — Hapus Divisi
+
+📝 **Deskripsi:** Menghapus divisi dari sistem.
+
+> ⚠️ **Hati-hati!** Pastikan tidak ada peserta aktif yang memilih divisi ini sebelum menghapus. Hapus divisi yang masih dipilih peserta bisa menyebabkan error Foreign Key.
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "message": "Divisi berhasil dihapus."
+}
+```
+
+❌ **Response Error (404):**
+
+```json
+{
+  "message": "No query results for model [App\\Models\\Divisi]."
+}
+```
 
 ---
 
@@ -2353,22 +2539,259 @@ Mulai tulis di sini 👇
 
 ### Penjelasan
 
-Interview adalah proses wawancara peserta yang sudah lolos seleksi administrasi. Panitia menjadwalkan interview, menentukan interviewer, lalu interviewer memberikan penilaian.
+Interview adalah proses wawancara peserta yang sudah lolos seleksi administrasi. Panitia menjadwalkan interview, menentukan interviewer, lalu interviewer memberikan penilaian setelah sesi selesai.
 
-### ✏️ Tugas Anton:
+---
 
-Tulis dokumentasi lengkap untuk 6 endpoint berikut. Format penulisan ikuti contoh dari grup **Autentikasi** milik Reyhan.
+### `GET /api/interview` — Lihat Daftar Jadwal Interview
 
-| Method | URI | Fungsi |
-|--------|-----|--------|
-| GET | /api/interview | Lihat daftar jadwal interview |
-| POST | /api/interview | Buat jadwal interview baru |
-| GET | /api/interview/{id} | Detail jadwal interview |
-| PUT | /api/interview/{id} | Update jadwal interview |
-| DELETE | /api/interview/{id} | Hapus jadwal interview |
-| POST | /api/interview/{id}/penilaian | Beri penilaian hasil interview |
+📝 **Deskripsi:** Mengambil semua jadwal interview yang terdaftar di sistem, diurutkan berdasarkan tanggal dan waktu.
 
-Mulai tulis di sini 👇
+Bayangin kamu buka **papan jadwal wawancara** di kantor HRD — semua jadwal hari ini, besok, dan minggu depan terlihat sekaligus. Endpoint ini menampilkan semua jadwal interview lengkap dengan status dan data pewawancara.
+
+🔐 **Siapa yang bisa akses:** `admin_oprec`, `panitia`, `interviewer`
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "peserta_id": 5,
+      "interviewer_id": 3,
+      "tanggal": "2026-08-20",
+      "waktu": "09:00:00",
+      "lokasi": "Ruang Rapat Lt. 2",
+      "status": "scheduled",
+      "catatan": "Harap datang 10 menit lebih awal.",
+      "penilaian": null,
+      "interviewer": {
+        "id": 3,
+        "name": "Kak Dewi"
+      },
+      "created_at": "2026-07-18T17:12:19.000000Z",
+      "updated_at": "2026-07-18T17:12:19.000000Z"
+    }
+  ]
+}
+```
+
+| Field | Penjelasan |
+|---|---|
+| `status` | `scheduled` = terjadwal, `completed` = selesai, `cancelled` = dibatalkan |
+| `penilaian` | Berisi data nilai jika sudah dinilai, `null` jika belum |
+| `interviewer` | Data singkat pewawancara (dari relasi ke tabel users) |
+
+---
+
+### `POST /api/interview` — Buat Jadwal Interview Baru
+
+📝 **Deskripsi:** Membuat jadwal interview baru untuk peserta yang sudah lolos seleksi administrasi.
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`, `panitia`
+
+📦 **Request Body:**
+
+```json
+{
+  "peserta_id": 5,
+  "interviewer_id": 3,
+  "tanggal": "2026-08-20",
+  "waktu": "09:00",
+  "lokasi": "Ruang Rapat Lt. 2",
+  "status": "scheduled",
+  "catatan": "Harap datang 10 menit lebih awal."
+}
+```
+
+| Field | Wajib? | Penjelasan |
+|---|---|---|
+| `peserta_id` | ✅ Wajib | ID peserta yang akan diwawancara (harus ada di tabel peserta) |
+| `interviewer_id` | ✅ Wajib | ID user yang akan mewawancara (harus ada di tabel users) |
+| `tanggal` | ✅ Wajib | Tanggal interview, format `YYYY-MM-DD` |
+| `waktu` | ✅ Wajib | Jam mulai, format `HH:MM` |
+| `lokasi` | ✅ Wajib | Nama ruangan atau tempat |
+| `status` | ❌ Opsional | Default: `scheduled`. Pilihan: `scheduled`, `completed`, `cancelled` |
+| `catatan` | ❌ Opsional | Catatan tambahan untuk peserta atau interviewer |
+
+✅ **Response Sukses (201):**
+
+```json
+{
+  "success": true,
+  "message": "Jadwal interview berhasil dibuat.",
+  "data": {
+    "id": 4,
+    "peserta_id": 5,
+    "interviewer_id": 3,
+    "tanggal": "2026-08-20",
+    "waktu": "09:00:00",
+    "lokasi": "Ruang Rapat Lt. 2",
+    "status": "scheduled",
+    "catatan": "Harap datang 10 menit lebih awal.",
+    "created_at": "2026-07-19T10:00:00.000000Z",
+    "updated_at": "2026-07-19T10:00:00.000000Z"
+  }
+}
+```
+
+---
+
+### `GET /api/interview/{id}` — Detail Jadwal Interview
+
+📝 **Deskripsi:** Mengambil detail satu jadwal interview beserta data penilaian jika sudah ada.
+
+🔐 **Siapa yang bisa akses:** `admin_oprec`, `panitia`, `interviewer`
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "peserta_id": 7,
+    "interviewer_id": 3,
+    "tanggal": "2026-08-20",
+    "waktu": "10:00:00",
+    "lokasi": "Ruang Rapat Lt. 2",
+    "status": "completed",
+    "catatan": null,
+    "penilaian": {
+      "id": 1,
+      "interview_id": 2,
+      "interviewer_id": 3,
+      "nilai": 85,
+      "catatan": "Peserta menunjukkan pemahaman yang baik tentang OOP.",
+      "created_at": "2026-08-20T10:45:00.000000Z"
+    },
+    "interviewer": {
+      "id": 3,
+      "name": "Kak Dewi"
+    }
+  }
+}
+```
+
+---
+
+### `PUT /api/interview/{id}` — Update Jadwal Interview
+
+📝 **Deskripsi:** Mengubah data jadwal interview yang sudah ada.
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`, `panitia`
+
+📦 **Request Body:** (semua field opsional)
+
+```json
+{
+  "tanggal": "2026-08-22",
+  "waktu": "10:00",
+  "lokasi": "Lab Komputer B",
+  "status": "scheduled",
+  "catatan": "Jadwal diubah karena konflik ruangan."
+}
+```
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "message": "Jadwal interview berhasil diupdate.",
+  "data": {
+    "id": 1,
+    "peserta_id": 5,
+    "interviewer_id": 3,
+    "tanggal": "2026-08-22",
+    "waktu": "10:00:00",
+    "lokasi": "Lab Komputer B",
+    "status": "scheduled",
+    "catatan": "Jadwal diubah karena konflik ruangan.",
+    "updated_at": "2026-07-19T11:00:00.000000Z"
+  }
+}
+```
+
+---
+
+### `DELETE /api/interview/{id}` — Hapus Jadwal Interview
+
+📝 **Deskripsi:** Menghapus jadwal interview beserta penilaian yang terkait (jika ada).
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200):**
+
+```json
+{
+  "success": true,
+  "message": "Jadwal interview berhasil dihapus."
+}
+```
+
+---
+
+### `POST /api/interview/{id}/penilaian` — Beri Penilaian Hasil Interview
+
+📝 **Deskripsi:** Interviewer mengisi form penilaian setelah sesi interview selesai. Endpoint ini secara otomatis mengubah status interview menjadi `completed` dan menyimpan nilai ke tabel `penilaians`.
+
+Jika penilaian untuk interview ini sudah pernah disubmit sebelumnya, data yang lama akan **diperbarui** (bukan membuat penilaian baru). Ini memungkinkan interviewer memperbaiki nilai jika ada kesalahan input.
+
+🔐 **Siapa yang bisa akses:** `interviewer`, `admin_oprec`, `super_admin`
+
+📦 **Request Body:**
+
+```json
+{
+  "nilai": 85,
+  "catatan": "Peserta menunjukkan pemahaman yang baik tentang konsep OOP. Komunikasi lancar dan percaya diri."
+}
+```
+
+| Field | Wajib? | Penjelasan |
+|---|---|---|
+| `nilai` | ✅ Wajib | Nilai angka 0–100 |
+| `catatan` | ❌ Opsional | Feedback atau komentar untuk peserta |
+
+✅ **Response Sukses (201):**
+
+```json
+{
+  "success": true,
+  "message": "Penilaian berhasil disimpan.",
+  "data": {
+    "id": 1,
+    "interview_id": 2,
+    "interviewer_id": 3,
+    "nilai": 85,
+    "catatan": "Peserta menunjukkan pemahaman yang baik tentang konsep OOP.",
+    "created_at": "2026-08-20T10:45:00.000000Z",
+    "updated_at": "2026-08-20T10:45:00.000000Z"
+  }
+}
+```
+
+> 💡 **Catatan:** Setelah endpoint ini dipanggil, status di tabel `interviews` untuk ID yang bersangkutan otomatis berubah menjadi `completed`.
+
+❌ **Response Error (422 — Nilai di luar rentang):**
+
+```json
+{
+  "message": "The nilai field must not be greater than 100.",
+  "errors": {
+    "nilai": ["The nilai field must not be greater than 100."]
+  }
+}
+```
 
 ---
 

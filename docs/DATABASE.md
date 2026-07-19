@@ -1020,83 +1020,264 @@ Mulai tulis di sini 👇
 
 ## 10. Tabel `divisi` — Divisi Himpunan *(PIC: Anton)*
 
-### Penjelasan
+### 🔹 Fungsi
 
-Tabel `divisi` berisi daftar divisi atau bidang di HIMATIF yang bisa dipilih oleh peserta OpRec. Setiap divisi punya nama, deskripsi singkat tentang tugas dan tanggung jawabnya, serta kuota penerimaan. Tabel ini menjadi referensi utama untuk kolom pilihan divisi di tabel `peserta`.
+Tabel `divisi` menyimpan daftar divisi atau bidang kerja di HIMATIF yang tersedia untuk dipilih oleh peserta OpRec. Setiap divisi punya nama unik, deskripsi tentang tugas dan tanggung jawabnya, serta kuota maksimal anggota yang bisa diterima.
 
-### ✏️ Tugas Anton — Desain Tabel
+Bayangin divisi ini kayak **jurusan di kampus** — ada jurusan Teknik Informatika, Sistem Informasi, dan lain-lain. Setiap jurusan punya nama, gambaran kurikulum, dan kapasitas mahasiswa. Nah, divisi di HIMATIF juga sama: ada Divisi IT, Divisi Danus, Divisi Kreatif, dll. Peserta yang daftar OpRec harus milih mau masuk divisi mana.
 
-Buat desain tabel untuk divisi HIMATIF. Tentukan kolom apa saja yang dibutuhkan beserta tipe data dan constraint-nya.
+**Kapan tabel ini dipake?** Pas admin nambah/edit/hapus divisi, pas peserta milih divisi saat mendaftar, dan pas sistem ngecek apakah kuota divisi masih tersedia.
 
-**Pertanyaan Panduan:**
-- Kolom apa aja yang diperlukan untuk mendeskripsikan satu divisi?
-- Kenapa kolom nama harus UNIQUE?
-- Gimana relasi divisi ke tabel peserta?
+**Apa yang terjadi kalau tabel ini gak ada?** Peserta gak bisa milih divisi. Form pendaftaran gak bisa ditampilkan karena pilihan divisi kosong. Seluruh sistem OpRec jadi lumpuh karena divisi adalah inti dari proses rekrutmen.
 
-Buat tabel dengan format (ikuti contoh tabel users di atas):
+### 🔹 Detail Kolom
 
 | Kolom | Tipe Data | Penjelasan | Constraint |
 |-------|-----------|------------|------------|
+| `id` | BIGINT UNSIGNED | Nomor unik setiap divisi. Auto-increment, dikelola otomatis oleh database. Dipake sebagai referensi di tabel `peserta` (kolom `pilihan_divisi_1` dan `pilihan_divisi_2`). | **PK**, Auto Increment |
+| `nama` | VARCHAR(255) | Nama divisi. Harus unik — tidak boleh ada dua divisi dengan nama yang sama. Contoh: "Pengembangan Perangkat Lunak", "Jaringan dan Infrastruktur", "Multimedia". | NOT NULL, **UNIQUE** |
+| `deskripsi` | TEXT | Deskripsi lengkap tentang tugas, tanggung jawab, dan kegiatan divisi. Dipakai untuk ditampilkan ke calon peserta agar mereka tahu divisi ini ngerjain apa. | NOT NULL |
+| `kuota` | INT | Jumlah maksimal anggota yang bisa diterima di divisi ini. Misal kuota=10 artinya hanya 10 orang terbaik yang akan diterima. | NOT NULL |
+| `created_at` | TIMESTAMP | Kapan data divisi ini dibuat. Dikelola otomatis oleh Laravel. | NULL |
+| `updated_at` | TIMESTAMP | Kapan terakhir data divisi diubah. Dikelola otomatis oleh Laravel. | NULL |
 
-Setelah itu tulis SQL CREATE TABLE-nya dan diagram relasi.
-Lihat tabel 1-7 (users, roles, dll) punya Reyhan sebagai contoh format lengkap.
+### 🔹 SQL CREATE TABLE
 
-Mulai tulis di sini 👇
+```sql
+CREATE TABLE divisi (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nama        VARCHAR(255)    NOT NULL UNIQUE,
+    deskripsi   TEXT            NOT NULL,
+    kuota       INT             NOT NULL,
+    created_at  TIMESTAMP       NULL,
+    updated_at  TIMESTAMP       NULL
+);
+```
+
+**Penjelasan per baris:**
+
+**`nama VARCHAR(255) NOT NULL UNIQUE`** — Nama divisi wajib diisi dan harus unik. `UNIQUE` mencegah duplikat — tidak boleh ada dua divisi bernama "IT". Kenapa `VARCHAR(255)` bukan `TEXT`? Karena nama divisi pendek (di bawah 100 karakter), `VARCHAR` lebih efisien dari sisi storage.
+
+**`deskripsi TEXT NOT NULL`** — Deskripsi bisa panjang (beberapa paragraf), makanya pake `TEXT` bukan `VARCHAR`. `NOT NULL` karena peserta perlu baca deskripsi sebelum milih divisi — kalau kosong, peserta gak tau divisinya ngerjain apa.
+
+**`kuota INT NOT NULL`** — Angka bulat, tidak perlu desimal. `NOT NULL` karena setiap divisi wajib punya batas kapasitas — tanpa kuota, sistem tidak bisa mengatur seleksi.
+
+### 🔹 Relasi
+
+```
+divisi.id ──< peserta.pilihan_divisi_1
+   Satu divisi bisa dipilih oleh banyak peserta sebagai pilihan utama.
+   Contoh: Divisi IT (id=1) dipilih oleh 25 peserta → 25 baris di tabel peserta punya pilihan_divisi_1=1.
+
+divisi.id ──< peserta.pilihan_divisi_2
+   Satu divisi juga bisa dipilih banyak peserta sebagai pilihan cadangan.
+   Contoh: Divisi Multimedia (id=3) dipilih sebagai cadangan oleh 10 peserta → 10 baris punya pilihan_divisi_2=3.
+```
+
+**Apa efek kalau divisi dihapus?** Kalau divisi dihapus sementara ada peserta yang memilihnya, Foreign Key di tabel `peserta` akan bermasalah. Pastikan tidak ada peserta aktif yang memilih divisi tersebut sebelum menghapusnya. Sebaiknya non-aktifkan divisi daripada menghapus.
+
+### 🔹 Tips Penting
+
+1. 🧠 **Nama UNIQUE**: Gak boleh ada dua divisi "IT". Kalau dicoba, MySQL error: `Duplicate entry 'IT' for key 'divisi_nama_unique'`. Solusi: cek nama yang ada dulu sebelum insert.
+
+2. 🧠 **Kuota bukan pembatas otomatis**: Kolom `kuota` hanya angka referensi. Sistem (backend) harus aktif mengecek: "apakah jumlah peserta yang memilih divisi ini sudah melebihi kuota?" Kalau sudah penuh, backend tolak pendaftaran ke divisi itu.
+
+3. 🧠 **Relasi ke peserta**: Tabel `peserta` punya dua FK ke tabel ini — `pilihan_divisi_1` (pilihan utama, WAJIB) dan `pilihan_divisi_2` (pilihan cadangan, OPSIONAL). Ini normal dan valid di MySQL — satu tabel bisa punya dua FK ke tabel yang sama.
+
+4. 🧠 **Soft delete lebih aman daripada hard delete**: Kalau divisi dihapus tapi masih ada peserta yang memilihnya, data peserta bisa jadi kacau. Lebih baik tambah kolom `is_active` untuk menonaktifkan divisi tanpa menghapus datanya.
+
+### 🔹 Contoh Data
+
+| id | nama | deskripsi | kuota | created_at | updated_at |
+|----|------|-----------|-------|------------|------------|
+| 1 | Pengembangan Perangkat Lunak | Divisi yang fokus pada pengembangan aplikasi web, mobile, dan desktop untuk kebutuhan himpunan. | 10 | 2026-07-18 16:02:46 | 2026-07-18 16:02:46 |
+| 2 | Jaringan dan Infrastruktur | Mengelola infrastruktur IT himpunan termasuk server, jaringan, dan sistem keamanan. | 8 | 2026-07-18 16:02:46 | 2026-07-18 16:02:46 |
+| 3 | Multimedia dan Desain | Bertanggung jawab atas konten visual, desain grafis, dan dokumentasi kegiatan himpunan. | 6 | 2026-07-18 16:02:46 | 2026-07-18 16:02:46 |
 
 ---
 
 ## 11. Tabel `interview` — Wawancara *(PIC: Anton)*
 
-### Penjelasan
+### 🔹 Fungsi
 
-Tabel `interview` menyimpan jadwal dan data sesi wawancara untuk peserta yang lolos seleksi administrasi. Setiap sesi interview mencatat tanggal, waktu, lokasi, pewawancara, dan status pelaksanaan. Tabel ini terhubung ke peserta yang diinterview, ke user yang bertindak sebagai pewawancara, dan ke penilaian yang diberikan setelah interview selesai.
+Tabel `interview` menyimpan jadwal dan data sesi wawancara peserta yang sudah lolos seleksi administrasi. Setiap baris di tabel ini mewakili satu sesi interview — mencatat siapa pesertanya, siapa pewawancaranya, kapan dan di mana dilakukan, serta status pelaksanaannya.
 
-### ✏️ Tugas Anton — Desain Tabel
+Bayangin tabel ini seperti **buku jadwal wawancara kerja** di HRD perusahaan. Setiap halaman mencatat: "Tanggal 20 Juli, jam 09.00, Budi Santoso diwawancara oleh Kak Dewi di Ruang A." Nah, tabel `interview` itu buku jadwalnya — satu baris = satu jadwal wawancara.
 
-Buat desain tabel untuk sesi wawancara peserta. Tentukan kolom apa saja yang dibutuhkan beserta tipe data dan constraint-nya.
+**Kapan tabel ini dipake?** Pas panitia membuat jadwal interview untuk peserta yang lolos administrasi, pas interviewer mau tahu jadwal mereka hari ini, dan pas sistem otomatis mengubah status interview menjadi `completed` setelah penilaian diberikan.
 
-**Pertanyaan Panduan:**
-- Informasi apa aja yang perlu dicatat buat satu sesi interview?
-- Siapa aja yang terlibat dalam sesi interview? (peserta, pewawancara)
-- Status apa yang mungkin dimiliki sesi interview?
-- Gimana relasinya ke tabel peserta, users, dan penilaian?
+**Apa yang terjadi kalau tabel ini gak ada?** Proses interview jadi kacau — tidak ada sistem yang memastikan peserta tahu kapan dan di mana mereka diwawancara. Interviewer juga tidak tahu siapa yang harus mereka wawancara. Penilaian tidak bisa diberikan karena tidak ada sesi yang direkam.
 
-Buat tabel dengan format (ikuti contoh tabel users di atas):
+### 🔹 Detail Kolom
 
 | Kolom | Tipe Data | Penjelasan | Constraint |
 |-------|-----------|------------|------------|
+| `id` | BIGINT UNSIGNED | Nomor unik setiap sesi interview. Auto-increment. Dipake sebagai referensi di tabel `penilaian`. | **PK**, Auto Increment |
+| `peserta_id` | BIGINT UNSIGNED | ID peserta yang akan diwawancara. Mengacu ke `peserta.id`. Menghubungkan jadwal ini ke data peserta yang bersangkutan. | NOT NULL, **FK** ke `peserta.id` |
+| `interviewer_id` | BIGINT UNSIGNED | ID user yang bertugas sebagai pewawancara. Mengacu ke `users.id`. Seorang user dengan role `interviewer` yang ditunjuk mewawancara peserta ini. | NOT NULL, **FK** ke `users.id` |
+| `tanggal` | DATE | Tanggal pelaksanaan interview. Format `YYYY-MM-DD`. Contoh: `2026-08-15`. | NOT NULL |
+| `waktu` | TIME | Jam mulai interview. Format `HH:MM:SS`. Contoh: `09:00:00`. | NOT NULL |
+| `lokasi` | VARCHAR(255) | Nama ruangan atau tempat pelaksanaan interview. Contoh: "Ruang Rapat Lt. 2", "Lab Komputer A". | NOT NULL |
+| `status` | ENUM | Status pelaksanaan interview. Tiga pilihan: `scheduled` (sudah dijadwalkan, belum terlaksana), `completed` (sudah selesai dan dinilai), `cancelled` (dibatalkan). Default: `scheduled`. | NOT NULL, DEFAULT 'scheduled' |
+| `catatan` | TEXT | Catatan tambahan dari panitia. Bisa berisi instruksi khusus, perubahan lokasi mendadak, atau info lain yang perlu diketahui peserta/interviewer. | NULL |
+| `created_at` | TIMESTAMP | Kapan jadwal interview ini dibuat. Dikelola otomatis oleh Laravel. | NULL |
+| `updated_at` | TIMESTAMP | Kapan terakhir jadwal diubah. Dikelola otomatis oleh Laravel. | NULL |
 
-Setelah itu tulis SQL CREATE TABLE-nya dan diagram relasi.
-Lihat tabel 1-7 (users, roles, dll) punya Reyhan sebagai contoh format lengkap.
+### 🔹 SQL CREATE TABLE
 
-Mulai tulis di sini 👇
+```sql
+CREATE TABLE interviews (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    peserta_id     BIGINT UNSIGNED NOT NULL,
+    interviewer_id BIGINT UNSIGNED NOT NULL,
+    tanggal        DATE            NOT NULL,
+    waktu          TIME            NOT NULL,
+    lokasi         VARCHAR(255)    NOT NULL,
+    status         ENUM('scheduled','completed','cancelled') NOT NULL DEFAULT 'scheduled',
+    catatan        TEXT            NULL,
+    created_at     TIMESTAMP       NULL,
+    updated_at     TIMESTAMP       NULL,
+
+    FOREIGN KEY (peserta_id)     REFERENCES peserta(id) ON DELETE CASCADE,
+    FOREIGN KEY (interviewer_id) REFERENCES users(id)   ON DELETE CASCADE
+);
+```
+
+**Penjelasan per baris:**
+
+**`peserta_id BIGINT UNSIGNED NOT NULL`** — FK ke tabel peserta. `NOT NULL` karena setiap jadwal interview pasti untuk peserta tertentu — tidak masuk akal ada jadwal interview tanpa peserta.
+
+**`interviewer_id BIGINT UNSIGNED NOT NULL`** — FK ke tabel users. `NOT NULL` karena setiap jadwal harus ada yang mewawancara. Kalau interviewer belum ditentukan, jadwal belum bisa dibuat.
+
+**`tanggal DATE NOT NULL`** — Tipe `DATE` menyimpan tanggal saja (tanpa jam). Format: `YYYY-MM-DD`. Untuk jam-nya ada di kolom `waktu` terpisah — ini memudahkan query "tampilkan semua interview tanggal 20 Juli".
+
+**`waktu TIME NOT NULL`** — Tipe `TIME` untuk jam. Dipisah dari tanggal biar bisa query "tampilkan interview jam 09.00-12.00 hari ini" dengan mudah.
+
+**`status ENUM('scheduled','completed','cancelled')`** — Hanya tiga nilai yang valid. `DEFAULT 'scheduled'` artinya kalau tidak diisi, otomatis `scheduled`. Enum mencegah data sembarangan — tidak bisa diisi "done" atau "selesai", harus salah satu dari tiga pilihan.
+
+**`ON DELETE CASCADE`** — Kalau peserta atau user dihapus, jadwal interview yang berkaitan ikut terhapus otomatis. Ini menjaga konsistensi data.
+
+### 🔹 Relasi
+
+```
+interviews.peserta_id ──> peserta.id
+   Setiap jadwal interview milik satu peserta.
+   Contoh: interview_id=1 punya peserta_id=5 → jadwal ini untuk peserta dengan id=5.
+
+interviews.interviewer_id ──> users.id
+   Setiap jadwal interview dilakukan oleh satu user (interviewer).
+   Contoh: interview_id=1 punya interviewer_id=3 → pewawancaranya user id=3 (Kak Dewi).
+
+interviews.id ──< penilaians.interview_id
+   Satu jadwal interview bisa punya satu penilaian.
+   Contoh: Setelah interview_id=1 selesai, interviewer mengisi penilaian → satu baris di tabel penilaians dengan interview_id=1.
+```
+
+### 🔹 Tips Penting
+
+1. 🧠 **Status otomatis berubah ke `completed`**: Ketika interviewer mengisi penilaian (endpoint `POST /api/interview/{id}/penilaian`), backend otomatis mengubah status interview menjadi `completed`. Ini logika di kode, bukan di database.
+
+2. 🧠 **Satu peserta bisa punya lebih dari satu jadwal**: Tidak ada UNIQUE constraint di `peserta_id`. Jadi secara teknis satu peserta bisa dijadwalkan interview lebih dari sekali (misal: interview ulang). Validasi "satu peserta hanya boleh satu jadwal" dilakukan di kode backend jika diperlukan.
+
+3. 🧠 **Pisah tanggal dan waktu**: `tanggal` (DATE) dan `waktu` (TIME) dipisah agar query berdasarkan tanggal atau jam lebih mudah. Kalau disatukan jadi `DATETIME`, query seperti "semua interview hari Senin" jadi lebih rumit.
+
+4. 🧠 **Index yang direkomendasikan**: Tambah index di `peserta_id`, `interviewer_id`, `status`, dan `tanggal` untuk mempercepat query filter.
+
+### 🔹 Contoh Data
+
+| id | peserta_id | interviewer_id | tanggal | waktu | lokasi | status | catatan | created_at |
+|----|-----------|----------------|---------|-------|--------|--------|---------|------------|
+| 1 | 5 | 3 | 2026-08-20 | 09:00:00 | Ruang Rapat Lt. 2 | scheduled | Harap datang 10 menit lebih awal | 2026-07-18 17:12:19 |
+| 2 | 7 | 3 | 2026-08-20 | 10:00:00 | Ruang Rapat Lt. 2 | completed | NULL | 2026-07-18 17:12:19 |
+| 3 | 9 | 4 | 2026-08-21 | 13:00:00 | Lab Komputer A | cancelled | Interview dibatalkan karena peserta mengundurkan diri | 2026-07-18 17:12:19 |
 
 ---
 
 ## 12. Tabel `penilaian` — Nilai Wawancara *(PIC: Anton)*
 
-### Penjelasan
+### 🔹 Fungsi
 
-Tabel `penilaian` menyimpan nilai hasil wawancara yang diberikan oleh interviewer. Setiap penilaian mencatat nilai angka, catatan tambahan, dan siapa yang memberikan penilaian. Tabel ini terhubung ke sesi interview yang bersangkutan dan ke user yang bertindak sebagai penilai.
+Tabel `penilaian` menyimpan nilai hasil wawancara yang diberikan interviewer setelah sesi interview selesai. Setiap baris mewakili satu penilaian — mencatat siapa yang memberikan nilai, berapa nilainya, dan catatan/feedback untuk peserta.
 
-### ✏️ Tugas Anton — Desain Tabel
+Bayangin tabel ini seperti **lembar nilai ujian** yang diisi oleh dosen penguji. Setelah ujian skripsi selesai, dosen nulis nilai di lembar penilaian: nama mahasiswa, nilainya, dan catatan komentar. Tabel `penilaian` itu lembar nilainya — satu baris = satu lembar nilai untuk satu sesi interview.
 
-Buat desain tabel untuk penilaian wawancara. Tentukan kolom apa saja yang dibutuhkan beserta tipe data dan constraint-nya.
+**Kapan tabel ini dipake?** Pas interviewer mengisi form penilaian setelah sesi interview selesai. Juga dipakai saat sistem membuat laporan hasil seleksi dan menentukan peserta mana yang lolos.
 
-**Pertanyaan Panduan:**
-- Data apa aja yang perlu dicatat dari sebuah penilaian? (nilai, catatan)
-- Siapa yang ngasih penilaian?
-- Gimana relasinya ke tabel interview dan users?
+**Apa yang terjadi kalau tabel ini gak ada?** Hasil interview tidak terekam. Panitia tidak punya dasar untuk menentukan peserta mana yang lolos — semuanya subjektif dan tidak terdata. Laporan hasil seleksi tidak bisa dibuat.
 
-Buat tabel dengan format (ikuti contoh tabel users di atas):
+### 🔹 Detail Kolom
 
 | Kolom | Tipe Data | Penjelasan | Constraint |
 |-------|-----------|------------|------------|
+| `id` | BIGINT UNSIGNED | Nomor unik setiap penilaian. Auto-increment. | **PK**, Auto Increment |
+| `interview_id` | BIGINT UNSIGNED | ID sesi interview yang dinilai. Mengacu ke `interviews.id`. Menghubungkan penilaian ini ke jadwal interview yang bersangkutan. | NOT NULL, **FK** ke `interviews.id` |
+| `interviewer_id` | BIGINT UNSIGNED | ID user yang memberikan penilaian. Mengacu ke `users.id`. Normalnya sama dengan `interviewer_id` di tabel `interviews`, tapi disimpan terpisah untuk keperluan audit ("siapa yang mengisi form ini?"). | NOT NULL, **FK** ke `users.id` |
+| `nilai` | INT | Nilai angka hasil wawancara. Rentang 0–100. Digunakan untuk menentukan ranking dan kelulusan peserta. | NOT NULL |
+| `catatan` | TEXT | Catatan atau feedback dari interviewer untuk peserta. Berisi komentar tentang performa, kelebihan, kekurangan, atau saran pengembangan. Boleh kosong. | NULL |
+| `created_at` | TIMESTAMP | Kapan penilaian ini disubmit. Dikelola otomatis oleh Laravel. | NULL |
+| `updated_at` | TIMESTAMP | Kapan terakhir penilaian diubah. Dikelola otomatis oleh Laravel. | NULL |
 
-Setelah itu tulis SQL CREATE TABLE-nya dan diagram relasi.
-Lihat tabel 1-7 (users, roles, dll) punya Reyhan sebagai contoh format lengkap.
+### 🔹 SQL CREATE TABLE
 
-Mulai tulis di sini 👇
+```sql
+CREATE TABLE penilaians (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    interview_id   BIGINT UNSIGNED NOT NULL,
+    interviewer_id BIGINT UNSIGNED NOT NULL,
+    nilai          INT             NOT NULL,
+    catatan        TEXT            NULL,
+    created_at     TIMESTAMP       NULL,
+    updated_at     TIMESTAMP       NULL,
+
+    FOREIGN KEY (interview_id)   REFERENCES interviews(id) ON DELETE CASCADE,
+    FOREIGN KEY (interviewer_id) REFERENCES users(id)      ON DELETE CASCADE
+);
+```
+
+**Penjelasan per baris:**
+
+**`interview_id BIGINT UNSIGNED NOT NULL`** — FK ke tabel interviews. `NOT NULL` karena penilaian tidak bisa ada tanpa sesi interview yang dinilai. Kalau interview dihapus, penilaiannya ikut terhapus (`CASCADE`).
+
+**`interviewer_id BIGINT UNSIGNED NOT NULL`** — FK ke tabel users. Disimpan di sini untuk audit trail — kita tahu persis siapa yang mengisi form penilaian ini. Berguna jika suatu saat perlu investigasi "siapa yang ngasih nilai rendah ke peserta X?"
+
+**`nilai INT NOT NULL`** — Nilai bulat 0–100. `NOT NULL` karena penilaian harus ada nilainya. Validasi rentang 0–100 dilakukan di kode backend, bukan di database (MySQL tidak punya CHECK constraint yang efektif sebelum v8.0.16).
+
+**`catatan TEXT NULL`** — Boleh kosong (`NULL`) karena tidak semua interviewer perlu menulis catatan. Tapi disarankan diisi untuk memberikan feedback yang berguna bagi peserta.
+
+**`ON DELETE CASCADE`** — Kalau interview dihapus, penilaiannya ikut terhapus. Konsisten dengan relasi — tidak ada penilaian yang "mengambang" tanpa interview.
+
+### 🔹 Relasi
+
+```
+penilaians.interview_id ──> interviews.id
+   Setiap penilaian terhubung ke satu sesi interview.
+   Contoh: penilaian_id=1 punya interview_id=2 → ini penilaian untuk sesi interview ke-2.
+   Catatan: satu interview idealnya hanya punya satu penilaian (sistem pakai updateOrCreate).
+
+penilaians.interviewer_id ──> users.id
+   Setiap penilaian dibuat oleh satu user (interviewer).
+   Contoh: penilaian_id=1 punya interviewer_id=3 → yang mengisi form penilaian adalah user id=3.
+```
+
+### 🔹 Tips Penting
+
+1. 🧠 **`updateOrCreate` di backend**: Endpoint `POST /api/interview/{id}/penilaian` menggunakan `updateOrCreate` — jadi kalau penilaian sudah ada, akan diupdate; kalau belum ada, dibuat baru. Ini mencegah duplikasi penilaian untuk satu interview.
+
+2. 🧠 **Tidak ada UNIQUE di `interview_id`**: Secara database memang tidak ada UNIQUE constraint di kolom ini. Yang memastikan satu interview hanya punya satu penilaian adalah logika `updateOrCreate` di kode backend. Kalau mau lebih ketat, bisa tambahkan `UNIQUE KEY (interview_id)` di migration.
+
+3. 🧠 **Nilai 0–100**: Validasi rentang dilakukan di Laravel (`min:0|max:100`). Database hanya menyimpan angka integer — tidak ada enforcement dari sisi DB.
+
+4. 🧠 **Status interview otomatis `completed`**: Setelah penilaian disimpan, backend otomatis mengubah kolom `status` di tabel `interviews` menjadi `completed`. Ini memastikan sinkronisasi antara dua tabel.
+
+5. 🧠 **Index di `interview_id`**: Tambahkan index di kolom ini karena sering diquery ("tampilkan nilai untuk interview ini"). Foreign Key biasanya otomatis membuat index di MySQL InnoDB.
+
+### 🔹 Contoh Data
+
+| id | interview_id | interviewer_id | nilai | catatan | created_at |
+|----|-------------|----------------|-------|---------|------------|
+| 1 | 2 | 3 | 85 | Peserta menunjukkan pemahaman yang baik tentang konsep OOP. Komunikasi lancar dan percaya diri. | 2026-08-20 10:45:00 |
+| 2 | 5 | 4 | 72 | Pengetahuan teknis cukup baik namun perlu meningkatkan kemampuan problem solving. | 2026-08-21 14:20:00 |
+| 3 | 8 | 3 | 91 | Sangat baik! Jawaban terstruktur, contoh relevan, dan menunjukkan passion di bidang IT. Direkomendasikan untuk divisi PPL. | 2026-08-22 09:15:00 |
 
 ---
 
