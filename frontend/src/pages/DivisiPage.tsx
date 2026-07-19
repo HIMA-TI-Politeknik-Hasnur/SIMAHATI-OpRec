@@ -10,7 +10,11 @@ interface Divisi {
 
 const emptyForm = { nama: '', deskripsi: '', kuota: '' };
 
-export const DivisiPage = () => {
+interface DivisiPageProps {
+  onViewDetail?: (id: number) => void;
+}
+
+export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
   const [divisis, setDivisis] = useState<Divisi[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<number | null>(null);
@@ -169,6 +173,9 @@ export const DivisiPage = () => {
                     <td><span className="badge-kuota">{divisi.kuota} orang</span></td>
                     <td>
                       <div className="action-buttons">
+                        {onViewDetail && (
+                          <button className="btn-edit" style={{ background: '#f0fdf4', color: '#16a34a' }} onClick={() => onViewDetail(divisi.id)}>Detail</button>
+                        )}
                         <button className="btn-edit" onClick={() => handleEdit(divisi)}>Edit</button>
                         <button className="btn-delete" onClick={() => handleDelete(divisi.id)}>Hapus</button>
                       </div>

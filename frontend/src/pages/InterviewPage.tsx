@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Calendar } from '../components/Calendar';
 import './InterviewPage.css';
 
 interface Interview {
@@ -29,15 +30,19 @@ export const InterviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const API = 'http://localhost:8000/api/interview';
+
+  // Ambil tanggal yang sudah ada jadwal untuk ditandai di kalender
+  const eventDates = interviews.map(iv => iv.tanggal);
 
   const fetchInterviews = async () => {
     setLoading(true);
     try {
       const res = await fetch(API);
       const json = await res.json();
-      setInterviews(json.data);
+      setInterviews(json.data ?? []);
     } catch {
       setError('Gagal memuat data interview.');
     } finally {
@@ -70,23 +75,25 @@ export const InterviewPage = () => {
       setSuccess(json.message);
       setForm(emptyForm);
       setEditId(null);
+      setShowCalendar(false);
       fetchInterviews();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Terjadi kesalahan.');
     }
   };
 
-  const handleEdit = (interview: Interview) => {
-    setEditId(interview.id);
+  const handleEdit = (iv: Interview) => {
+    setEditId(iv.id);
     setForm({
-      peserta_id: String(interview.peserta_id),
-      interviewer_id: String(interview.interviewer_id),
-      tanggal: interview.tanggal,
-      waktu: interview.waktu.slice(0, 5),
-      lokasi: interview.lokasi,
-      status: interview.status,
-      catatan: interview.catatan ?? '',
+      peserta_id: String(iv.peserta_id),
+      interviewer_id: String(iv.interviewer_id),
+      tanggal: iv.tanggal,
+      waktu: iv.waktu.slice(0, 5),
+      lokasi: iv.lokasi,
+      status: iv.status,
+      catatan: iv.catatan ?? '',
     });
+    setShowCalendar(false);
     setSuccess('');
     setError('');
   };
@@ -109,6 +116,7 @@ export const InterviewPage = () => {
   const handleCancel = () => {
     setEditId(null);
     setForm(emptyForm);
+    setShowCalendar(false);
     setError('');
     setSuccess('');
   };
@@ -151,16 +159,39 @@ export const InterviewPage = () => {
                 required
               />
             </div>
-            <div className="form-grid-2">
-              <div className="form-group">
-                <label>Tanggal</label>
+
+            {/* Tanggal pakai Calendar */}
+            <div className="form-group">
+              <label>Tanggal</label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <input
                   type="date"
                   value={form.tanggal}
                   onChange={e => setForm({ ...form, tanggal: e.target.value })}
                   required
+                  style={{ flex: 1 }}
                 />
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
+                  onClick={() => setShowCalendar(v => !v)}
+                >
+                  📅 Kalender
+                </button>
               </div>
+              {showCalendar && (
+                <div style={{ marginTop: '0.75rem', padding: '1rem', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                  <Calendar
+                    value={form.tanggal}
+                    onChange={date => { setForm({ ...form, tanggal: date }); setShowCalendar(false); }}
+                    eventDates={eventDates}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="form-grid-2">
               <div className="form-group">
                 <label>Waktu</label>
                 <input
@@ -170,7 +201,19 @@ export const InterviewPage = () => {
                   required
                 />
               </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  value={form.status}
+                  onChange={e => setForm({ ...form, status: e.target.value })}
+                >
+                  <option value="scheduled">Terjadwal</option>
+                  <option value="completed">Selesai</option>
+                  <option value="cancelled">Dibatalkan</option>
+                </select>
+              </div>
             </div>
+
             <div className="form-group">
               <label>Lokasi / Ruangan</label>
               <input
@@ -181,17 +224,7 @@ export const InterviewPage = () => {
                 required
               />
             </div>
-            <div className="form-group">
-              <label>Status</label>
-              <select
-                value={form.status}
-                onChange={e => setForm({ ...form, status: e.target.value })}
-              >
-                <option value="scheduled">Terjadwal</option>
-                <option value="completed">Selesai</option>
-                <option value="cancelled">Dibatalkan</option>
-              </select>
-            </div>
+
             <div className="form-group">
               <label>Catatan (opsional)</label>
               <textarea
@@ -201,6 +234,7 @@ export const InterviewPage = () => {
                 onChange={e => setForm({ ...form, catatan: e.target.value })}
               />
             </div>
+
             <div className="form-actions">
               <button type="submit" className="btn-primary">
                 {editId ? 'Simpan Perubahan' : 'Tambah Jadwal'}
@@ -236,7 +270,10 @@ export const InterviewPage = () => {
                 {interviews.map(iv => (
                   <tr key={iv.id}>
                     <td>#{iv.peserta_id}</td>
-                    <td>{iv.tanggal}<br /><small>{iv.waktu.slice(0,5)} WIB</small></td>
+                    <td>
+                      {iv.tanggal}<br />
+                      <small>{iv.waktu.slice(0, 5)} WIB</small>
+                    </td>
                     <td>{iv.lokasi}</td>
                     <td>
                       <span className={`badge-status ${iv.status}`}>

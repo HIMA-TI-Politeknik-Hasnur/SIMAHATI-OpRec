@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Rating } from '../components/Rating';
 import './PenilaianPage.css';
 
 interface Penilaian {
@@ -31,7 +32,7 @@ export const PenilaianPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [modal, setModal] = useState<ModalState | null>(null);
-  const [formNilai, setFormNilai] = useState('');
+  const [formNilai, setFormNilai] = useState(0);
   const [formCatatan, setFormCatatan] = useState('');
 
   const API_INTERVIEW = 'http://localhost:8000/api/interview';
@@ -41,7 +42,7 @@ export const PenilaianPage = () => {
     try {
       const res = await fetch(API_INTERVIEW);
       const json = await res.json();
-      setInterviews(json.data);
+      setInterviews(json.data ?? []);
     } catch {
       setError('Gagal memuat data interview.');
     } finally {
@@ -58,7 +59,7 @@ export const PenilaianPage = () => {
       existingNilai: interview.penilaian?.nilai ?? null,
       existingCatatan: interview.penilaian?.catatan ?? null,
     });
-    setFormNilai(String(interview.penilaian?.nilai ?? ''));
+    setFormNilai(interview.penilaian?.nilai ?? 0);
     setFormCatatan(interview.penilaian?.catatan ?? '');
     setError('');
     setSuccess('');
@@ -66,7 +67,7 @@ export const PenilaianPage = () => {
 
   const closeModal = () => {
     setModal(null);
-    setFormNilai('');
+    setFormNilai(0);
     setFormCatatan('');
   };
 
@@ -81,7 +82,7 @@ export const PenilaianPage = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          nilai: Number(formNilai),
+          nilai: formNilai,
           catatan: formCatatan || null,
         }),
       });
@@ -93,6 +94,12 @@ export const PenilaianPage = () => {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Terjadi kesalahan.');
     }
+  };
+
+  const statusLabel: Record<string, string> = {
+    scheduled: 'Terjadwal',
+    completed: 'Selesai',
+    cancelled: 'Dibatalkan',
   };
 
   return (
@@ -125,13 +132,17 @@ export const PenilaianPage = () => {
                 <tr key={iv.id}>
                   <td>#{iv.id}</td>
                   <td>#{iv.peserta_id}</td>
-                  <td>{iv.tanggal}<br /><small>{iv.waktu.slice(0,5)} WIB</small></td>
-                  <td>{iv.status}</td>
                   <td>
-                    {iv.penilaian
-                      ? <span className="badge-nilai">{iv.penilaian.nilai} / 100</span>
-                      : <span className="badge-belum">Belum dinilai</span>
-                    }
+                    {iv.tanggal}<br />
+                    <small>{iv.waktu.slice(0, 5)} WIB</small>
+                  </td>
+                  <td>{statusLabel[iv.status] ?? iv.status}</td>
+                  <td>
+                    {iv.penilaian ? (
+                      <Rating value={iv.penilaian.nilai} readonly showBar={false} />
+                    ) : (
+                      <span className="badge-belum">Belum dinilai</span>
+                    )}
                   </td>
                   <td>
                     <button className="btn-nilai" onClick={() => openModal(iv)}>
@@ -150,22 +161,21 @@ export const PenilaianPage = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
             <h3>{modal.existingNilai !== null ? 'Ubah Penilaian' : 'Beri Penilaian'}</h3>
-            <p className="modal-subtitle">Interview #{modal.interviewId} — Peserta #{modal.pesertaId}</p>
+            <p className="modal-subtitle">
+              Interview #{modal.interviewId} — Peserta #{modal.pesertaId}
+            </p>
             <form onSubmit={handleSubmitPenilaian}>
-              <div className="form-group">
-                <label>Nilai (0 – 100)</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  placeholder="contoh: 85"
+              {/* Rating component */}
+              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <Rating
                   value={formNilai}
-                  onChange={e => setFormNilai(e.target.value)}
-                  required
-                  autoFocus
+                  onChange={val => setFormNilai(val)}
+                  label="Nilai (0 – 100)"
+                  showBar
                 />
-                <p className="nilai-hint">Masukkan nilai antara 0 sampai 100.</p>
+                <p className="nilai-hint">Klik bintang atau ketik angka langsung.</p>
               </div>
+
               <div className="form-group">
                 <label>Catatan / Feedback (opsional)</label>
                 <textarea
@@ -175,9 +185,14 @@ export const PenilaianPage = () => {
                   onChange={e => setFormCatatan(e.target.value)}
                 />
               </div>
+
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={closeModal}>Batal</button>
-                <button type="submit" className="btn-primary">Simpan Penilaian</button>
+                <button type="button" className="btn-secondary" onClick={closeModal}>
+                  Batal
+                </button>
+                <button type="submit" className="btn-primary">
+                  Simpan Penilaian
+                </button>
               </div>
             </form>
           </div>
