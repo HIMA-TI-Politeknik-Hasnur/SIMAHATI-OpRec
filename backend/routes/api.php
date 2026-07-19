@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PengumumanController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\DivisiController;
 
 // As per Rizky's assignment:
 
@@ -20,4 +21,8 @@ Route::post('notifications/{id}/read', [\App\Http\Controllers\Api\NotificationCo
 
 Route::get('report/excel', [\App\Http\Controllers\Api\ReportController::class, 'exportExcel']);
 Route::get('report/pdf', [\App\Http\Controllers\Api\ReportController::class, 'exportPdf']);
+
+// As per Anton's assignment:
+
+Route::apiResource('divisi', DivisiController::class);
 
