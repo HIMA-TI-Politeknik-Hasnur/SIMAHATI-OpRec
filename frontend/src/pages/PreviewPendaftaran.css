@@ -1,0 +1,214 @@
+.preview-layout {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-header {
+  background-color: #ffffff;
+  border-bottom: 2px solid #fed7aa;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.preview-header__back {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.preview-header__back:hover { background-color: #f3f4f6; }
+
+.preview-header__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.preview-body {
+  flex: 1;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ─── Loading / Error ────────────────────────────────────────── */
+.preview-loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* ─── Section card ───────────────────────────────────────────── */
+.preview-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1.25rem;
+}
+
+.preview-section__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ea580c;
+  margin: 0 0 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-section__title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #fed7aa;
+}
+
+/* ─── Grid data ──────────────────────────────────────────────── */
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+}
+
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.preview-item--full {
+  grid-column: 1 / -1;
+}
+
+.preview-item__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.preview-item__value {
+  font-size: 0.9rem;
+  color: #1f2937;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.preview-item__value--empty {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ─── Dokumen grid ───────────────────────────────────────────── */
+.preview-docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.preview-doc-card {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-doc-card__thumb {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  background-color: #f3f4f6;
+}
+
+.preview-doc-card__icon {
+  width: 100%;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  background-color: #fff7ed;
+}
+
+.preview-doc-card__label {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ─── Footer aksi ────────────────────────────────────────────── */
+.preview-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-preview-edit {
+  padding: 0.65rem 1.5rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-preview-edit:hover { background: #e5e7eb; }
+
+.btn-preview-submit {
+  padding: 0.65rem 1.75rem;
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-preview-submit:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-preview-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .preview-grid { grid-template-columns: 1fr; }
+  .preview-body { padding: 1rem; }
+}

@@ -1,0 +1,196 @@
+.form-pend-layout {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header ─────────────────────────────────────────────────── */
+.form-pend-header {
+  background-color: #ffffff;
+  border-bottom: 2px solid #fed7aa;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-pend-header__back {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.form-pend-header__back:hover {
+  background-color: #f3f4f6;
+}
+
+.form-pend-header__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* ─── Body ───────────────────────────────────────────────────── */
+.form-pend-body {
+  flex: 1;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ─── Card form ──────────────────────────────────────────────── */
+.form-pend-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.form-pend-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #fff7ed;
+}
+
+/* ─── Grid field ─────────────────────────────────────────────── */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-field--full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-field label .required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #1f2937;
+  background-color: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.form-field--error input,
+.form-field--error textarea,
+.form-field--error select {
+  border-color: #dc2626;
+}
+
+.form-field__error {
+  font-size: 0.78rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.form-field__hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* ─── Navigasi antar step ────────────────────────────────────── */
+.form-pend-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.btn-pend-prev {
+  padding: 0.65rem 1.5rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-pend-prev:hover {
+  background: #e5e7eb;
+}
+
+.btn-pend-next {
+  padding: 0.65rem 1.75rem;
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-pend-next:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-pend-next:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ─── Textarea tinggi cukup ──────────────────────────────────── */
+textarea.tall {
+  min-height: 120px;
+  resize: vertical;
+}
+
+@media (max-width: 600px) {
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .form-pend-body { padding: 1rem; }
+  .form-pend-card { padding: 1.25rem; }
+}

@@ -23,42 +23,60 @@ class UpdateUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'peserta_id' => 'required|exists:peserta,id',
+            'peserta_id' => 'sometimes|exists:peserta,id',
 
-            'jenis_dokumen' => 'required|in:foto,ktm,cv,sertifikat',
+            'jenis_dokumen' => 'sometimes|in:foto,ktm,cv,sertifikat',
 
-            'original_name' => 'required|string|max:255',
+            // File bersifat opsional saat update — hanya wajib kalau dikirim.
+            'file' => [
+                'nullable',
+                'file',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if ($value === null) {
+                        return;
+                    }
 
-            'file_path' => 'required|string|max:255',
+                    // Ambil jenis_dokumen dari request atau dari record yang sedang diupdate.
+                    $jenis = $this->input('jenis_dokumen') ?? $this->route('upload')?->jenis_dokumen;
 
-            'mime_type' => 'required|string|max:100',
+                    if (in_array($jenis, ['foto', 'ktm'])) {
+                        $allowedMimes = ['jpeg', 'jpg', 'png', 'webp'];
+                        $maxKb = 2048; // 2 MB
+                    } else {
+                        // cv, sertifikat
+                        $allowedMimes = ['pdf', 'jpeg', 'jpg', 'png'];
+                        $maxKb = 5120; // 5 MB
+                    }
 
-            'ukuran_file' => 'required|integer|min:1',
+                    if ($value->getSize() > $maxKb * 1024) {
+                        $fail("Ukuran file maksimal {$maxKb} KB.");
+                        return;
+                    }
+
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    if (! in_array($ext, $allowedMimes)) {
+                        $fail('Format file tidak didukung. Ekstensi yang diizinkan: ' . implode(', ', $allowedMimes) . '.');
+                    }
+                },
+            ],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'required' => ':attribute wajib diisi.',
-            'exists' => ':attribute tidak ditemukan.',
-            'string' => ':attribute harus berupa teks.',
-            'integer' => ':attribute harus berupa angka.',
-            'max' => ':attribute maksimal :max karakter.',
-            'min' => ':attribute minimal :min.',
-            'in' => ':attribute tidak valid.',
+            'exists'           => ':attribute tidak ditemukan.',
+            'in'               => ':attribute tidak valid.',
+            'file.file'        => 'Upload harus berupa file.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'peserta_id' => 'Peserta',
+            'peserta_id'    => 'Peserta',
             'jenis_dokumen' => 'Jenis Dokumen',
-            'original_name' => 'Nama File',
-            'file_path' => 'Lokasi File',
-            'mime_type' => 'Tipe File',
-            'ukuran_file' => 'Ukuran File',
+            'file'          => 'File',
         ];
     }
 }

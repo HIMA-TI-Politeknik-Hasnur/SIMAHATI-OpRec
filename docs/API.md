@@ -2299,29 +2299,399 @@ async function assignRolesToUser(userId, roles) {
 
 Peserta adalah fitur inti dari aplikasi OpRec. Semua data mahasiswa yang mendaftar jadi calon anggota HMTI disimpan dan dikelola lewat fitur ini.
 
-Setiap peserta punya data diri (nama, NIM, email, dll), pilihan divisi, status administrasi, dan status seleksi. Semua endpoint di grup ini butuh autentikasi (Bearer Token).
+Setiap peserta punya data diri (nama, NIM, email, dll), pilihan divisi, status verifikasi, dan status seleksi. Semua endpoint di grup ini butuh autentikasi (Bearer Token).
 
-### ✏️ Tugas Nadil:
+---
 
-Tulis dokumentasi lengkap untuk 6 endpoint berikut. Format penulisan ikuti contoh dari grup **Autentikasi** milik Reyhan. Setiap endpoint harus mencakup:
+### `GET /api/peserta` — Lihat Daftar Semua Peserta
 
-- Method dan URI
-- Deskripsi (1-2 kalimat + penjelasan analogi)
-- Siapa yang bisa akses
-- Request body (tabel + contoh JSON)
-- Response sukses (contoh JSON)
-- Response error (contoh JSON)
+📝 **Deskripsi:** Mengambil seluruh data peserta yang telah mendaftar OpRec, lengkap dengan relasi user, pendaftaran, dan dokumen.
 
-| Method | URI | Fungsi |
-|--------|-----|--------|
-| GET | /api/peserta | Lihat daftar semua peserta |
-| POST | /api/peserta | Daftarkan peserta baru |
-| GET | /api/peserta/{id} | Detail peserta |
-| PUT | /api/peserta/{id} | Update data peserta |
-| DELETE | /api/peserta/{id} | Hapus data peserta |
-| POST | /api/peserta/{id}/upload | Upload dokumen persyaratan |
+**Penjelasan Detail:**
 
-Mulai tulis di sini 👇
+Bayangin kamu jadi **sekretaris panitia**. Kamu butuh daftar lengkap semua pendaftar — siapa aja, statusnya gimana, dokumennya sudah masuk belum. Endpoint ini persis kayak buka spreadsheet peserta — semua data tersaji dalam satu response.
+
+Di balik layar, endpoint ini ngejalanin query ke tabel `peserta` dan sekaligus nge-load relasi `user` (yang daftarin), `pendaftaran` (status pengajuan), dan `uploads` (berkas yang sudah diunggah) secara eager loading. Artinya, kamu gak perlu bolak-balik minta data per peserta — sekali minta, langsung dapat semuanya.
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`, `panitia`
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200 — OK):**
+
+```json
+{
+  "success": true,
+  "message": "Data peserta berhasil diambil.",
+  "data": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "nama_lengkap": "Ahmad Fauzi",
+      "nim": "2024001",
+      "semester": 3,
+      "program_studi": "Teknik Informatika",
+      "angkatan": 2024,
+      "email": "ahmad@example.com",
+      "nomor_hp": "081234567890",
+      "alamat": "Jl. Merdeka No.1, Banjarmasin",
+      "pengalaman_organisasi": "OSIS SMA (2022)",
+      "skill": "Python, Figma",
+      "prestasi": "Juara 2 Hackathon 2023",
+      "pilihan_divisi_1": 2,
+      "pilihan_divisi_2": 4,
+      "motivasi": "Ingin berkontribusi aktif...",
+      "kontribusi": "Saya akan membawa...",
+      "harapan": "Mendapatkan relasi luas...",
+      "status_verifikasi": "pending",
+      "status_seleksi": "draft",
+      "user": { "id": 3, "name": "Ahmad Fauzi", "email": "ahmad@example.com" },
+      "pendaftaran": {
+        "id": 1, "peserta_id": 1,
+        "tanggal_daftar": null, "status": "draft", "catatan_admin": null
+      },
+      "uploads": [],
+      "created_at": "2026-07-18T10:00:00.000000Z",
+      "updated_at": "2026-07-18T10:00:00.000000Z"
+    }
+  ]
+}
+```
+
+**Penjelasan field penting:**
+
+**`status_verifikasi`** — Status verifikasi berkas oleh admin. Nilai: `pending` (belum dicek), `verified` (berkas lengkap), `rejected` (berkas ditolak).
+
+**`status_seleksi`** — Tahapan seleksi peserta. Nilai: `draft` (baru dibuat), `submitted` (sudah dikirim), `interview` (tahap wawancara), `accepted` (diterima), `rejected` (tidak lolos).
+
+**`pendaftaran`** — Record pengajuan pendaftaran. Kalau `null`, berarti record pendaftaran belum dibuat.
+
+**`uploads`** — Array dokumen yang sudah diunggah. Kosong `[]` kalau belum ada yang diunggah.
+
+❌ **Response Error (401 — Tidak Terautentikasi):**
+
+```json
+{ "message": "Unauthenticated." }
+```
+
+---
+
+### `POST /api/peserta` — Daftarkan Peserta Baru
+
+📝 **Deskripsi:** Menyimpan data pendaftar baru ke database. Endpoint ini dipanggil setelah peserta mengisi multi-step form di frontend.
+
+**Penjelasan Detail:**
+
+Ini endpoint yang dipanggil pas peserta klik "Simpan" setelah mengisi seluruh form pendaftaran. Bayangin kayak **memasukkan formulir kertas ke kotak surat** — semua data dikirim dalam satu request, server memeriksa kelengkapannya, lalu menyimpannya ke database.
+
+Yang terjadi di balik layar:
+1. Server menerima data peserta dari request body
+2. `StorePesertaRequest` memvalidasi semua field — NIM harus unik, email valid, semester 1–14, dll.
+3. Kalau lolos validasi, data disimpan ke tabel `peserta`
+4. Status `status_verifikasi` otomatis `pending` dan `status_seleksi` otomatis `draft`
+5. Response mengembalikan data peserta yang baru dibuat
+
+🔐 **Siapa yang bisa akses:** `peserta` (mendaftarkan diri sendiri) atau `admin`
+
+📦 **Request Body:**
+
+```json
+{
+  "user_id": 3,
+  "nama_lengkap": "Ahmad Fauzi",
+  "nim": "2024001",
+  "semester": 3,
+  "program_studi": "Teknik Informatika",
+  "angkatan": 2024,
+  "email": "ahmad@example.com",
+  "nomor_hp": "081234567890",
+  "alamat": "Jl. Merdeka No.1, Banjarmasin",
+  "pengalaman_organisasi": "OSIS SMA (2022)",
+  "skill": "Python, Figma",
+  "prestasi": "Juara 2 Hackathon 2023",
+  "pilihan_divisi_1": 2,
+  "pilihan_divisi_2": 4,
+  "motivasi": "Ingin berkontribusi aktif di HMTI...",
+  "kontribusi": "Saya akan membawa keahlian coding saya...",
+  "harapan": "Mendapatkan relasi luas dan pengalaman organisasi..."
+}
+```
+
+| Field | Wajib? | Penjelasan |
+|-------|--------|-----------|
+| `user_id` | ✅ | ID user yang mendaftar. Harus ada di tabel `users` |
+| `nama_lengkap` | ✅ | Nama lengkap (maks. 100 karakter) |
+| `nim` | ✅ | NIM mahasiswa, unik, maks. 20 karakter |
+| `semester` | ✅ | Semester aktif (1–14) |
+| `program_studi` | ✅ | Nama program studi (maks. 100 karakter) |
+| `angkatan` | ✅ | Tahun angkatan, tepat 4 digit (contoh: 2024) |
+| `email` | ✅ | Email aktif, unik, format valid |
+| `nomor_hp` | ✅ | Nomor HP aktif (maks. 20 karakter) |
+| `alamat` | ✅ | Alamat tempat tinggal saat ini |
+| `pengalaman_organisasi` | ❌ | Riwayat organisasi sebelumnya |
+| `skill` | ❌ | Keahlian yang dimiliki |
+| `prestasi` | ❌ | Prestasi yang pernah diraih |
+| `pilihan_divisi_1` | ✅ | ID divisi pilihan utama |
+| `pilihan_divisi_2` | ❌ | ID divisi pilihan cadangan |
+| `motivasi` | ✅ | Essay motivasi bergabung |
+| `kontribusi` | ✅ | Essay kontribusi yang akan diberikan |
+| `harapan` | ✅ | Essay harapan setelah bergabung |
+
+✅ **Response Sukses (201 — Berhasil Dibuat):**
+
+```json
+{
+  "success": true,
+  "message": "Data peserta berhasil ditambahkan.",
+  "data": {
+    "id": 1,
+    "user_id": 3,
+    "nama_lengkap": "Ahmad Fauzi",
+    "nim": "2024001",
+    "status_verifikasi": "pending",
+    "status_seleksi": "draft",
+    "created_at": "2026-07-18T10:00:00.000000Z",
+    "updated_at": "2026-07-18T10:00:00.000000Z"
+  }
+}
+```
+
+> 📌 Setelah mendapat `id` dari response ini, frontend langsung membuat record pendaftaran via `POST /api/pendaftaran` dan mengarahkan ke halaman upload dokumen.
+
+❌ **Response Error (422 — Validasi Gagal):**
+
+```json
+{
+  "message": "The nim has already been taken.",
+  "errors": {
+    "nim": ["NIM sudah terdaftar."],
+    "email": ["Email sudah terdaftar."]
+  }
+}
+```
+
+**Penyebab umum error 422:**
+- NIM sudah pernah dipakai pendaftar lain (`nim` harus `UNIQUE`)
+- Email sudah terdaftar
+- Semester diisi angka di luar rentang 1–14
+- Angkatan bukan tepat 4 digit
+- Field wajib tidak dikirim
+
+---
+
+### `GET /api/peserta/{peserta}` — Detail Peserta
+
+📝 **Deskripsi:** Mengambil data lengkap satu peserta berdasarkan ID, termasuk relasi user, pendaftaran, dan semua dokumen yang telah diunggah.
+
+**Penjelasan Detail:**
+
+Kalau `GET /api/peserta` itu kayak daftar semua nama di buku absen, endpoint ini kayak **membuka profil satu orang secara penuh**. Kamu kasih ID peserta, server mengambil semua data — data diri, status, plus semua dokumen yang sudah diunggah.
+
+🔐 **Siapa yang bisa akses:** `admin`, `panitia`, atau peserta itu sendiri
+
+💡 Contoh panggilan: `GET /api/peserta/1`
+
+✅ **Response Sukses (200 — OK):**
+
+```json
+{
+  "success": true,
+  "message": "Detail peserta berhasil diambil.",
+  "data": {
+    "id": 1,
+    "nama_lengkap": "Ahmad Fauzi",
+    "nim": "2024001",
+    "semester": 3,
+    "program_studi": "Teknik Informatika",
+    "angkatan": 2024,
+    "email": "ahmad@example.com",
+    "nomor_hp": "081234567890",
+    "alamat": "Jl. Merdeka No.1, Banjarmasin",
+    "pengalaman_organisasi": "OSIS SMA (2022)",
+    "skill": "Python, Figma",
+    "prestasi": "Juara 2 Hackathon 2023",
+    "pilihan_divisi_1": 2,
+    "pilihan_divisi_2": 4,
+    "motivasi": "Ingin berkontribusi aktif di HMTI...",
+    "kontribusi": "Saya akan membawa keahlian coding saya...",
+    "harapan": "Mendapatkan relasi luas dan pengalaman organisasi...",
+    "status_verifikasi": "pending",
+    "status_seleksi": "submitted",
+    "user": { "id": 3, "name": "Ahmad Fauzi", "email": "ahmad@example.com" },
+    "pendaftaran": {
+      "id": 1, "peserta_id": 1,
+      "tanggal_daftar": "2026-07-18T10:30:00.000000Z",
+      "status": "submitted",
+      "catatan_admin": null
+    },
+    "uploads": [
+      {
+        "id": 1, "peserta_id": 1,
+        "jenis_dokumen": "foto",
+        "original_name": "foto-ahmad.jpg",
+        "file_path": "dokumen-peserta/foto/foto-ahmad.jpg",
+        "file_url": "http://localhost:8000/storage/dokumen-peserta/foto/foto-ahmad.jpg",
+        "mime_type": "image/jpeg",
+        "ukuran_file": 245760,
+        "created_at": "2026-07-18T10:15:00.000000Z"
+      }
+    ],
+    "created_at": "2026-07-18T10:00:00.000000Z",
+    "updated_at": "2026-07-18T10:30:00.000000Z"
+  }
+}
+```
+
+**Catatan field `uploads`:** Setiap dokumen menyertakan `file_url` — URL langsung yang bisa dipakai frontend untuk menampilkan gambar atau menautkan link unduhan.
+
+❌ **Response Error (404 — Tidak Ditemukan):**
+
+```json
+{ "message": "No query results for model [App\\Models\\Peserta]." }
+```
+
+---
+
+### `PUT /api/peserta/{peserta}` — Update Data Peserta
+
+📝 **Deskripsi:** Memperbarui data peserta yang sudah ada. Biasanya dipakai peserta untuk mengedit formulir atau admin untuk mengoreksi data.
+
+**Penjelasan Detail:**
+
+Bayangin peserta salah mengisi nomor HP saat mengisi form. Endpoint ini yang dipakai untuk **mengoreksi data** tanpa harus mendaftar ulang dari awal. Admin juga bisa memakai endpoint ini untuk memperbaiki data yang keliru.
+
+Validasi pada update sedikit berbeda dari store: kolom `nim` dan `email` yang unik menggunakan `Rule::unique(...)->ignore($peserta)` — artinya peserta boleh menyimpan NIM/email yang sama dengan miliknya sendiri tanpa error duplikat.
+
+🔐 **Siapa yang bisa akses:** `admin` atau peserta itu sendiri
+
+💡 Contoh panggilan: `PUT /api/peserta/1`
+
+📦 **Request Body:** Sama dengan `POST /api/peserta` — kirim seluruh field yang ingin diperbarui.
+
+✅ **Response Sukses (200 — OK):**
+
+```json
+{
+  "success": true,
+  "message": "Data peserta berhasil diperbarui.",
+  "data": {
+    "id": 1,
+    "nama_lengkap": "Ahmad Fauzi",
+    "nomor_hp": "082199887766",
+    "updated_at": "2026-07-19T08:00:00.000000Z"
+  }
+}
+```
+
+❌ **Response Error (422 — Validasi Gagal):**
+
+```json
+{
+  "message": "Validasi gagal.",
+  "errors": {
+    "semester": ["Semester minimal 1."]
+  }
+}
+```
+
+---
+
+### `DELETE /api/peserta/{peserta}` — Hapus Data Peserta
+
+📝 **Deskripsi:** Menghapus data peserta secara permanen dari database, termasuk record pendaftaran dan dokumen terkait (karena relasi `CASCADE`).
+
+**Penjelasan Detail:**
+
+Endpoint ini menghapus **seluruh jejak** seorang peserta — data diri, record pendaftaran, dan semua upload-nya. Karena tabel `pendaftaran` dan `uploads` menggunakan `ON DELETE CASCADE` ke tabel `peserta`, penghapusan bersifat berantai. File fisik di storage **tidak** otomatis terhapus oleh database — frontend atau admin perlu memanggil endpoint delete upload terlebih dahulu jika ingin membersihkan file.
+
+⚠️ Operasi ini **tidak bisa di-undo**. Pastikan ada konfirmasi sebelum memanggil endpoint ini.
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`
+
+💡 Contoh panggilan: `DELETE /api/peserta/1`
+
+📦 **Request Body:** Tidak ada
+
+✅ **Response Sukses (200 — OK):**
+
+```json
+{
+  "success": true,
+  "message": "Data peserta berhasil dihapus."
+}
+```
+
+❌ **Response Error (404 — Tidak Ditemukan):**
+
+```json
+{ "message": "No query results for model [App\\Models\\Peserta]." }
+```
+
+---
+
+### `PATCH /api/peserta/{peserta}/verifikasi` — Verifikasi Berkas Peserta
+
+📝 **Deskripsi:** Endpoint khusus untuk admin mengubah status verifikasi berkas peserta dan (opsional) memberikan catatan kepada peserta.
+
+**Penjelasan Detail:**
+
+Setelah peserta mengumpulkan berkas, admin perlu **memverifikasi kelengkapan dokumen**. Bayangin panitia yang memeriksa map berkas: kalau lengkap, distempel "Verified" — kalau tidak lengkap, dikembalikan dengan catatan. Endpoint ini melakukan hal tersebut secara digital.
+
+Yang terjadi di balik layar:
+1. Admin memilih `status_verifikasi` baru: `pending`, `verified`, atau `rejected`
+2. Kalau `verified` dan status seleksi peserta masih `draft`, status seleksi otomatis naik ke `submitted`
+3. Kalau `rejected`, status seleksi otomatis berubah ke `rejected`
+4. Kalau ada `catatan` dikirim, catatan disimpan ke `catatan_admin` di tabel `pendaftaran`
+
+🔐 **Siapa yang bisa akses:** `super_admin`, `admin_oprec`, `panitia`
+
+💡 Contoh panggilan: `PATCH /api/peserta/1/verifikasi`
+
+📦 **Request Body:**
+
+```json
+{
+  "status_verifikasi": "verified",
+  "catatan": "Semua berkas lengkap. Silakan tunggu jadwal interview."
+}
+```
+
+| Field | Wajib? | Penjelasan |
+|-------|--------|-----------|
+| `status_verifikasi` | ✅ | `pending` / `verified` / `rejected` |
+| `catatan` | ❌ | Catatan untuk peserta (disimpan di `catatan_admin` pendaftaran) |
+
+✅ **Response Sukses (200 — OK):**
+
+```json
+{
+  "success": true,
+  "message": "Status verifikasi peserta berhasil diperbarui.",
+  "data": {
+    "id": 1,
+    "nama_lengkap": "Ahmad Fauzi",
+    "status_verifikasi": "verified",
+    "status_seleksi": "submitted",
+    "pendaftaran": {
+      "id": 1,
+      "status": "submitted",
+      "catatan_admin": "Semua berkas lengkap. Silakan tunggu jadwal interview."
+    },
+    "uploads": [...]
+  }
+}
+```
+
+❌ **Response Error (422 — Status Tidak Valid):**
+
+```json
+{
+  "message": "Validasi gagal.",
+  "errors": {
+    "status_verifikasi": ["Status verifikasi tidak valid. Pilihan: pending, verified, rejected."]
+  }
+}
+```
 
 ---
 
