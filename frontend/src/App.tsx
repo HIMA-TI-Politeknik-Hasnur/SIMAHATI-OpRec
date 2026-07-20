@@ -72,14 +72,6 @@ const pesertaLinks: NavLink[] = [
   { label: 'Logout', action: 'logout' },
 ];
 
-const adminLinks: NavLink[] = [
-  { label: 'Dashboard', action: 'admin-dashboard' },
-  { label: 'Divisi', action: 'divisi', match: ['divisi-detail'] },
-  { label: 'Interview', action: 'interview' },
-  { label: 'Penilaian', action: 'penilaian' },
-  { label: 'Logout', action: 'logout' },
-];
-
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const [selectedDivisiId, setSelectedDivisiId] = useState<number | null>(null);
@@ -102,6 +94,12 @@ function App() {
         setUser(u);
         setStoredUser(u);
         if (u.peserta_id) setPesertaId(u.peserta_id);
+        const role = u.roles?.[0] ?? '';
+        if (role === 'Peserta' && currentPage === 'admin-dashboard') {
+          setCurrentPage('dashboard-peserta');
+        } else if (!['Super Admin', 'Admin', 'Peserta'].includes(role) && currentPage === 'admin-dashboard') {
+          setCurrentPage('interview');
+        }
       } else if (apiError) {
         clearAuth();
         setIsLoggedIn(false);
@@ -114,15 +112,27 @@ function App() {
 
   const userRole = user?.roles?.[0] ?? '';
   const isPeserta = userRole === 'Peserta';
+  const isStaff = ['Super Admin', 'Admin', 'Panitia', 'Interviewer'].includes(userRole);
+  const canViewDashboard = ['Super Admin', 'Admin'].includes(userRole);
 
-  const navMode: 'guest' | 'peserta' | 'admin' =
+  const buildStaffLinks = (): NavLink[] => {
+    const links: NavLink[] = [];
+    if (canViewDashboard) links.push({ label: 'Dashboard', action: 'admin-dashboard' });
+    if (canViewDashboard) links.push({ label: 'Divisi', action: 'divisi', match: ['divisi-detail'] });
+    if (isStaff) links.push({ label: 'Interview', action: 'interview' });
+    if (isStaff) links.push({ label: 'Penilaian', action: 'penilaian' });
+    links.push({ label: 'Logout', action: 'logout' });
+    return links;
+  };
+
+  const navMode: 'guest' | 'peserta' | 'staff' =
     !isLoggedIn ? 'guest' :
     isPeserta ? 'peserta' :
-    'admin';
+    'staff';
 
   const currentLinks = navMode === 'guest' ? guestLinks
     : navMode === 'peserta' ? pesertaLinks
-    : adminLinks;
+    : buildStaffLinks();
 
   const handleViewDivisiDetail = (id: number) => {
     setSelectedDivisiId(id);
@@ -279,7 +289,10 @@ function App() {
             setStoredUser(userData);
             if (userData.peserta_id) setPesertaId(userData.peserta_id);
             const role = userData.roles?.[0] ?? '';
-            setCurrentPage(role === 'Peserta' ? 'dashboard-peserta' : 'admin-dashboard');
+            const dest = role === 'Peserta' ? 'dashboard-peserta'
+              : ['Super Admin', 'Admin'].includes(role) ? 'admin-dashboard'
+              : 'interview';
+            setCurrentPage(dest);
           }}
           onSwitchToRegister={() => setCurrentPage('register')}
           onForgotPassword={() => setCurrentPage('forgot-password')}
