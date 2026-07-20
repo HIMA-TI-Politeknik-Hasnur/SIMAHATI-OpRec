@@ -1,0 +1,260 @@
+.dash-peserta-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f9fafb;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #374151;
+}
+
+/* ─── Sidebar ────────────────────────────────────────────────── */
+.dash-peserta-sidebar {
+  width: 240px;
+  background-color: #1f2937;
+  color: white;
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.dash-peserta-sidebar__logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid #374151;
+  margin-bottom: 0.5rem;
+}
+
+.dash-peserta-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.dash-peserta-nav li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.dash-peserta-nav li:hover {
+  background-color: #374151;
+  color: white;
+}
+
+.dash-peserta-nav li.active {
+  background-color: rgba(234, 88, 12, 0.15);
+  border-left-color: #ea580c;
+  color: #fb923c;
+}
+
+.dash-peserta-nav__icon { font-size: 1rem; flex-shrink: 0; }
+
+/* ─── Main area ──────────────────────────────────────────────── */
+.dash-peserta-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dash-peserta-topbar {
+  background-color: white;
+  border-bottom: 2px solid #fed7aa;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-peserta-topbar__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.dash-peserta-topbar__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.dash-peserta-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* ─── Banner selamat datang ──────────────────────────────────── */
+.dash-welcome-banner {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dash-welcome-banner__text h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
+}
+
+.dash-welcome-banner__text p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.dash-welcome-banner__badge {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.dash-welcome-banner__badge strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ─── Stat cards ─────────────────────────────────────────────── */
+.dash-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dash-stat-card__icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.dash-stat-card__label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0 0 0.2rem;
+}
+
+.dash-stat-card__value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* ─── Quick actions ──────────────────────────────────────────── */
+.dash-quick-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1rem;
+}
+
+.dash-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-quick-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dash-quick-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: #fed7aa;
+}
+
+.dash-quick-card--primary {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border-color: #fed7aa;
+}
+
+.dash-quick-card__icon { font-size: 1.5rem; }
+
+.dash-quick-card__label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.dash-quick-card__desc {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ─── Loading ────────────────────────────────────────────────── */
+.dash-peserta-loading {
+  padding: 3rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .dash-peserta-layout  { flex-direction: column; }
+  .dash-peserta-sidebar { width: 100%; padding: 1rem 0; }
+  .dash-peserta-sidebar__logo { padding-bottom: 0.75rem; }
+  .dash-peserta-nav     { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0 0.5rem; }
+  .dash-peserta-nav li  { border-left: none; border-bottom: 2px solid transparent; border-radius: 6px; font-size: 0.8rem; }
+  .dash-peserta-nav li.active { border-bottom-color: #ea580c; border-left-color: transparent; }
+  .dash-peserta-content { padding: 1rem; }
+  .dash-stats-grid { grid-template-columns: 1fr 1fr; }
+}

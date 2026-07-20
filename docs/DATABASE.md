@@ -965,56 +965,244 @@ Dari data di atas, Siti (user id=2) dikasih 2 permission langsung: `delete-peser
 
 ## 8. Tabel `peserta` — Pendaftar *(PIC: Nadil)*
 
-### Penjelasan
+### 🔹 Fungsi
 
-Tabel `peserta` adalah tabel PALING PENTING di aplikasi. Semua data pendaftar OpRec disimpan di sini — data diri, pilihan divisi, status administrasi, dan status seleksi. Setiap peserta terhubung ke user yang mendaftarkan, ke divisi yang dipilih, dan memiliki berkas upload serta jadwal interview. Tabel ini menjadi pusat dari hampir semua relasi di database OpRec karena nyambung ke uploads, interview, dan penilaian.
+Tabel `peserta` adalah tabel **paling penting** di seluruh database OpRec. Semua data mahasiswa yang mendaftar jadi calon anggota HMTI disimpan di sini — mulai dari data diri, pilihan divisi, essay motivasi, sampai status seleksi.
 
-### ✏️ Tugas Nadil — Desain Tabel
+**Analogi**: Bayangin tabel ini seperti **map berkas** setiap pendaftar. Di map itu ada fotokopi KTP, formulir isian, esai motivasi, dan stempel status dari panitia. Tabel `peserta` adalah lemari besar yang menyimpan semua map berkas itu secara digital — terstruktur, mudah dicari, dan bisa difilter kapan saja.
 
-Buat desain tabel untuk peserta pendaftar OpRec. Tentukan kolom apa saja yang dibutuhkan beserta tipe data dan constraint-nya.
+**Kenapa satu tabel besar, bukan dipecah?** Karena semua data di tabel ini adalah data diri satu orang yang biasanya dibaca sekaligus. Lebih efisien dalam satu tabel dibandingkan dipecah ke banyak tabel yang harus di-JOIN setiap kali dibaca.
 
-**Pertanyaan Panduan:**
-- Data diri apa aja yang perlu dicatat dari seorang pendaftar? (nama, NIM, semester, prodi, dll)
-- Gimana cara nyimpen pilihan divisi (utama & cadangan)? Kolom apa yang dipake?
-- Status apa aja yang perlu dilacak? (verifikasi admin, tahap seleksi)
-- Relasi apa yang diperlukan ke tabel users dan divisi?
+**Kapan tabel ini dipake?** Setiap kali peserta mengisi form pendaftaran (INSERT), panitia melihat daftar peserta (SELECT), admin memverifikasi berkas (UPDATE status), atau sistem mengirim email notifikasi (SELECT email).
 
-Buat tabel dengan format (ikuti contoh tabel users di atas):
+**Apa yang terjadi kalau tabel ini gak ada?** Sistem OpRec tidak bisa berjalan sama sekali. Tidak ada data peserta = tidak ada proses seleksi = tidak ada OpRec.
+
+### 🔹 Detail Kolom
 
 | Kolom | Tipe Data | Penjelasan | Constraint |
 |-------|-----------|------------|------------|
+| `id` | BIGINT UNSIGNED | Nomor unik setiap peserta. Angka ini yang dipakai sebagai referensi di tabel lain (`uploads.peserta_id`, `pendaftaran.peserta_id`). AUTO_INCREMENT otomatis mengisi. | **PK**, Auto Increment |
+| `user_id` | BIGINT UNSIGNED | ID akun user yang mendaftarkan peserta ini. Menyambungkan tabel `peserta` ke tabel `users`. Kalau user dihapus, data peserta ikut terhapus (`CASCADE`). | NOT NULL, FK → `users.id` |
+| `nama_lengkap` | VARCHAR(100) | Nama lengkap peserta sesuai KTM/KTP. Maks. 100 karakter sudah cukup untuk nama terpanjang sekalipun. | NOT NULL |
+| `nim` | VARCHAR(20) | Nomor Induk Mahasiswa. Harus unik karena setiap mahasiswa punya NIM berbeda. Tipe VARCHAR bukan INT karena NIM bisa diawali angka 0 atau punya format khusus. | NOT NULL, **UNIQUE** |
+| `semester` | TINYINT | Semester aktif peserta saat mendaftar (1–14). TINYINT dipilih karena nilainya kecil (hemat ruang). | NOT NULL |
+| `program_studi` | VARCHAR(100) | Nama program studi peserta. Diindeks untuk mempercepat filter "tampilkan peserta dari Teknik Informatika saja". | NOT NULL, INDEX |
+| `angkatan` | SMALLINT | Tahun angkatan (contoh: 2024). SMALLINT cukup untuk menyimpan angka 4 digit. Diindeks untuk filter "tampilkan peserta angkatan 2024". | NOT NULL, INDEX |
+| `email` | VARCHAR(100) | Alamat email peserta. Harus unik karena dipakai sebagai identitas komunikasi. Berbeda dari email di tabel `users` — ini email yang peserta isi di formulir. | NOT NULL |
+| `nomor_hp` | VARCHAR(20) | Nomor HP aktif peserta. VARCHAR karena nomor HP bisa punya format bermacam-macam (+62, 08, dll). | NOT NULL |
+| `alamat` | TEXT | Alamat lengkap tempat tinggal saat ini. TEXT dipilih karena alamat bisa panjang dan bervariasi. | NOT NULL |
+| `pengalaman_organisasi` | TEXT | Riwayat organisasi yang pernah diikuti. Opsional karena tidak semua pendaftar punya pengalaman organisasi. | NULL |
+| `skill` | TEXT | Daftar keahlian yang dimiliki. Opsional. | NULL |
+| `prestasi` | TEXT | Prestasi yang pernah diraih. Opsional. | NULL |
+| `pilihan_divisi_1` | BIGINT UNSIGNED | ID divisi pilihan utama. Wajib diisi. Foreign key ke tabel `divisi` (akan ditambahkan setelah migrasi divisi tersedia). | NOT NULL |
+| `pilihan_divisi_2` | BIGINT UNSIGNED | ID divisi pilihan cadangan. Opsional — peserta boleh tidak memilih divisi cadangan. | NULL |
+| `motivasi` | TEXT | Essay: mengapa ingin bergabung dengan HMTI. Wajib diisi. | NOT NULL |
+| `kontribusi` | TEXT | Essay: kontribusi apa yang akan diberikan. Wajib diisi. | NOT NULL |
+| `harapan` | TEXT | Essay: harapan setelah bergabung dengan HMTI. Wajib diisi. | NOT NULL |
+| `status_verifikasi` | ENUM | Status verifikasi berkas oleh admin. Nilai: `pending` (belum diperiksa), `verified` (berkas lengkap), `rejected` (berkas ditolak). Default `pending` saat pertama daftar. | NOT NULL, DEFAULT `pending`, INDEX |
+| `status_seleksi` | ENUM | Tahapan seleksi peserta. Nilai: `draft` (baru dibuat), `submitted` (dikirim ke panitia), `interview` (dijadwalkan interview), `accepted` (diterima), `rejected` (tidak lolos). Default `draft`. | NOT NULL, DEFAULT `draft`, INDEX |
+| `created_at` | TIMESTAMP | Waktu record peserta dibuat. Otomatis diisi Laravel. | NULL |
+| `updated_at` | TIMESTAMP | Waktu terakhir data peserta diubah. Otomatis diisi Laravel. | NULL |
 
-Setelah itu tulis SQL CREATE TABLE-nya dan diagram relasi.
-Lihat tabel 1-7 (users, roles, dll) punya Reyhan sebagai contoh format lengkap.
+### 🔹 SQL CREATE TABLE
 
-Mulai tulis di sini 👇
+```sql
+CREATE TABLE peserta (
+    id                     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+
+    user_id                BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+    nama_lengkap           VARCHAR(100)    NOT NULL,
+    nim                    VARCHAR(20)     NOT NULL UNIQUE,
+    semester               TINYINT         NOT NULL,
+    program_studi          VARCHAR(100)    NOT NULL,
+    angkatan               SMALLINT        NOT NULL,
+
+    email                  VARCHAR(100)    NOT NULL,
+    nomor_hp               VARCHAR(20)     NOT NULL,
+    alamat                 TEXT            NOT NULL,
+
+    pengalaman_organisasi  TEXT            NULL,
+    skill                  TEXT            NULL,
+    prestasi               TEXT            NULL,
+
+    -- Foreign key ke divisi akan ditambahkan setelah migrasi divisi tersedia
+    pilihan_divisi_1       BIGINT UNSIGNED NOT NULL,
+    pilihan_divisi_2       BIGINT UNSIGNED NULL,
+
+    motivasi               TEXT            NOT NULL,
+    kontribusi             TEXT            NOT NULL,
+    harapan                TEXT            NOT NULL,
+
+    status_verifikasi      ENUM('pending','verified','rejected')
+                           NOT NULL DEFAULT 'pending',
+
+    status_seleksi         ENUM('draft','submitted','interview','accepted','rejected')
+                           NOT NULL DEFAULT 'draft',
+
+    created_at             TIMESTAMP       NULL,
+    updated_at             TIMESTAMP       NULL,
+
+    INDEX idx_program_studi (program_studi),
+    INDEX idx_angkatan      (angkatan),
+    INDEX idx_status_verifikasi (status_verifikasi),
+    INDEX idx_status_seleksi    (status_seleksi)
+);
+```
+
+### 🔹 Relasi
+
+```
+users.id ──< peserta.user_id
+   Satu user bisa mendaftarkan banyak peserta.
+   ON DELETE CASCADE: kalau user dihapus, semua data peserta miliknya ikut terhapus.
+
+peserta.id ──< pendaftaran.peserta_id
+   Satu peserta punya tepat satu record pendaftaran (hasOne).
+   ON DELETE CASCADE: kalau peserta dihapus, record pendaftarannya ikut terhapus.
+
+peserta.id ──< uploads.peserta_id
+   Satu peserta bisa punya banyak dokumen upload (hasMany).
+   ON DELETE CASCADE: kalau peserta dihapus, semua dokumen upload-nya ikut terhapus.
+
+peserta.pilihan_divisi_1 ──> divisi.id
+   Pilihan divisi utama mengacu ke tabel divisi.
+
+peserta.pilihan_divisi_2 ──> divisi.id
+   Pilihan divisi cadangan mengacu ke tabel divisi yang sama. Nullable.
+```
+
+### 🔹 Dua Status Peserta
+
+Tabel `peserta` punya **dua kolom status yang berbeda** — jangan sampai tertukar:
+
+| Kolom | Dikelola Oleh | Tujuan |
+|-------|--------------|--------|
+| `status_verifikasi` | Admin/Panitia | Apakah berkas lengkap dan valid? |
+| `status_seleksi` | Sistem + Admin | Di tahap mana peserta dalam alur seleksi? |
+
+**Alur normal:**
+```
+Daftar → status_verifikasi: pending, status_seleksi: draft
+Submit → status_seleksi: submitted
+Admin verifikasi berkas → status_verifikasi: verified, status_seleksi: submitted
+Dijadwalkan interview → status_seleksi: interview
+Hasil akhir → status_seleksi: accepted ATAU rejected
+```
+
+### 🔹 Tips Penting
+
+1. 🧠 **`nim` UNIQUE** — Satu NIM hanya boleh dipakai satu kali di seluruh tabel. Kalau peserta mencoba mendaftar dua kali dengan NIM yang sama, akan error.
+2. 🧠 **`pilihan_divisi_1` belum ada FK formal** — Karena tabel `divisi` dibuat oleh Anton dan bisa jadi belum tersedia saat migrasi ini dijalankan. FK akan ditambahkan via migrasi tersendiri setelah tabel `divisi` ada.
+3. 🧠 **INDEX di status** — Kolom `status_verifikasi` dan `status_seleksi` diindeks karena panitia sering memfilter "tampilkan semua yang pending" atau "tampilkan yang sudah verified". Index membuat query ini jauh lebih cepat.
+4. 🧠 **CASCADE dari users** — Kalau user dihapus, data pesertanya ikut hilang. Pertimbangkan soft delete jika data historis perlu dipertahankan.
+
+### 🔹 Contoh Data
+
+| id | user_id | nama_lengkap | nim | semester | program_studi | angkatan | email | nomor_hp | status_verifikasi | status_seleksi |
+|----|---------|-------------|-----|----------|--------------|----------|-------|----------|-----------------|---------------|
+| 1 | 3 | Ahmad Fauzi | 2024001 | 3 | Teknik Informatika | 2024 | ahmad@example.com | 081234567890 | pending | submitted |
+| 2 | 4 | Siti Rahayu | 2024002 | 1 | Teknik Informatika | 2024 | siti@example.com | 085678901234 | verified | interview |
+| 3 | 5 | Budi Prasetyo | 2023015 | 3 | Sistem Informasi | 2023 | budi@example.com | 087890123456 | rejected | rejected |
 
 ---
 
 ## 9. Tabel `uploads` — Berkas Upload *(PIC: Nadil)*
 
-### Penjelasan
+### 🔹 Fungsi
 
-Tabel `uploads` menyimpan data file yang diupload peserta — foto, KTM, CV, sertifikat, dan dokumen pendukung lainnya. Setiap file yang diupload tercatat di sini dengan informasi nama file asli, path penyimpanan, dan jenis dokumen. Tabel ini terhubung ke tabel `peserta` karena setiap upload pasti dimiliki oleh seorang peserta tertentu.
+Tabel `uploads` menyimpan **metadata setiap file yang diunggah peserta** — foto diri, KTM, CV, dan sertifikat. File fisiknya disimpan di `storage/app/public/dokumen-peserta/{jenis}/`, sedangkan tabel ini menyimpan informasi tentang file tersebut: nama aslinya apa, disimpan di path mana, tipe MIME-nya apa, dan ukurannya berapa.
 
-### ✏️ Tugas Nadil — Desain Tabel
+**Analogi**: Bayangin kamu punya **lemari arsip dokumen**. File fisiknya (kertas/foto) ada di dalam folder di lemari. Tapi di meja ada buku catatan yang mencatat "folder nomor 3 berisi foto Ahmad, ukuran A4, disimpan 18 Juli 2026". Tabel `uploads` adalah buku catatan itu — tanpa buku catatan, kita tidak tahu ada dokumen apa saja di dalam lemari.
 
-Buat desain tabel untuk menyimpan data upload peserta. Tentukan kolom apa saja yang dibutuhkan beserta tipe data dan constraint-nya.
+**Kenapa metadata disimpan terpisah dari file?** Karena database tidak cocok untuk menyimpan file biner berukuran besar. Database optimal untuk teks dan angka. File besar disimpan di filesystem (storage), database hanya menyimpan "alamat" dan informasi file tersebut.
 
-**Pertanyaan Panduan:**
-- Informasi apa aja yang perlu dicatat dari sebuah file upload? (nama file, path, jenis)
-- Jenis dokumen apa aja yang bisa diupload?
-- Gimana relasinya ke tabel peserta?
+**Kapan tabel ini dipake?** Setiap kali peserta mengupload dokumen (INSERT), admin melihat berkas peserta (SELECT dengan JOIN ke peserta), atau peserta mengganti dokumen (UPDATE + hapus file lama, INSERT file baru).
 
-Buat tabel dengan format (ikuti contoh tabel users di atas):
+**Apa yang terjadi kalau tabel ini gak ada?** Sistem tidak bisa melacak dokumen yang sudah diunggah. Admin tidak tahu apakah peserta sudah mengumpulkan foto, KTM, atau CV. Proses verifikasi berkas tidak bisa berjalan.
+
+### 🔹 Detail Kolom
 
 | Kolom | Tipe Data | Penjelasan | Constraint |
 |-------|-----------|------------|------------|
+| `id` | BIGINT UNSIGNED | Nomor unik setiap record upload. AUTO_INCREMENT. | **PK**, Auto Increment |
+| `peserta_id` | BIGINT UNSIGNED | ID peserta pemilik dokumen ini. Foreign key ke tabel `peserta`. Kalau peserta dihapus, semua dokumennya ikut terhapus (`CASCADE`). | NOT NULL, FK → `peserta.id` |
+| `jenis_dokumen` | ENUM | Jenis dokumen yang diunggah. Nilai: `foto` (foto diri), `ktm` (Kartu Tanda Mahasiswa), `cv` (Curriculum Vitae / resume), `sertifikat` (sertifikat prestasi). ENUM dipilih agar jenis selalu konsisten — tidak bisa diisi nilai sembarangan. | NOT NULL |
+| `original_name` | VARCHAR(255) | Nama file asli saat diunggah dari komputer peserta (contoh: `foto-saya.jpg`). Disimpan untuk keperluan display — ditampilkan ke pengguna agar lebih ramah dibanding nama file yang di-rename sistem. | NOT NULL |
+| `file_path` | VARCHAR(255) | Path relatif file di dalam storage disk `public`. Contoh: `dokumen-peserta/foto/abc123.jpg`. Digunakan bersama `Storage::url()` untuk menghasilkan URL publik yang bisa diakses browser. | NOT NULL |
+| `mime_type` | VARCHAR(100) | Tipe MIME file (contoh: `image/jpeg`, `image/png`, `application/pdf`). Digunakan untuk menentukan cara menampilkan file di frontend — apakah sebagai gambar atau sebagai link unduhan. | NOT NULL |
+| `ukuran_file` | BIGINT UNSIGNED | Ukuran file dalam bytes. Contoh: 245760 = 240 KB. Digunakan untuk validasi ("file terlalu besar") dan display informasi ukuran kepada pengguna. BIGINT UNSIGNED karena file bisa besar. | NOT NULL |
+| `created_at` | TIMESTAMP | Waktu upload. Otomatis diisi Laravel. Berguna untuk mengetahui kapan dokumen terakhir diunggah. | NULL |
+| `updated_at` | TIMESTAMP | Waktu terakhir record diperbarui. Otomatis diisi Laravel. | NULL |
 
-Setelah itu tulis SQL CREATE TABLE-nya dan diagram relasi.
-Lihat tabel 1-7 (users, roles, dll) punya Reyhan sebagai contoh format lengkap.
+### 🔹 SQL CREATE TABLE
 
-Mulai tulis di sini 👇
+```sql
+CREATE TABLE uploads (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+
+    peserta_id    BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (peserta_id) REFERENCES peserta(id) ON DELETE CASCADE,
+
+    jenis_dokumen ENUM('foto','ktm','cv','sertifikat') NOT NULL,
+
+    original_name VARCHAR(255)    NOT NULL,
+    file_path     VARCHAR(255)    NOT NULL,
+    mime_type     VARCHAR(100)    NOT NULL,
+    ukuran_file   BIGINT UNSIGNED NOT NULL,
+
+    created_at    TIMESTAMP       NULL,
+    updated_at    TIMESTAMP       NULL,
+
+    INDEX idx_peserta_jenis (peserta_id, jenis_dokumen)
+);
+```
+
+### 🔹 Relasi
+
+```
+peserta.id ──< uploads.peserta_id
+   Satu peserta bisa punya banyak dokumen (hasMany dari sisi Peserta).
+   Setiap upload belongsTo satu peserta.
+   ON DELETE CASCADE: kalau peserta dihapus, semua upload-nya ikut terhapus.
+```
+
+**Catatan penting:** Tabel ini hanya menyimpan **metadata** file. File fisiknya ada di `storage/app/public/dokumen-peserta/{jenis}/`. Untuk mengakses file, gunakan:
+```php
+Storage::disk('public')->url($upload->file_path);
+// Menghasilkan: http://localhost:8000/storage/dokumen-peserta/foto/abc123.jpg
+```
+
+### 🔹 Jenis Dokumen yang Didukung
+
+| Jenis | Keterangan | Format yang Diterima | Batas Ukuran |
+|-------|-----------|---------------------|-------------|
+| `foto` | Foto diri terbaru | JPG, PNG, WEBP | 2 MB |
+| `ktm` | Kartu Tanda Mahasiswa | JPG, PNG, WEBP | 2 MB |
+| `cv` | CV / Resume | PDF, JPG, PNG | 5 MB |
+| `sertifikat` | Sertifikat prestasi | PDF, JPG, PNG | 5 MB |
+
+> **Catatan:** Validasi format dan ukuran dilakukan di `StoreUploadRequest` dan `UpdateUploadRequest`, bukan di level database. Database hanya menyimpan apa yang sudah lolos validasi.
+
+### 🔹 Tips Penting
+
+1. 🧠 **File fisik dan metadata terpisah** — Database hanya menyimpan `file_path`. File aslinya ada di `storage/app/public/`. Pastikan kedua tempat ini sinkron — kalau file fisik dihapus tapi record di database masih ada, URL-nya akan broken.
+2. 🧠 **Jalankan `php artisan storage:link`** — Sebelum file bisa diakses via URL publik, pastikan sudah membuat symbolic link dari `public/storage` ke `storage/app/public`. Cukup dijalankan sekali saat setup.
+3. 🧠 **Cascade dari peserta** — Kalau record peserta dihapus, semua record di tabel `uploads` ikut terhapus. Tapi file fisiknya **tidak** otomatis terhapus dari storage — perlu logika tambahan di controller.
+4. 🧠 **Index gabungan `(peserta_id, jenis_dokumen)`** — Panitia sering query "tampilkan semua dokumen milik peserta X" atau "apakah peserta X sudah upload KTM?". Index gabungan ini mempercepat kedua jenis query tersebut.
+5. 🧠 **Satu peserta bisa punya lebih dari satu dokumen jenis yang sama** — Tabel ini tidak membatasi jumlah upload per jenis. Kalau peserta upload foto dua kali, ada dua record `jenis_dokumen = 'foto'`. Logika "hanya simpan yang terbaru" dikelola di level aplikasi, bukan database.
+
+### 🔹 Contoh Data
+
+| id | peserta_id | jenis_dokumen | original_name | file_path | mime_type | ukuran_file | created_at |
+|----|-----------|--------------|--------------|-----------|-----------|------------|------------|
+| 1 | 1 | foto | foto-ahmad.jpg | dokumen-peserta/foto/abc123.jpg | image/jpeg | 245760 | 2026-07-18T10:15:00Z |
+| 2 | 1 | ktm | ktm-ahmad.jpg | dokumen-peserta/ktm/def456.jpg | image/jpeg | 189440 | 2026-07-18T10:16:00Z |
+| 3 | 1 | cv | cv-ahmad-fauzi.pdf | dokumen-peserta/cv/ghi789.pdf | application/pdf | 512000 | 2026-07-18T10:17:00Z |
+| 4 | 2 | foto | selfie.png | dokumen-peserta/foto/jkl012.png | image/png | 378880 | 2026-07-18T11:00:00Z |
+
+Peserta id=1 (Ahmad) sudah mengupload 3 dokumen: foto, KTM, dan CV. Peserta id=2 (Siti) baru mengupload foto. Perhatikan `file_path` berbeda dari `original_name` — sistem menyimpan file dengan nama baru yang unik (UUID/hash) agar tidak ada konflik nama.
 
 ---
 
