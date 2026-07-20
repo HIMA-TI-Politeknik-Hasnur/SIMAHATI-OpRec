@@ -13,18 +13,13 @@ class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Role::query();
+        $query = Role::with('permissions');
 
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         $roles = $query->paginate($request->per_page ?? 10);
-
-        $roles->getCollection()->transform(function ($role) {
-            $role->permissions_count = $role->permissions()->count();
-            return $role;
-        });
 
         return response()->json([
             'success' => true,

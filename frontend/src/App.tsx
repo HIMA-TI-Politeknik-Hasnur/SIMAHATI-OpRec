@@ -125,7 +125,7 @@ function App() {
       setAuthLoading(false);
     };
     fetchUser();
-  }, []);
+  }, [currentPage]);
 
   const userRole = user?.roles?.[0] ?? '';
   const isPeserta = userRole === 'Peserta';
