@@ -114,7 +114,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        if (! $user) {
             RateLimiter::hit($key);
 
             return response()->json([
@@ -126,12 +126,24 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email belum diverifikasi. Silakan cek email Anda.',
                 'errors' => ['email' => ['Email belum diverifikasi.']],
             ], 403);
+        }
+
+        if (! Hash::check($request->password, $user->password)) {
+            RateLimiter::hit($key);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau password salah.',
+                'errors' => [
+                    'email' => ['Kredensial tidak valid.'],
+                ],
+            ], 401);
         }
 
         RateLimiter::clear($key);
