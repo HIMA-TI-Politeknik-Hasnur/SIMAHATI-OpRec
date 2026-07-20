@@ -1,4 +1,4 @@
-import { useRef, useState, DragEvent, ChangeEvent } from 'react';
+import { useRef, useState, type DragEvent, type ChangeEvent } from 'react';
 import './UploadCard.css';
 
 export type JenisDokumen = 'foto' | 'ktm' | 'cv' | 'sertifikat';
@@ -8,6 +8,9 @@ interface UploadCardProps {
   file: File | null;
   onChange: (jenis: JenisDokumen, file: File | null) => void;
   error?: string;
+  existingUrl?: string;
+  uploading?: boolean;
+  onDelete?: (jenis: JenisDokumen) => void;
 }
 
 const DOKUMEN_META: Record<JenisDokumen, { title: string; icon: string; accept: string; hint: string }> = {
@@ -27,11 +30,12 @@ function isImage(file: File): boolean {
   return file.type.startsWith('image/');
 }
 
-export const UploadCard = ({ jenis, file, onChange, error }: UploadCardProps) => {
+export const UploadCard = ({ jenis, file, onChange, error, existingUrl, uploading, onDelete }: UploadCardProps) => {
   const meta    = DOKUMEN_META[jenis];
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [existingPreview, setExistingPreview] = useState<string | null>(existingUrl ?? null);
 
   const handleFile = (selected: File) => {
     onChange(jenis, selected);
@@ -46,7 +50,10 @@ export const UploadCard = ({ jenis, file, onChange, error }: UploadCardProps) =>
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) handleFile(selected);
+    if (selected) {
+      setExistingPreview(null);
+      handleFile(selected);
+    }
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
@@ -79,25 +86,46 @@ export const UploadCard = ({ jenis, file, onChange, error }: UploadCardProps) =>
         </div>
       </div>
 
+      {uploading && (
+        <div className="upload-card__loading">
+          <div className="upload-card__loading-spinner" />
+          <span>Mengunggah...</span>
+        </div>
+      )}
+
       {/* Konten: preview atau drop zone */}
-      {file ? (
+      {file || existingPreview ? (
         <div className="upload-card__preview">
-          {previewUrl
-            ? <img src={previewUrl} alt={`Preview ${meta.title}`} className="upload-card__preview-thumb" />
+          {previewUrl || existingPreview
+            ? <img src={previewUrl || existingPreview!} alt={`Preview ${meta.title}`} className="upload-card__preview-thumb" />
             : <div className="upload-card__preview-icon">📄</div>
           }
           <div className="upload-card__preview-detail">
-            <p className="upload-card__preview-name">{file.name}</p>
-            <p className="upload-card__preview-size">{formatSize(file.size)}</p>
+            <p className="upload-card__preview-name">{file?.name ?? `(${meta.title} terunggah)`}</p>
+            {file && <p className="upload-card__preview-size">{formatSize(file.size)}</p>}
+            {existingPreview && !file && <p className="upload-card__preview-size">Sudah diunggah</p>}
           </div>
-          <button
-            type="button"
-            className="upload-card__remove"
-            onClick={handleRemove}
-            aria-label={`Hapus ${meta.title}`}
-          >
-            ×
-          </button>
+          <div className="upload-card__actions">
+            {existingPreview && !file && onDelete && (
+              <button
+                type="button"
+                className="upload-card__delete"
+                onClick={() => onDelete(jenis)}
+                aria-label={`Hapus ${meta.title} dari server`}
+                title="Hapus dari server"
+              >
+                🗑️
+              </button>
+            )}
+            <button
+              type="button"
+              className="upload-card__remove"
+              onClick={handleRemove}
+              aria-label={`Hapus ${meta.title}`}
+            >
+              ×
+            </button>
+          </div>
         </div>
       ) : (
         <div
