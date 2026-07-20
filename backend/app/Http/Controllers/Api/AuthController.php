@@ -126,7 +126,8 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (! $user->hasVerifiedEmail()) {
+        $isPeserta = $user->roles->pluck('slug')->contains('peserta');
+        if ($isPeserta && !$user->hasVerifiedEmail()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email belum diverifikasi. Silakan cek email Anda.',

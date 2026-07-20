@@ -46,10 +46,12 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $data) {
+            $now = now();
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
+                'email_verified_at' => $data['role'] !== 'peserta' ? $now : null,
             ]);
 
             $role = Role::where('slug', $data['role'])->first();
