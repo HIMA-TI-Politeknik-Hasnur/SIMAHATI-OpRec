@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { apiFetch, getAuthToken, isSessionAuth, sessionFetch, clearAuth, apiPost, sessionPost } from '../api';
 import { AdminRoleManagement } from './AdminDashboardRoleManagement';
 import { AdminPengumuman } from './AdminDashboardPengumuman';
+import { DivisiPage } from './DivisiPage';
+import { InterviewPage } from './InterviewPage';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -65,6 +67,8 @@ const pageTitles: Record<string, string> = {
   dashboard: 'Dashboard',
   'role-management': 'Role Management',
   pengumuman: 'Pengumuman',
+  divisi: 'Kelola Divisi',
+  interview: 'Penjadwalan Interview',
 };
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
@@ -142,8 +146,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const handleSidebarClick = (key: string) => {
     const externalPages: Record<string, string> = {
       peserta: 'dashboard-peserta',
-      divisi: 'divisi',
-      interview: 'interview',
       settings: 'cms',
     };
     if (externalPages[key]) {
@@ -159,6 +161,10 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return <AdminRoleManagement />;
       case 'pengumuman':
         return <AdminPengumuman />;
+      case 'divisi':
+        return <DivisiPage onViewDetail={(id) => onNavigate('divisi-detail')} />;
+      case 'interview':
+        return <InterviewPage />;
       default:
         return (
           <>
