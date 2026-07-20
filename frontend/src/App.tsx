@@ -1,122 +1,131 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import { LandingPage } from './pages/LandingPage';
+import { Dashboard } from './pages/Dashboard';
+import { CmsPanel } from './pages/CmsPanel';
+
+// ─── Halaman Nadil: Pendaftaran ───────────────────────────────
+import { DashboardPeserta }    from './pages/DashboardPeserta';
+import { FormPendaftaran }     from './pages/FormPendaftaran';
+import { UploadDokumen }       from './pages/UploadDokumen';
+import { PreviewPendaftaran }  from './pages/PreviewPendaftaran';
+import { StatusPendaftaran }   from './pages/StatusPendaftaran';
+
+// Halaman yang tersedia
+type Page =
+  | 'landing'
+  | 'dashboard'
+  | 'cms'
+  | 'dashboard-peserta'
+  | 'form-pendaftaran'
+  | 'upload-dokumen'
+  | 'preview-pendaftaran'
+  | 'status-pendaftaran';
+
+// Demo peserta ID — akan diganti dengan ID dari session auth (Reyhan)
+const DEMO_PESERTA_ID = 1;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState<Page>('landing');
+  const [pesertaId,   setPesertaId]   = useState<number>(DEMO_PESERTA_ID);
+
+  // ─── Navigasi dari DashboardPeserta ke sub-halaman ───────────
+  const handlePesertaNavigate = (page: string, id?: number) => {
+    if (id) setPesertaId(id);
+    const pageMap: Record<string, Page> = {
+      form:    'form-pendaftaran',
+      upload:  'upload-dokumen',
+      preview: 'preview-pendaftaran',
+      status:  'status-pendaftaran',
+    };
+    if (pageMap[page]) setCurrentPage(pageMap[page]);
+  };
+
+  // ─── Tombol navigasi developer (demo) ────────────────────────
+  const navButtons: { label: string; page: Page }[] = [
+    { label: 'Landing Page',        page: 'landing'             },
+    { label: 'Dashboard Admin',     page: 'dashboard'           },
+    { label: 'CMS Admin',           page: 'cms'                 },
+    { label: '📋 Dashboard Peserta', page: 'dashboard-peserta'  },
+    { label: '📝 Form Pendaftaran',  page: 'form-pendaftaran'   },
+    { label: '📎 Upload Dokumen',    page: 'upload-dokumen'     },
+    { label: '👁️ Preview',           page: 'preview-pendaftaran'},
+    { label: '🔔 Status',            page: 'status-pendaftaran' },
+  ];
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div>
+      {/* ─── Dev nav bar ─────────────────────────────────────── */}
+      <div style={{
+        background: '#1e293b', padding: '8px 12px',
+        display: 'flex', gap: '6px', flexWrap: 'wrap',
+        justifyContent: 'center', zIndex: 1000, position: 'relative',
+      }}>
+        {navButtons.map(({ label, page }) => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            style={{
+              padding: '6px 12px',
+              background: currentPage === page ? '#3b82f6' : '#334155',
+              color: 'white', border: 'none', borderRadius: '4px',
+              cursor: 'pointer', fontSize: '0.8rem', whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-      <div className="ticks"></div>
+      {/* ─── Halaman aktif ───────────────────────────────────── */}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {currentPage === 'landing' && <LandingPage />}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {currentPage === 'dashboard' && <Dashboard />}
+
+      {currentPage === 'cms' && <CmsPanel />}
+
+      {/* Halaman Nadil */}
+      {currentPage === 'dashboard-peserta' && (
+        <DashboardPeserta
+          pesertaId={pesertaId}
+          onNavigate={handlePesertaNavigate}
+        />
+      )}
+
+      {currentPage === 'form-pendaftaran' && (
+        <FormPendaftaran
+          onBack={() => setCurrentPage('dashboard-peserta')}
+          onSuccess={(id) => {
+            setPesertaId(id);
+            setCurrentPage('upload-dokumen');
+          }}
+        />
+      )}
+
+      {currentPage === 'upload-dokumen' && (
+        <UploadDokumen
+          pesertaId={pesertaId}
+          onBack={() => setCurrentPage('form-pendaftaran')}
+          onSuccess={() => setCurrentPage('preview-pendaftaran')}
+        />
+      )}
+
+      {currentPage === 'preview-pendaftaran' && (
+        <PreviewPendaftaran
+          pesertaId={pesertaId}
+          onBack={() => setCurrentPage('upload-dokumen')}
+          onSubmitSuccess={() => setCurrentPage('status-pendaftaran')}
+        />
+      )}
+
+      {currentPage === 'status-pendaftaran' && (
+        <StatusPendaftaran
+          pesertaId={pesertaId}
+          onBack={() => setCurrentPage('dashboard-peserta')}
+        />
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
