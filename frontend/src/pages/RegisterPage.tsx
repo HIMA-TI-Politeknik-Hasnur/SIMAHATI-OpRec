@@ -17,6 +17,7 @@ interface UserData {
   name: string;
   email: string;
   roles: string[];
+  peserta_id?: number | null;
 }
 
 interface RegisterPageProps {

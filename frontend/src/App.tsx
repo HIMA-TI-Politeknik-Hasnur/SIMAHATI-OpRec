@@ -306,7 +306,8 @@ function App() {
             setIsLoggedIn(true);
             setUser(userData);
             setStoredUser(userData);
-            setCurrentPage('login');
+            if (userData.peserta_id) setPesertaId(userData.peserta_id);
+            setCurrentPage('dashboard-peserta');
           }}
           onSwitchToLogin={() => setCurrentPage('login')}
         />

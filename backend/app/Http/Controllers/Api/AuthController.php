@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Peserta;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,6 +22,19 @@ class AuthController extends Controller
             'password' => $request->password,
         ]);
 
+        $role = Role::where('slug', 'peserta')->first();
+        if ($role) {
+            $user->roles()->attach($role->id);
+        }
+
+        $peserta = Peserta::create([
+            'user_id' => $user->id,
+            'nama_lengkap' => $request->name,
+            'email' => $request->email,
+            'status_verifikasi' => 'pending',
+            'status_seleksi' => 'draft',
+        ]);
+
         $user->load('roles', 'peserta');
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -33,7 +48,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'roles' => $user->roles->pluck('name'),
-                    'peserta_id' => $user->peserta?->id,
+                    'peserta_id' => $peserta->id,
                 ],
                 'token' => $token,
             ],

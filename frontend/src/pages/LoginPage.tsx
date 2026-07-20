@@ -7,7 +7,7 @@ interface LoginResponse {
   success: boolean;
   message: string;
   data: {
-    user: { id: number; name: string; email: string; roles?: string[] };
+    user: { id: number; name: string; email: string; roles?: string[]; peserta_id?: number | null };
     token: string;
   };
 }
@@ -17,6 +17,7 @@ interface UserData {
   name: string;
   email: string;
   roles: string[];
+  peserta_id?: number | null;
 }
 
 interface LoginPageProps {
