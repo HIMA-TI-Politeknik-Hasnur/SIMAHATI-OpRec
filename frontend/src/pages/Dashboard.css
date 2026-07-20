@@ -1,5 +1,7 @@
 .dashboard-layout {
   display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
   min-height: 100vh;
   background-color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;

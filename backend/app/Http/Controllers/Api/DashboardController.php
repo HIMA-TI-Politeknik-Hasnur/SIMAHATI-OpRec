@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Interview;
+use App\Models\Peserta;
 use App\Models\Pengumuman;
-use App\Models\Role;
 use App\Models\User;
 use App\Models\Divisi;
 
@@ -13,22 +13,16 @@ class DashboardController extends Controller
 {
     public function stats()
     {
-        $pendaftarRole = Role::where('name', 'pendaftar')->first();
-        $totalPendaftar = $pendaftarRole ? $pendaftarRole->users()->count() : 0;
+        $totalPendaftar = Peserta::count();
 
-        $lolosAdministrasi = User::where('registration_status', 'lolos_administrasi')->count();
-        $lolosWawancara = User::where('registration_status', 'lolos_wawancara')->count();
+        $lolosAdministrasi = Peserta::where('status_verifikasi', 'verified')->count();
+        $lolosWawancara = Peserta::where('status_seleksi', 'accepted')->count();
 
-        $adminRoles = ['super_admin', 'admin_oprec'];
-        $totalAdmin = User::whereHas('roles', function ($q) use ($adminRoles) {
-            $q->whereIn('name', $adminRoles);
+        $totalAdmin = User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['Super Admin', 'Admin']);
         })->count();
 
-        $totalDivisi = 0;
-        if (class_exists('App\Models\Divisi')) {
-            $totalDivisi = Divisi::count();
-        }
-
+        $totalDivisi = Divisi::count();
         $totalInterview = Interview::count();
         $totalPengumuman = Pengumuman::count();
 

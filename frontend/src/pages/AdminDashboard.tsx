@@ -248,9 +248,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <div className="admin-db-sidebar-email">{user.email}</div>
             </>
           )}
-          <button className="admin-db-logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
         </div>
       </aside>
 

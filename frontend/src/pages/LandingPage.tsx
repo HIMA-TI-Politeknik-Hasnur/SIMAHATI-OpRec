@@ -2,7 +2,11 @@ import './LandingPage.css';
 import { Timeline } from '../components/Timeline';
 import { Accordion } from '../components/Accordion';
 
-export const LandingPage = () => {
+interface LandingPageProps {
+  onNavigate: (page: string) => void;
+}
+
+export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   // Dummy data for preview
   const timelineEvents = [
     { id: 1, judul: 'Pendaftaran Buka', tanggal_mulai: '2026-08-01', is_active: true },
@@ -17,21 +21,11 @@ export const LandingPage = () => {
 
   return (
     <div className="landing-wrapper">
-      <nav className="navbar">
-        <div className="nav-logo">SIMAHATI OPREC</div>
-        <ul className="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#timeline">Timeline</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li><button className="nav-btn">Login</button></li>
-        </ul>
-      </nav>
-
       <section className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">Waktunya Berkontribusi untuk HIMATI</h1>
           <p className="hero-subtitle">Open Recruitment Pengurus Himpunan Mahasiswa Teknik Informatika 2026</p>
-          <button className="hero-cta">Daftar Sekarang</button>
+          <button className="hero-cta" onClick={() => onNavigate('register')}>Daftar Sekarang</button>
         </div>
         <div className="hero-glowing-blob"></div>
       </section>

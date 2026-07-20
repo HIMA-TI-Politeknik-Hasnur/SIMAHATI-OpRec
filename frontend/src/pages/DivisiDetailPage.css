@@ -1,4 +1,6 @@
 .page-layout {
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 2.5rem 3rem;
   background-color: #f9fafb;
   min-height: 100vh;

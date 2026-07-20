@@ -1,71 +1,74 @@
-.app-nav {
-  background: #1e293b;
-  padding: 10px 20px;
+.navbar {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  z-index: 1000;
-  position: relative;
-  border-bottom: 2px solid #0f172a;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid #fed7aa;
 }
 
-.app-nav-group {
-  color: #64748b;
-  font-size: 0.75rem;
-  align-self: center;
-  padding: 0 4px 0 12px;
-  border-left: 1px solid #475569;
+.nav-logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
 }
 
-.app-nav-group:first-of-type {
-  border-left: none;
-  padding-left: 0;
-  padding-right: 4px;
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
-.app-nav-btn {
-  padding: 8px 16px;
+.nav-links a {
+  text-decoration: none;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #ea580c;
+}
+
+.nav-btn {
+  background: linear-gradient(135deg, #ea580c, #f97316);
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 0.4rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 0.875rem;
+  transition: opacity 0.3s, transform 0.2s;
 }
 
-.app-nav-btn--rizky {
-  background: #334155;
+.nav-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.app-nav-btn--rizky.active {
-  background: #3b82f6;
+.nav-btn--outline {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
 }
 
-.app-nav-btn--anton {
-  background: #334155;
-}
-
-.app-nav-btn--anton.active {
-  background: #ea580c;
-}
-
-.app-nav-btn--reyhan {
-  padding: 6px 12px;
-  background: #334155;
-  font-size: 0.8rem;
-}
-
-.app-nav-btn--reyhan.active {
-  background: #22c55e;
-}
-
-.app-nav-btn--nadil {
-  padding: 6px 12px;
-  background: #334155;
-  font-size: 0.8rem;
-}
-
-.app-nav-btn--nadil.active {
-  background: #3b82f6;
+.nav-btn--outline:hover {
+  border-color: #ea580c;
+  color: #ea580c;
 }

@@ -1,5 +1,7 @@
 .cms-layout {
   display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
   min-height: 100vh;
   background-color: #f9fafb;
   font-family: 'Inter', system-ui, sans-serif;

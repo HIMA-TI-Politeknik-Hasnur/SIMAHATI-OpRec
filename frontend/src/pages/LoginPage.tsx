@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiPost, setAuthToken, fetchCsrfCookie, sessionPost, setSessionAuth, getAuthToken, refreshAuthToken } from '../api';
+import { apiPost, setAuthToken, setStoredUser, fetchCsrfCookie, sessionPost, setSessionAuth, getAuthToken, refreshAuthToken } from '../api';
 import { Alert } from '../components/Alert';
 import './LoginPage.css';
 
@@ -12,8 +12,15 @@ interface LoginResponse {
   };
 }
 
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+}
+
 interface LoginPageProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (user: UserData) => void;
   onSwitchToRegister: () => void;
   onForgotPassword?: () => void;
 }
@@ -47,7 +54,8 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword
 
     if (data) {
       setAuthToken(data.data.token);
-      onLoginSuccess();
+      setStoredUser(data.data.user);
+      onLoginSuccess(data.data.user);
     }
     setLoading(false);
   };
@@ -56,10 +64,11 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword
     setLoading(true);
     setError('');
     await fetchCsrfCookie();
-    const res = await sessionPost<{ success: boolean; data: { user: { id: number; name: string; email: string; roles: string[] } } }>('/api/session/login', { email, password });
+    const res = await sessionPost<{ success: boolean; data: { user: UserData } }>('/api/session/login', { email, password });
     if (res.data?.success) {
       setSessionAuth();
-      onLoginSuccess();
+      setStoredUser(res.data.data.user);
+      onLoginSuccess(res.data.data.user);
     } else {
       setError(res.error?.message || 'Login gagal.');
     }

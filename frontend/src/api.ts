@@ -1,4 +1,13 @@
 const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'auth_user';
+
+export interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+  peserta_id?: number | null;
+}
 
 export function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -14,6 +23,23 @@ export function removeAuthToken(): void {
 
 export function isAuthenticated(): boolean {
   return !!getAuthToken();
+}
+
+export function getStoredUser(): UserData | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredUser(user: UserData): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function removeStoredUser(): void {
+  localStorage.removeItem(USER_KEY);
 }
 
 interface ApiError {
@@ -123,5 +149,6 @@ export function setSessionAuth(): void {
 
 export function clearAuth(): void {
   removeAuthToken();
+  removeStoredUser();
   localStorage.removeItem('auth_method');
 }

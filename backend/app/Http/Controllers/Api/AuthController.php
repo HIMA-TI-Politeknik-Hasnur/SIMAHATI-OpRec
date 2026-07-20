@@ -20,13 +20,21 @@ class AuthController extends Controller
             'password' => $request->password,
         ]);
 
+        $user->load('roles', 'peserta');
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Registrasi berhasil.',
             'data' => [
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'roles' => $user->roles->pluck('name'),
+                    'peserta_id' => $user->peserta?->id,
+                ],
                 'token' => $token,
             ],
         ], 201);
@@ -53,7 +61,7 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        $user = $request->user()->load('roles.permissions');
+        $user = $request->user()->load('roles.permissions', 'peserta');
 
         $roles = $user->roles->pluck('name');
         $permissions = $user->roles
@@ -69,6 +77,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'roles' => $roles,
                 'permissions' => $permissions,
+                'peserta_id' => $user->peserta?->id,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ],
@@ -114,7 +123,7 @@ class AuthController extends Controller
         RateLimiter::clear($key);
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $user->load('roles');
+        $user->load('roles', 'peserta');
 
         return response()->json([
             'success' => true,
@@ -125,6 +134,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'roles' => $user->roles->pluck('name'),
+                    'peserta_id' => $user->peserta?->id,
                 ],
                 'token' => $token,
             ],
@@ -169,7 +179,7 @@ class AuthController extends Controller
         if (auth()->attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            $user = auth()->user()->load('roles');
+            $user = auth()->user()->load('roles', 'peserta');
 
             return response()->json([
                 'success' => true,
@@ -180,6 +190,7 @@ class AuthController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'roles' => $user->roles->pluck('name'),
+                        'peserta_id' => $user->peserta?->id,
                     ],
                 ],
             ]);
@@ -205,7 +216,7 @@ class AuthController extends Controller
 
     public function sessionUser(Request $request)
     {
-        $user = $request->user()->load('roles.permissions');
+        $user = $request->user()->load('roles.permissions', 'peserta');
 
         return response()->json([
             'success' => true,
@@ -215,6 +226,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'roles' => $user->roles->pluck('name'),
                 'permissions' => $user->roles->flatMap(fn ($r) => $r->permissions->pluck('name'))->unique()->values(),
+                'peserta_id' => $user->peserta?->id,
             ],
         ]);
     }

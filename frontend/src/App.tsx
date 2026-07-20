@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { CmsPanel } from './pages/CmsPanel';
@@ -17,6 +17,18 @@ import { RegisterPage } from './pages/RegisterPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import {
+  apiFetch,
+  apiPost,
+  isAuthenticated,
+  isSessionAuth,
+  getStoredUser,
+  setStoredUser,
+  clearAuth,
+  sessionFetch,
+  sessionPost,
+  type UserData,
+} from './api';
 import './App.css';
 
 type Page =
@@ -39,22 +51,78 @@ type Page =
   | 'forgot-password'
   | 'reset-password';
 
-const navItems: { key: Page; label: string; group: 'rizky' | 'anton' }[] = [
-  { key: 'landing',          label: 'Landing Page',         group: 'rizky' },
-  { key: 'dashboard',        label: 'Dashboard Pendaftar',   group: 'rizky' },
-  { key: 'cms',              label: 'CMS Admin',             group: 'rizky' },
-  { key: 'dashboard-divisi', label: 'Dashboard Divisi',      group: 'anton' },
-  { key: 'divisi',           label: 'Kelola Divisi',         group: 'anton' },
-  { key: 'interview',        label: 'Jadwal Interview',      group: 'anton' },
-  { key: 'penilaian',        label: 'Penilaian Interview',   group: 'anton' },
+interface NavLink {
+  label: string;
+  action: Page | 'scroll-about' | 'scroll-timeline' | 'scroll-faq' | 'logout';
+  match?: Page[];
+}
+
+const guestLinks: NavLink[] = [
+  { label: 'Beranda', action: 'landing' },
+  { label: 'Tentang', action: 'scroll-about' },
+  { label: 'Timeline', action: 'scroll-timeline' },
+  { label: 'FAQ', action: 'scroll-faq' },
+  { label: 'Login', action: 'login' },
+  { label: 'Daftar', action: 'register' },
 ];
 
-const DEMO_PESERTA_ID = 1;
+const pesertaLinks: NavLink[] = [
+  { label: 'Dashboard', action: 'dashboard-peserta' },
+  { label: 'Pendaftaran', action: 'form-pendaftaran' },
+  { label: 'Logout', action: 'logout' },
+];
+
+const adminLinks: NavLink[] = [
+  { label: 'Dashboard', action: 'admin-dashboard' },
+  { label: 'Divisi', action: 'divisi', match: ['divisi-detail'] },
+  { label: 'Interview', action: 'interview' },
+  { label: 'Penilaian', action: 'penilaian' },
+  { label: 'Logout', action: 'logout' },
+];
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const [selectedDivisiId, setSelectedDivisiId] = useState<number | null>(null);
-  const [pesertaId, setPesertaId] = useState<number>(DEMO_PESERTA_ID);
+  const [pesertaId, setPesertaId] = useState<number | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => isAuthenticated());
+  const [user, setUser] = useState<UserData | null>(() => getStoredUser());
+  const [authLoading, setAuthLoading] = useState(() => isAuthenticated() && !getStoredUser());
+
+  useEffect(() => {
+    if (!isAuthenticated()) return;
+    if (getStoredUser()) return;
+
+    const fetchUser = async () => {
+      const { data, error: apiError } = isSessionAuth()
+        ? await sessionFetch<{ success: boolean; data: UserData }>('/api/session/user')
+        : await apiFetch<{ success: boolean; data: UserData }>('/api/user');
+
+      if (data?.data) {
+        const u = data.data;
+        setUser(u);
+        setStoredUser(u);
+        if (u.peserta_id) setPesertaId(u.peserta_id);
+      } else if (apiError) {
+        clearAuth();
+        setIsLoggedIn(false);
+        setCurrentPage('landing');
+      }
+      setAuthLoading(false);
+    };
+    fetchUser();
+  }, []);
+
+  const userRole = user?.roles?.[0] ?? '';
+  const isPeserta = userRole === 'Peserta';
+
+  const navMode: 'guest' | 'peserta' | 'admin' =
+    !isLoggedIn ? 'guest' :
+    isPeserta ? 'peserta' :
+    'admin';
+
+  const currentLinks = navMode === 'guest' ? guestLinks
+    : navMode === 'peserta' ? pesertaLinks
+    : adminLinks;
 
   const handleViewDivisiDetail = (id: number) => {
     setSelectedDivisiId(id);
@@ -72,60 +140,88 @@ function App() {
     if (pageMap[page]) setCurrentPage(pageMap[page]);
   };
 
-  const isActive = (key: Page) => currentPage === key || (key === 'divisi' && currentPage === 'divisi-detail');
+  const handleLogout = async () => {
+    try {
+      if (isSessionAuth()) {
+        await sessionPost('/api/session/logout');
+      } else {
+        await apiPost('/api/logout');
+      }
+    } catch {
+    }
+    clearAuth();
+    setIsLoggedIn(false);
+    setUser(null);
+    setPesertaId(null);
+    setCurrentPage('landing');
+  };
 
-  const cls = (key: Page, group: string) =>
-    `app-nav-btn--${group}${isActive(key) ? ' active' : ''}`;
+  const handleNav = (action: string) => {
+    if (action === 'logout') {
+      handleLogout();
+      return;
+    }
+    if (action.startsWith('scroll-')) {
+      const sectionId = action.replace('scroll-', '');
+      if (currentPage !== 'landing') {
+        setCurrentPage('landing');
+        setTimeout(() => {
+          document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+      } else {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+    setCurrentPage(action as Page);
+  };
 
-  const reyhanPages: { key: Page; label: string }[] = [
-    { key: 'login', label: 'Login' },
-    { key: 'register', label: 'Register' },
-    { key: 'admin-dashboard', label: 'Admin Dashboard' },
-    { key: 'forgot-password', label: 'Forgot Password' },
-    { key: 'reset-password', label: 'Reset Password' },
-  ];
+  const isNavActive = (link: NavLink) =>
+    currentPage === link.action || (link.match?.includes(currentPage) ?? false);
 
-  const nadilPages: { key: Page; label: string }[] = [
-    { key: 'dashboard-peserta', label: 'Dashboard Peserta' },
-    { key: 'form-pendaftaran', label: 'Form Pendaftaran' },
-    { key: 'upload-dokumen', label: 'Upload Dokumen' },
-    { key: 'preview-pendaftaran', label: 'Preview' },
-    { key: 'status-pendaftaran', label: 'Status' },
-  ];
+  if (authLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a', color: '#94a3b8' }}>
+        Memuat...
+      </div>
+    );
+  }
 
   return (
     <div>
-      <nav className="app-nav">
-        <span className="app-nav-group" style={{ paddingRight: '4px', borderLeft: 'none' }}>Rizky:</span>
-        {navItems.filter(n => n.group === 'rizky').map(n => (
-          <button key={n.key} className={`app-nav-btn ${cls(n.key, 'rizky')}`} onClick={() => setCurrentPage(n.key)}>
-            {n.label}
-          </button>
-        ))}
-
-        <span className="app-nav-group">Anton:</span>
-        {navItems.filter(n => n.group === 'anton').map(n => (
-          <button key={n.key} className={`app-nav-btn ${cls(n.key, 'anton')}`} onClick={() => setCurrentPage(n.key)}>
-            {n.label}
-          </button>
-        ))}
-
-        <span className="app-nav-group">Reyhan:</span>
-        {reyhanPages.map(p => (
-          <button key={p.key} className={`app-nav-btn ${cls(p.key, 'reyhan')}`} onClick={() => setCurrentPage(p.key)}>
-            {p.label}
-          </button>
-        ))}
-
-        <span className="app-nav-group">Nadil:</span>
-        {nadilPages.map(p => (
-          <button key={p.key} className={`app-nav-btn ${cls(p.key, 'nadil')}`} onClick={() => setCurrentPage(p.key)}>
-            {p.label}
-          </button>
-        ))}
+      <nav className="navbar">
+        <div className="nav-logo" onClick={() => setCurrentPage('landing')}>
+          SIMAHATI OPREC
+        </div>
+        <ul className="nav-links">
+          {currentLinks.map(link => (
+            <li key={link.action}>
+              {link.action === 'logout' || ['login', 'register', 'daftar'].includes(String(link.action)) ? (
+                <button
+                  className={`nav-btn${link.action === 'logout' ? ' nav-btn--outline' : ''}`}
+                  onClick={() => handleNav(link.action)}
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <a
+                  href={link.action.startsWith('scroll-') ? `#${link.action.replace('scroll-', '')}` : `#${link.action}`}
+                  className={isNavActive(link) ? 'active' : ''}
+                  onClick={(e) => { e.preventDefault(); handleNav(link.action); }}
+                >
+                  {link.label}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
       </nav>
 
-      {currentPage === 'landing'          && <LandingPage />}
+      {currentPage === 'landing' && (
+        <LandingPage
+          onNavigate={(page) => handleNav(page)}
+        />
+      )}
       {currentPage === 'dashboard'        && <Dashboard />}
       {currentPage === 'cms'              && <CmsPanel />}
       {currentPage === 'dashboard-divisi' && <DashboardDivisi />}
@@ -177,14 +273,26 @@ function App() {
       )}
       {currentPage === 'login' && (
         <LoginPage
-          onLoginSuccess={() => setCurrentPage('admin-dashboard')}
+          onLoginSuccess={(userData) => {
+            setIsLoggedIn(true);
+            setUser(userData);
+            setStoredUser(userData);
+            if (userData.peserta_id) setPesertaId(userData.peserta_id);
+            const role = userData.roles?.[0] ?? '';
+            setCurrentPage(role === 'Peserta' ? 'dashboard-peserta' : 'admin-dashboard');
+          }}
           onSwitchToRegister={() => setCurrentPage('register')}
           onForgotPassword={() => setCurrentPage('forgot-password')}
         />
       )}
       {currentPage === 'register' && (
         <RegisterPage
-          onRegisterSuccess={() => setCurrentPage('login')}
+          onRegisterSuccess={(userData) => {
+            setIsLoggedIn(true);
+            setUser(userData);
+            setStoredUser(userData);
+            setCurrentPage('login');
+          }}
           onSwitchToLogin={() => setCurrentPage('login')}
         />
       )}
