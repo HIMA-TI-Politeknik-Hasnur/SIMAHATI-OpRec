@@ -15,9 +15,10 @@ interface LoginResponse {
 interface LoginPageProps {
   onLoginSuccess: () => void;
   onSwitchToRegister: () => void;
+  onForgotPassword?: () => void;
 }
 
-export function LoginPage({ onLoginSuccess, onSwitchToRegister }: LoginPageProps) {
+export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -95,6 +96,18 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
           <button type="submit" className="auth-btn" disabled={loading}>
             {loading ? 'Memproses...' : 'Masuk'}
           </button>
+
+          <div style={{ textAlign: 'center', marginTop: '8px' }}>
+            <button
+              type="button"
+              className="auth-link"
+              onClick={onForgotPassword}
+              disabled={loading}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Lupa Password?
+            </button>
+          </div>
         </form>
 
         <p className="auth-footer">
