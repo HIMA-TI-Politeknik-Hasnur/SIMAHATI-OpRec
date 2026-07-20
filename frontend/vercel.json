@@ -5,15 +5,15 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://RAILWAY_URL/api/$1"
+      "destination": "https://simahati-backend.onrender.com/api/$1"
     },
     {
       "source": "/sanctum/(.*)",
-      "destination": "https://RAILWAY_URL/sanctum/$1"
+      "destination": "https://simahati-backend.onrender.com/sanctum/$1"
     },
     {
       "source": "/storage/(.*)",
-      "destination": "https://RAILWAY_URL/storage/$1"
+      "destination": "https://simahati-backend.onrender.com/storage/$1"
     },
     {
       "source": "/(.*)",

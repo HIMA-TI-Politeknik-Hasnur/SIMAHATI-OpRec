@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: simahati-backend
+    env: docker
+    repo: https://github.com/NAMA_USER/NAMA_REPO.git
+    branch: main
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://simahati-backend.onrender.com
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: simahati-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: simahati-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: simahati-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: simahati-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: simahati-db
+          property: password
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: CACHE_STORE
+        value: database
+
+databases:
+  - name: simahati-db
+    type: postgresql
+    plan: free
+    ipAllowList: []
