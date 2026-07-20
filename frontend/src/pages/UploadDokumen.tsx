@@ -26,10 +26,13 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUp
   const [fieldErrors, setFieldErrors] = useState<Partial<ErrorMap>>({});
   const [apiError, setApiError]   = useState<string | null>(null);
   const [apiSuccess, setApiSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
+  const [localUploads, setLocalUploads] = useState<UploadRecord[]>(existingUploads || []);
 
   useEffect(() => {
     if (existingUploads?.length) {
+      setLocalUploads(existingUploads);
       setApiSuccess('Dokumen sudah pernah diunggah.');
     }
   }, [existingUploads]);
@@ -41,7 +44,7 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUp
 
   const validate = (): boolean => {
     const errs: Partial<ErrorMap> = {};
-    const sudahUpload = new Set((existingUploads || []).map(u => u.jenis_dokumen));
+    const sudahUpload = new Set(localUploads.map(u => u.jenis_dokumen));
     WAJIB.forEach(j => {
       if (!files[j] && !sudahUpload.has(j)) errs[j] = 'Dokumen ini wajib diunggah.';
     });
@@ -50,23 +53,71 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUp
   };
 
   const uploadSingle = async (jenis: JenisDokumen, file: File): Promise<void> => {
-    const fd = new FormData();
-    fd.append('peserta_id',    String(pesertaId));
-    fd.append('jenis_dokumen', jenis);
-    fd.append('file',          file);
+    setUploadingMap(prev => ({ ...prev, [jenis]: true }));
+    try {
+      const existing = localUploads.find(u => u.jenis_dokumen === jenis);
+      const token = getAuthToken();
+      const headers: Record<string, string> = { Accept: 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const token = getAuthToken();
-    const headers: Record<string, string> = { Accept: 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    const res = await fetch('/api/upload', {
-      method:  'POST',
-      headers,
-      body:    fd,
-    });
+      const fd = new FormData();
+      fd.append('peserta_id',    String(pesertaId));
+      fd.append('jenis_dokumen', jenis);
+      fd.append('file',          file);
 
-    if (!res.ok) {
+      const url  = existing ? `/api/upload/${existing.id}` : '/api/upload';
+      const method = existing ? 'PUT' : 'POST';
+
+      if (existing) {
+        fd.append('_method', 'PUT');
+      }
+
+      const res = await fetch(url, {
+        method: existing ? 'POST' : 'POST',
+        headers,
+        body: fd,
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.message ?? `Gagal mengunggah ${jenis}.`);
+      }
+
       const json = await res.json();
-      throw new Error(json.message ?? `Gagal mengunggah ${jenis}.`);
+      setLocalUploads(prev => {
+        const filtered = prev.filter(u => u.jenis_dokumen !== jenis);
+        return [...filtered, json.data];
+      });
+    } finally {
+      setUploadingMap(prev => ({ ...prev, [jenis]: false }));
+    }
+  };
+
+  const handleDelete = async (jenis: JenisDokumen) => {
+    const existing = localUploads.find(u => u.jenis_dokumen === jenis);
+    if (!existing) return;
+
+    setUploadingMap(prev => ({ ...prev, [jenis]: true }));
+    try {
+      const token = getAuthToken();
+      const headers: Record<string, string> = { Accept: 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/upload/${existing.id}`, {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.message ?? `Gagal menghapus ${jenis}.`);
+      }
+
+      setLocalUploads(prev => prev.filter(u => u.id !== existing.id));
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Gagal menghapus file.');
+    } finally {
+      setUploadingMap(prev => ({ ...prev, [jenis]: false }));
     }
   };
 
@@ -94,7 +145,7 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUp
   const handleSkip = () => onSuccess();
 
   const getExistingUrl = (jenis: JenisDokumen): string | undefined => {
-    const found = (existingUploads || []).find(u => u.jenis_dokumen === jenis);
+    const found = localUploads.find(u => u.jenis_dokumen === jenis);
     return found?.file_url;
   };
 
@@ -117,6 +168,8 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUp
             onChange={handleChange}
             error={fieldErrors[jenis]}
             existingUrl={getExistingUrl(jenis)}
+            uploading={uploadingMap[jenis]}
+            onDelete={handleDelete}
           />
         ))}
       </div>
