@@ -4,6 +4,7 @@ import { AdminRoleManagement } from './AdminDashboardRoleManagement';
 import { AdminPengumuman } from './AdminDashboardPengumuman';
 import { DivisiPage } from './DivisiPage';
 import { InterviewPage } from './InterviewPage';
+import { CmsPanel } from './CmsPanel';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -69,6 +70,7 @@ const pageTitles: Record<string, string> = {
   pengumuman: 'Pengumuman',
   divisi: 'Kelola Divisi',
   interview: 'Penjadwalan Interview',
+  settings: 'Content Management',
 };
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
@@ -146,7 +148,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const handleSidebarClick = (key: string) => {
     const externalPages: Record<string, string> = {
       peserta: 'dashboard-peserta',
-      settings: 'cms',
     };
     if (externalPages[key]) {
       onNavigate(externalPages[key]);
@@ -165,6 +166,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return <DivisiPage onViewDetail={(id) => onNavigate('divisi-detail')} />;
       case 'interview':
         return <InterviewPage />;
+      case 'settings':
+        return <CmsPanel />;
       default:
         return (
           <>
