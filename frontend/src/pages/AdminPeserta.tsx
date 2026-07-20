@@ -67,6 +67,8 @@ export function AdminPeserta() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [filterVerif, setFilterVerif] = useState('');
+  const [filterSeleksi, setFilterSeleksi] = useState('');
   const [detail, setDetail] = useState<Peserta | null>(null);
   const [updating, setUpdating] = useState<number | null>(null);
   const [catatan, setCatatan] = useState('');
@@ -172,11 +174,13 @@ export function AdminPeserta() {
 
   const filtered = pesertaList.filter((p) => {
     const q = search.toLowerCase();
-    return (
+    const matchSearch = !q ||
       p.nama_lengkap.toLowerCase().includes(q) ||
       p.nim.toLowerCase().includes(q) ||
-      p.program_studi.toLowerCase().includes(q)
-    );
+      p.program_studi.toLowerCase().includes(q);
+    const matchVerif = !filterVerif || p.status_verifikasi === filterVerif;
+    const matchSeleksi = !filterSeleksi || p.status_seleksi === filterSeleksi;
+    return matchSearch && matchVerif && matchSeleksi;
   });
 
   const badgeClass = (val: string, type: 'verif' | 'seleksi') => {
@@ -210,6 +214,20 @@ export function AdminPeserta() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <select className="ap-filter" value={filterVerif} onChange={(e) => setFilterVerif(e.target.value)}>
+          <option value="">Semua Status Verifikasi</option>
+          <option value="pending">Pending</option>
+          <option value="verified">Terverifikasi</option>
+          <option value="rejected">Ditolak</option>
+        </select>
+        <select className="ap-filter" value={filterSeleksi} onChange={(e) => setFilterSeleksi(e.target.value)}>
+          <option value="">Semua Status Seleksi</option>
+          <option value="draft">Draft</option>
+          <option value="submitted">Terkirim</option>
+          <option value="interview">Interview</option>
+          <option value="accepted">Diterima</option>
+          <option value="rejected">Ditolak</option>
+        </select>
         <span className="ap-count">{filtered.length} pendaftar</span>
       </div>
 
