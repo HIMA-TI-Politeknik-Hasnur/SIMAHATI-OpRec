@@ -4,6 +4,28 @@ set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 PID_FILE="/tmp/simahati-dev.pids"
 
+setup() {
+  echo "==> Installing backend dependencies ..."
+  cd "$DIR/backend"
+  composer install --quiet 2>/dev/null || composer install
+
+  if [ ! -f .env ]; then
+    echo "==> Creating .env ..."
+    cp .env.example .env
+    php artisan key:generate
+  fi
+
+  echo "==> Running migration & seeder ..."
+  php artisan migrate:fresh --seed --force
+
+  echo "==> Installing frontend dependencies ..."
+  cd "$DIR/frontend"
+  npm install --silent 2>/dev/null || npm install
+
+  echo ""
+  echo "Setup selesai. Jalankan ./dev.sh start"
+}
+
 start() {
   echo "==> Starting backend (Laravel) on port 8000 ..."
   cd "$DIR/backend"
@@ -41,6 +63,7 @@ stop() {
 
 case "${1:-start}" in
   start) start ;;
+  setup) setup ;;
   stop)  stop ;;
-  *)     echo "Usage: $0 {start|stop}" ;;
+  *)     echo "Usage: $0 {start|stop|setup}" ;;
 esac
