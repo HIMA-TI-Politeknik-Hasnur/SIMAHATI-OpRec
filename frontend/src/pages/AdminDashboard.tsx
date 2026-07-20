@@ -17,8 +17,12 @@ interface UserData {
 
 interface StatsData {
   total_pendaftar: number;
+  pending_verifikasi: number;
   lolos_administrasi: number;
-  lolos_wawancara: number;
+  ditolak_administrasi: number;
+  dalam_interview: number;
+  lolos_seleksi: number;
+  ditolak_seleksi: number;
   total_divisi: number;
   total_admin: number;
   total_interview: number;
@@ -51,10 +55,14 @@ const navItems = [
 
 const cardConfigs = [
   { key: 'total_pendaftar', label: 'Total Pendaftar', icon: '👥' },
+  { key: 'pending_verifikasi', label: 'Pending Verifikasi', icon: '⏳' },
   { key: 'lolos_administrasi', label: 'Lolos Administrasi', icon: '✅' },
-  { key: 'lolos_wawancara', label: 'Lolos Wawancara', icon: '⭐' },
+  { key: 'ditolak_administrasi', label: 'Ditolak Administrasi', icon: '❌' },
+  { key: 'dalam_interview', label: 'Dalam Interview', icon: '📅' },
+  { key: 'lolos_seleksi', label: 'Lolos Seleksi', icon: '⭐' },
+  { key: 'ditolak_seleksi', label: 'Ditolak Seleksi', icon: '🚫' },
   { key: 'total_divisi', label: 'Total Divisi', icon: '🏢' },
-  { key: 'total_interview', label: 'Total Interview', icon: '📅' },
+  { key: 'total_interview', label: 'Jadwal Interview', icon: '🗓️' },
   { key: 'total_admin', label: 'Total Admin', icon: '🛡️' },
 ];
 
