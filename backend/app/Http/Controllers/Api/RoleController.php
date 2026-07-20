@@ -42,6 +42,7 @@ class RoleController extends Controller
     {
         $role = Role::create([
             'name' => $request->name,
+            'slug' => \Illuminate\Support\Str::slug($request->name),
             'guard_name' => 'web',
         ]);
 
@@ -52,13 +53,23 @@ class RoleController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Role berhasil dibuat.',
-            'data' => $role,
+            'data' => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'guard_name' => $role->guard_name,
+                'created_at' => $role->created_at,
+                'updated_at' => $role->updated_at,
+            ],
         ], 201);
     }
 
-    public function show(Role $role)
+    public function show(string $id)
     {
-        $role->load('permissions');
+        $role = Role::with('permissions')->find($id);
+
+        if (!$role) {
+            return response()->json(['message' => 'Role tidak ditemukan.'], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -136,8 +147,13 @@ class RoleController extends Controller
         ]);
     }
 
-    public function assignRoleToUser(Request $request, User $user)
+    public function assignRoleToUser(Request $request, string $id)
     {
+        $user = User::with('roles')->find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan.'], 404);
+        }
         $request->validate([
             'roles' => 'required|array',
             'roles.*' => function ($attribute, $value, $fail) {
