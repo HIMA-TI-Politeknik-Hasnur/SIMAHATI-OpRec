@@ -36,13 +36,13 @@ interface AdminDashboardProps {
 }
 
 const navItems = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'role-management', label: 'Role Management' },
-  { key: 'peserta', label: 'Peserta' },
-  { key: 'divisi', label: 'Divisi' },
-  { key: 'interview', label: 'Interview' },
-  { key: 'pengumuman', label: 'Pengumuman' },
-  { key: 'settings', label: 'Settings' },
+  { key: 'dashboard', label: 'Dashboard', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { key: 'role-management', label: 'Role Management', roles: ['Super Admin', 'Admin'] },
+  { key: 'peserta', label: 'Peserta', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { key: 'divisi', label: 'Divisi', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { key: 'interview', label: 'Interview', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { key: 'pengumuman', label: 'Pengumuman', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { key: 'settings', label: 'Settings', roles: ['Super Admin', 'Admin'] },
 ];
 
 const cardConfigs = [
@@ -55,10 +55,10 @@ const cardConfigs = [
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management' },
-  { label: 'Lihat Peserta', key: 'peserta' },
-  { label: 'Atur Divisi', key: 'divisi' },
-  { label: 'Pengaturan', key: 'settings' },
+  { label: 'Kelola Role', key: 'role-management', roles: ['Super Admin', 'Admin'] },
+  { label: 'Lihat Peserta', key: 'peserta', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { label: 'Atur Divisi', key: 'divisi', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { label: 'Pengaturan', key: 'settings', roles: ['Super Admin', 'Admin'] },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -180,15 +180,17 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </div>
             <h3 className="admin-db-section-title">Quick Actions</h3>
             <div className="admin-db-actions">
-              {quickActions.map((action) => (
-                <button
-                  key={action.key}
-                  className="admin-db-action-btn"
-                  onClick={() => handleSidebarClick(action.key)}
-                >
-                  {action.label}
-                </button>
-              ))}
+              {quickActions
+                .filter((action) => user && action.roles.includes(user.roles[0]))
+                .map((action) => (
+                  <button
+                    key={action.key}
+                    className="admin-db-action-btn"
+                    onClick={() => handleSidebarClick(action.key)}
+                  >
+                    {action.label}
+                  </button>
+                ))}
             </div>
           </>
         );
@@ -230,15 +232,17 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
 
         <nav className="admin-db-sidebar-nav">
-          {navItems.map((item) => (
-            <button
-              key={item.key}
-              className={`admin-db-nav-item ${adminPage === item.key ? 'admin-db-nav-item--active' : ''}`}
-              onClick={() => handleSidebarClick(item.key)}
-            >
-              {item.label}
-            </button>
-          ))}
+          {navItems
+            .filter((item) => user && item.roles.includes(user.roles[0]))
+            .map((item) => (
+              <button
+                key={item.key}
+                className={`admin-db-nav-item ${adminPage === item.key ? 'admin-db-nav-item--active' : ''}`}
+                onClick={() => handleSidebarClick(item.key)}
+              >
+                {item.label}
+              </button>
+            ))}
         </nav>
 
         <div className="admin-db-sidebar-footer">
