@@ -78,6 +78,14 @@ function App() {
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/email-verified') {
+      setCurrentPage('email-verified');
+      window.history.replaceState(null, '', '/');
+    }
+  }, []);
+
+  useEffect(() => {
     if (!isAuthenticated()) return;
 
     const stored = getStoredUser();
