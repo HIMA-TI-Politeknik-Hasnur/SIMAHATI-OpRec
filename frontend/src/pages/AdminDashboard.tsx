@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiFetch, removeAuthToken, getAuthToken } from '../api';
+import { AdminRoleManagement } from './AdminDashboardRoleManagement';
+import { AdminPengumuman } from './AdminDashboardPengumuman';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -59,11 +61,18 @@ const quickActions = [
   { label: 'Pengaturan', key: 'settings' },
 ];
 
+const pageTitles: Record<string, string> = {
+  dashboard: 'Dashboard',
+  'role-management': 'Role Management',
+  pengumuman: 'Pengumuman',
+};
+
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<UserData | null>(null);
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [adminPage, setAdminPage] = useState('dashboard');
 
   useEffect(() => {
     const token = getAuthToken();
@@ -104,6 +113,62 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     onNavigate('landing');
   };
 
+  const handleSidebarClick = (key: string) => {
+    const externalPages: Record<string, string> = {
+      peserta: 'dashboard-peserta',
+      divisi: 'divisi',
+      interview: 'interview',
+      settings: 'cms',
+    };
+    if (externalPages[key]) {
+      onNavigate(externalPages[key]);
+    } else {
+      setAdminPage(key);
+    }
+  };
+
+  const renderContent = () => {
+    switch (adminPage) {
+      case 'role-management':
+        return <AdminRoleManagement />;
+      case 'pengumuman':
+        return <AdminPengumuman />;
+      default:
+        return (
+          <>
+            <div className="admin-db-cards">
+              {cardConfigs.map((card) => {
+                const value = stats ? stats[card.key as keyof StatsData] : 0;
+                return (
+                  <div
+                    key={card.key}
+                    className="admin-db-card"
+                    style={{ borderTop: `3px solid ${card.color}` }}
+                  >
+                    <div className="admin-db-card-icon">{card.icon}</div>
+                    <p className="admin-db-card-value">{value}</p>
+                    <p className="admin-db-card-label">{card.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <h3 className="admin-db-section-title">Quick Actions</h3>
+            <div className="admin-db-actions">
+              {quickActions.map((action) => (
+                <button
+                  key={action.key}
+                  className="admin-db-action-btn"
+                  onClick={() => handleSidebarClick(action.key)}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          </>
+        );
+    }
+  };
+
   if (loading) {
     return <div className="admin-db-loading">Memuat dashboard...</div>;
   }
@@ -142,8 +207,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           {navItems.map((item) => (
             <button
               key={item.key}
-              className={`admin-db-nav-item ${item.key === 'dashboard' ? 'admin-db-nav-item--active' : ''}`}
-              onClick={() => onNavigate(item.key)}
+              className={`admin-db-nav-item ${adminPage === item.key ? 'admin-db-nav-item--active' : ''}`}
+              onClick={() => handleSidebarClick(item.key)}
             >
               {item.label}
             </button>
@@ -165,39 +230,11 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       <main className="admin-db-main">
         <div className="admin-db-navbar">
-          <h1 className="admin-db-page-title">Dashboard</h1>
+          <h1 className="admin-db-page-title">{pageTitles[adminPage] || 'Dashboard'}</h1>
           {user && <span className="admin-db-greeting">Halo, {user.name}!</span>}
         </div>
 
-        <div className="admin-db-cards">
-          {cardConfigs.map((card) => {
-            const value = stats ? stats[card.key as keyof StatsData] : 0;
-            return (
-              <div
-                key={card.key}
-                className="admin-db-card"
-                style={{ borderTop: `3px solid ${card.color}` }}
-              >
-                <div className="admin-db-card-icon">{card.icon}</div>
-                <p className="admin-db-card-value">{value}</p>
-                <p className="admin-db-card-label">{card.label}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <h3 className="admin-db-section-title">Quick Actions</h3>
-        <div className="admin-db-actions">
-          {quickActions.map((action) => (
-            <button
-              key={action.key}
-              className="admin-db-action-btn"
-              onClick={() => onNavigate(action.key)}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
+        {renderContent()}
       </main>
     </div>
   );
