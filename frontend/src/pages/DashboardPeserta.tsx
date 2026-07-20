@@ -83,6 +83,7 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
           <FormPendaftaran
             inline
             pesertaId={localPesertaId || peserta?.id}
+            existingData={peserta}
             onBack={() => setActiveNav('dashboard')}
             onSuccess={handleFormSuccess}
           />

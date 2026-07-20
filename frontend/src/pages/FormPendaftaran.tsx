@@ -10,6 +10,7 @@ import {
   validateEssay,
   hasErrors,
   type FormPendaftaranData,
+  type PesertaRecord,
   type ValidationErrors,
 } from '../types/pendaftaran';
 
@@ -18,6 +19,7 @@ interface FormPendaftaranProps {
   onSuccess: (pesertaId: number) => void;
   inline?: boolean;
   pesertaId?: number | null;
+  existingData?: PesertaRecord | null;
 }
 
 const STEPS = [
@@ -57,9 +59,31 @@ interface DivisiOption {
   nama: string;
 }
 
-export const FormPendaftaran = ({ onBack, onSuccess, inline, pesertaId }: FormPendaftaranProps) => {
+export const FormPendaftaran = ({ onBack, onSuccess, inline, pesertaId, existingData }: FormPendaftaranProps) => {
   const [step, setStep]     = useState(0);
-  const [form, setForm]     = useState<FormPendaftaranData>(INITIAL_FORM);
+  const [form, setForm]     = useState<FormPendaftaranData>(
+    () => {
+      if (!existingData) return INITIAL_FORM;
+      return {
+        nama_lengkap:          existingData.nama_lengkap ?? '',
+        nim:                   existingData.nim ?? '',
+        semester:              String(existingData.semester ?? ''),
+        program_studi:         existingData.program_studi ?? '',
+        angkatan:              String(existingData.angkatan ?? ''),
+        email:                 existingData.email ?? '',
+        nomor_hp:              existingData.nomor_hp ?? '',
+        alamat:                existingData.alamat ?? '',
+        pengalaman_organisasi: existingData.pengalaman_organisasi ?? '',
+        skill:                 existingData.skill ?? '',
+        prestasi:              existingData.prestasi ?? '',
+        pilihan_divisi_1:      String(existingData.pilihan_divisi_1 ?? ''),
+        pilihan_divisi_2:      existingData.pilihan_divisi_2 ? String(existingData.pilihan_divisi_2) : '',
+        motivasi:              existingData.motivasi ?? '',
+        kontribusi:            existingData.kontribusi ?? '',
+        harapan:               existingData.harapan ?? '',
+      };
+    }
+  );
   const [errors, setErrors] = useState<ValidationErrors<FormPendaftaranData>>({});
   const [loading, setLoading]   = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
