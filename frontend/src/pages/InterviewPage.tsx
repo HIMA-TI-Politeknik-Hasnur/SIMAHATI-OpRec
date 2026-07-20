@@ -24,7 +24,11 @@ const emptyForm = {
   catatan: '',
 };
 
-export const InterviewPage = () => {
+interface InterviewPageProps {
+  inline?: boolean;
+}
+
+export const InterviewPage = ({ inline }: InterviewPageProps) => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<number | null>(null);
@@ -133,10 +137,8 @@ export const InterviewPage = () => {
     cancelled: 'Dibatalkan',
   };
 
-  return (
-    <div className="page-layout">
-      <h1 className="page-title">Penjadwalan Interview</h1>
-
+  const content = (
+    <>
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
@@ -299,6 +301,9 @@ export const InterviewPage = () => {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
+
+  if (inline) return content;
+  return <div className="page-layout"><h1 className="page-title">Penjadwalan Interview</h1>{content}</div>;
 };

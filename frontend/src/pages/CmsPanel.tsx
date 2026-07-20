@@ -3,7 +3,11 @@ import './CmsPanel.css';
 
 import { getAuthToken } from '../api';
 
-export const CmsPanel = () => {
+interface CmsPanelProps {
+  inline?: boolean;
+}
+
+export const CmsPanel = ({ inline }: CmsPanelProps) => {
   const [activeTab, setActiveTab] = useState('pengumuman');
   const [downloading, setDownloading] = useState<'excel' | 'pdf' | null>(null);
 
@@ -34,42 +38,17 @@ export const CmsPanel = () => {
     setDownloading(null);
   };
 
-  return (
-    <div className="cms-layout">
-      <aside className="cms-sidebar">
-        <h2 className="cms-sidebar-title">Content Management</h2>
-        <ul className="cms-nav">
-          <li className={activeTab === 'pengumuman' ? 'active' : ''} onClick={() => setActiveTab('pengumuman')}>
-            Pengumuman
-          </li>
-          <li className={activeTab === 'timeline' ? 'active' : ''} onClick={() => setActiveTab('timeline')}>
-            Timeline
-          </li>
-          <li className={activeTab === 'faq' ? 'active' : ''} onClick={() => setActiveTab('faq')}>
-            FAQ
-          </li>
-          <li className={activeTab === 'laporan' ? 'active' : ''} onClick={() => setActiveTab('laporan')}>
-            Laporan
-          </li>
-          <li className={activeTab === 'pengaturan' ? 'active' : ''} onClick={() => setActiveTab('pengaturan')}>
-            Pengaturan Tampilan
-          </li>
-        </ul>
-      </aside>
+  const tabs = [
+    { key: 'pengumuman', label: 'Pengumuman' },
+    { key: 'timeline', label: 'Timeline' },
+    { key: 'faq', label: 'FAQ' },
+    { key: 'laporan', label: 'Laporan' },
+    { key: 'pengaturan', label: 'Pengaturan' },
+  ];
 
-      <main className="cms-main">
-        <header className="cms-header">
-          <h1>
-            {activeTab === 'pengumuman' && 'Kelola Pengumuman'}
-            {activeTab === 'timeline' && 'Kelola Timeline'}
-            {activeTab === 'faq' && 'Kelola FAQ'}
-            {activeTab === 'laporan' && 'Unduh Laporan'}
-            {activeTab === 'pengaturan' && 'Pengaturan Landing Page'}
-          </h1>
-        </header>
-
-        <div className="cms-content">
-          {activeTab === 'faq' && (
+  const content = (
+    <div className="cms-content">
+      {activeTab === 'faq' && (
             <div className="cms-form-card">
               <h3>Tambah FAQ Baru</h3>
               <form onSubmit={e => e.preventDefault()}>
@@ -154,6 +133,51 @@ export const CmsPanel = () => {
             </div>
           )}
         </div>
+  );
+
+  if (inline) {
+    return (
+      <>
+        <div className="cms-inline-tabs">
+          {tabs.map(tab => (
+            <button
+              key={tab.key}
+              className={`cms-inline-tab${activeTab === tab.key ? ' active' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {content}
+      </>
+    );
+  }
+
+  return (
+    <div className="cms-layout">
+      <aside className="cms-sidebar">
+        <h2 className="cms-sidebar-title">Content Management</h2>
+        <ul className="cms-nav">
+          {tabs.map(tab => (
+            <li key={tab.key} className={activeTab === tab.key ? 'active' : ''} onClick={() => setActiveTab(tab.key)}>
+              {tab.label}
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <main className="cms-main">
+        <header className="cms-header">
+          <h1>
+            {activeTab === 'pengumuman' && 'Kelola Pengumuman'}
+            {activeTab === 'timeline' && 'Kelola Timeline'}
+            {activeTab === 'faq' && 'Kelola FAQ'}
+            {activeTab === 'laporan' && 'Unduh Laporan'}
+            {activeTab === 'pengaturan' && 'Pengaturan Landing Page'}
+          </h1>
+        </header>
+        {content}
       </main>
     </div>
   );

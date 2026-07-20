@@ -13,9 +13,10 @@ const emptyForm = { nama: '', deskripsi: '', kuota: '' };
 
 interface DivisiPageProps {
   onViewDetail?: (id: number) => void;
+  inline?: boolean;
 }
 
-export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
+export const DivisiPage = ({ onViewDetail, inline }: DivisiPageProps) => {
   const [divisis, setDivisis] = useState<Divisi[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<number | null>(null);
@@ -98,10 +99,8 @@ export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
     setSuccess('');
   };
 
-  return (
-    <div className="page-layout">
-      <h1 className="page-title">Kelola Divisi</h1>
-
+  const content = (
+    <>
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
@@ -193,6 +192,9 @@ export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
+
+  if (inline) return content;
+  return <div className="page-layout"><h1 className="page-title">Kelola Divisi</h1>{content}</div>;
 };

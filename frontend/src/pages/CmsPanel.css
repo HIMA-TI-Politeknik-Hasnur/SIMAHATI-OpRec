@@ -180,3 +180,39 @@
 .btn-export.pdf {
   background-color: #374151;
 }
+
+/* ── Inline tabs (inside AdminDashboard) ──────── */
+.cms-inline-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.cms-inline-tab {
+  padding: 0.6rem 1.25rem;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.cms-inline-tab:hover {
+  color: #1f2937;
+}
+
+.cms-inline-tab.active {
+  color: #ea580c;
+  border-bottom-color: #ea580c;
+}
+
+/* Inline mode: cms-content rendered inside admin-db-content-area */
+.cms-inline-tabs + .cms-content {
+  padding: 0;
+}

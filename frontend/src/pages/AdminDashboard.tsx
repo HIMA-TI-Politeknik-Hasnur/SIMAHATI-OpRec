@@ -5,6 +5,7 @@ import { AdminPengumuman } from './AdminDashboardPengumuman';
 import { DivisiPage } from './DivisiPage';
 import { InterviewPage } from './InterviewPage';
 import { CmsPanel } from './CmsPanel';
+import { AdminPeserta } from './AdminPeserta';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -41,7 +42,7 @@ interface AdminDashboardProps {
 const navItems = [
   { key: 'dashboard', label: 'Dashboard', roles: ['Super Admin', 'Admin', 'Panitia'] },
   { key: 'role-management', label: 'Role Management', roles: ['Super Admin', 'Admin'] },
-  { key: 'peserta', label: 'Peserta', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', roles: ['Super Admin', 'Admin', 'Panitia'] },
   { key: 'divisi', label: 'Divisi', roles: ['Super Admin', 'Admin', 'Panitia'] },
   { key: 'interview', label: 'Interview', roles: ['Super Admin', 'Admin', 'Panitia'] },
   { key: 'pengumuman', label: 'Pengumuman', roles: ['Super Admin', 'Admin', 'Panitia'] },
@@ -49,17 +50,17 @@ const navItems = [
 ];
 
 const cardConfigs = [
-  { key: 'total_pendaftar', label: 'Total Pendaftar', icon: '👥', color: '#3b82f6' },
-  { key: 'lolos_administrasi', label: 'Lolos Administrasi', icon: '✅', color: '#22c55e' },
-  { key: 'lolos_wawancara', label: 'Lolos Wawancara', icon: '⭐', color: '#f59e0b' },
-  { key: 'total_divisi', label: 'Total Divisi', icon: '🏢', color: '#8b5cf6' },
-  { key: 'total_interview', label: 'Total Interview', icon: '📅', color: '#14b8a6' },
-  { key: 'total_admin', label: 'Total Admin', icon: '🛡️', color: '#64748b' },
+  { key: 'total_pendaftar', label: 'Total Pendaftar', icon: '👥' },
+  { key: 'lolos_administrasi', label: 'Lolos Administrasi', icon: '✅' },
+  { key: 'lolos_wawancara', label: 'Lolos Wawancara', icon: '⭐' },
+  { key: 'total_divisi', label: 'Total Divisi', icon: '🏢' },
+  { key: 'total_interview', label: 'Total Interview', icon: '📅' },
+  { key: 'total_admin', label: 'Total Admin', icon: '🛡️' },
 ];
 
 const quickActions = [
   { label: 'Kelola Role', key: 'role-management', roles: ['Super Admin', 'Admin'] },
-  { label: 'Lihat Peserta', key: 'peserta', roles: ['Super Admin', 'Admin', 'Panitia'] },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', roles: ['Super Admin', 'Admin', 'Panitia'] },
   { label: 'Atur Divisi', key: 'divisi', roles: ['Super Admin', 'Admin', 'Panitia'] },
   { label: 'Pengaturan', key: 'settings', roles: ['Super Admin', 'Admin'] },
 ];
@@ -67,6 +68,7 @@ const quickActions = [
 const pageTitles: Record<string, string> = {
   dashboard: 'Dashboard',
   'role-management': 'Role Management',
+  'verifikasi-pendaftar': 'Verifikasi Pendaftar',
   pengumuman: 'Pengumuman',
   divisi: 'Kelola Divisi',
   interview: 'Penjadwalan Interview',
@@ -146,28 +148,23 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   };
 
   const handleSidebarClick = (key: string) => {
-    const externalPages: Record<string, string> = {
-      peserta: 'dashboard-peserta',
-    };
-    if (externalPages[key]) {
-      onNavigate(externalPages[key]);
-    } else {
-      setAdminPage(key);
-    }
+    setAdminPage(key);
   };
 
   const renderContent = () => {
     switch (adminPage) {
       case 'role-management':
         return <AdminRoleManagement />;
+      case 'verifikasi-pendaftar':
+        return <AdminPeserta />;
       case 'pengumuman':
         return <AdminPengumuman />;
       case 'divisi':
-        return <DivisiPage onViewDetail={(id) => onNavigate('divisi-detail')} />;
+        return <DivisiPage inline onViewDetail={(id) => onNavigate('divisi-detail')} />;
       case 'interview':
-        return <InterviewPage />;
+        return <InterviewPage inline />;
       case 'settings':
-        return <CmsPanel />;
+        return <CmsPanel inline />;
       default:
         return (
           <>
@@ -175,14 +172,12 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               {cardConfigs.map((card) => {
                 const value = stats ? stats[card.key as keyof StatsData] : 0;
                 return (
-                  <div
-                    key={card.key}
-                    className="admin-db-card"
-                    style={{ borderTop: `3px solid ${card.color}` }}
-                  >
-                    <div className="admin-db-card-icon">{card.icon}</div>
-                    <p className="admin-db-card-value">{value}</p>
-                    <p className="admin-db-card-label">{card.label}</p>
+                  <div key={card.key} className="admin-db-card">
+                    <span className="admin-db-card-icon">{card.icon}</span>
+                    <div>
+                      <p className="admin-db-card-label">{card.label}</p>
+                      <p className="admin-db-card-value">{value}</p>
+                    </div>
                   </div>
                 );
               })}
@@ -270,7 +265,9 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           {user && <span className="admin-db-greeting">Halo, {user.name}!</span>}
         </div>
 
-        {renderContent()}
+        <div className="admin-db-content-area">
+          {renderContent()}
+        </div>
       </main>
     </div>
   );
