@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\PermissionController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('email/resend-verification', [AuthController::class, 'resendVerification']);
 
 Route::post('forgot-password', [\App\Http\Controllers\Api\ForgotPasswordController::class, 'sendResetLink']);
 Route::post('reset-password', [\App\Http\Controllers\Api\ForgotPasswordController::class, 'reset']);

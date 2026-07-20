@@ -35,22 +35,13 @@ class AuthController extends Controller
             'status_seleksi' => 'draft',
         ]);
 
-        $user->load('roles', 'peserta');
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil.',
+            'message' => 'Registrasi berhasil. Silakan cek email untuk verifikasi.',
             'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'roles' => $user->roles->pluck('name'),
-                    'peserta_id' => $peserta->id,
-                ],
-                'token' => $token,
+                'email' => $user->email,
             ],
         ], 201);
     }
@@ -135,6 +126,14 @@ class AuthController extends Controller
             ], 401);
         }
 
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email belum diverifikasi. Silakan cek email Anda.',
+                'errors' => ['email' => ['Email belum diverifikasi.']],
+            ], 403);
+        }
+
         RateLimiter::clear($key);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -153,6 +152,27 @@ class AuthController extends Controller
                 ],
                 'token' => $token,
             ],
+        ]);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email sudah diverifikasi.',
+            ], 400);
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email verifikasi telah dikirim ulang.',
         ]);
     }
 
