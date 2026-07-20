@@ -10,6 +10,8 @@ import { DashboardDivisi } from './pages/DashboardDivisi';
 import { DashboardPeserta } from './pages/DashboardPeserta';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { VerifikasiEmailPage } from './pages/VerifikasiEmailPage';
+import { EmailTerverifikasiPage } from './pages/EmailTerverifikasiPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -41,7 +43,9 @@ type Page =
   | 'register'
   | 'admin-dashboard'
   | 'forgot-password'
-  | 'reset-password';
+  | 'reset-password'
+  | 'verifikasi-email'
+  | 'email-verified';
 
 interface NavLink {
   label: string;
@@ -71,6 +75,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => isAuthenticated());
   const [user, setUser] = useState<UserData | null>(() => getStoredUser());
   const [authLoading, setAuthLoading] = useState(() => isAuthenticated() && !getStoredUser());
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated()) return;
@@ -303,12 +308,9 @@ function App() {
       )}
       {currentPage === 'register' && (
         <RegisterPage
-          onRegisterSuccess={(userData) => {
-            setIsLoggedIn(true);
-            setUser(userData);
-            setStoredUser(userData);
-            if (userData.peserta_id) setPesertaId(userData.peserta_id);
-            setCurrentPage('dashboard-peserta');
+          onRegisterSuccess={(email) => {
+            setPendingEmail(email);
+            setCurrentPage('verifikasi-email');
           }}
           onSwitchToLogin={() => setCurrentPage('login')}
         />
@@ -321,6 +323,20 @@ function App() {
       )}
       {currentPage === 'reset-password' && (
         <ResetPasswordPage onBackToLogin={() => setCurrentPage('login')} />
+      )}
+      {currentPage === 'verifikasi-email' && pendingEmail && (
+        <VerifikasiEmailPage
+          email={pendingEmail}
+          onLogin={() => {
+            setPendingEmail(null);
+            setCurrentPage('login');
+          }}
+        />
+      )}
+      {currentPage === 'email-verified' && (
+        <EmailTerverifikasiPage
+          onLogin={() => setCurrentPage('login')}
+        />
       )}
     </div>
   );

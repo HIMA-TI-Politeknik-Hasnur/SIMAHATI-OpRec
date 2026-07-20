@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiPost, setAuthToken, setStoredUser } from '../api';
+import { apiPost } from '../api';
 import { Alert } from '../components/Alert';
 import './RegisterPage.css';
 
@@ -7,21 +7,12 @@ interface RegisterResponse {
   success: boolean;
   message: string;
   data: {
-    user: UserData;
-    token: string;
+    email: string;
   };
 }
 
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  roles: string[];
-  peserta_id?: number | null;
-}
-
 interface RegisterPageProps {
-  onRegisterSuccess: (user: UserData) => void;
+  onRegisterSuccess: (email: string) => void;
   onSwitchToLogin: () => void;
 }
 
@@ -55,9 +46,7 @@ export function RegisterPage({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
     }
 
     if (data) {
-      setAuthToken(data.data.token);
-      setStoredUser(data.data.user);
-      onRegisterSuccess(data.data.user);
+      onRegisterSuccess(data.data.email);
     }
     setLoading(false);
   };
