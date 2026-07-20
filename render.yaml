@@ -2,8 +2,6 @@ services:
   - type: web
     name: simahati-backend
     env: docker
-    repo: https://github.com/NAMA_USER/NAMA_REPO.git
-    branch: main
     dockerfilePath: backend/Dockerfile
     dockerContext: backend
     envVars:
