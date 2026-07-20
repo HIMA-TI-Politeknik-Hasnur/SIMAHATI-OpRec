@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Reyhan: Auth
+use App\Http\Controllers\Api\AuthController;
+
 // Nadil: Pendaftaran
 use App\Http\Controllers\Api\PesertaController;
 use App\Http\Controllers\Api\PendaftaranController;
@@ -15,6 +18,16 @@ use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\DivisiController;
 use App\Http\Controllers\Api\InterviewController;
+
+// ─── Auth (Reyhan) ───────────────────────────────────────────────────────────
+
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('user', [AuthController::class, 'user']);
+});
 
 // ─── Pendaftaran (Nadil) ──────────────────────────────────────────────────────
 
@@ -40,6 +53,12 @@ Route::apiResource('upload', UploadController::class)
     ->parameters([
         'upload' => 'upload',
     ]);
+
+// ─── Dashboard Stats (Reyhan) ──────────────────────────────────────────────────
+
+Route::middleware(['auth:sanctum', 'role:super_admin,admin_oprec'])->prefix('dashboard')->group(function () {
+    Route::get('/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
+});
 
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
 
