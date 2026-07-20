@@ -33,7 +33,9 @@ class PesertaController extends Controller
      */
     public function store(StorePesertaRequest $request)
     {
-        $peserta = Peserta::create($request->validated());
+        $data = $request->validated();
+        $data['user_id'] = auth()->id();
+        $peserta = Peserta::create($data);
 
         return response()->json([
             'success' => true,

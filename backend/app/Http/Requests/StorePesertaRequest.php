@@ -23,8 +23,6 @@ class StorePesertaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
-
             'nama_lengkap' => 'required|string|max:100',
 
             'nim' => 'required|string|max:20|unique:peserta,nim',

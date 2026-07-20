@@ -92,10 +92,8 @@ export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranPr
     setApiError(null);
 
     try {
-      // user_id sementara 1 — akan diganti token auth saat Reyhan selesaikan modul auth
       const payload = {
         ...form,
-        user_id:          1,
         semester:         Number(form.semester),
         angkatan:         Number(form.angkatan),
         pilihan_divisi_1: Number(form.pilihan_divisi_1),

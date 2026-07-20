@@ -43,28 +43,30 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ─── Pendaftaran (Nadil) ──────────────────────────────────────────────────────
 
-Route::apiResource('peserta', PesertaController::class)
-    ->parameters([
-        'peserta' => 'peserta',
-    ]);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('peserta', PesertaController::class)
+        ->parameters([
+            'peserta' => 'peserta',
+        ]);
 
-// PATCH /peserta/{peserta}/verifikasi — ubah status_verifikasi & status_seleksi
-Route::patch('peserta/{peserta}/verifikasi', [PesertaController::class, 'verifikasi'])
-    ->name('peserta.verifikasi');
+    // PATCH /peserta/{peserta}/verifikasi — ubah status_verifikasi & status_seleksi
+    Route::patch('peserta/{peserta}/verifikasi', [PesertaController::class, 'verifikasi'])
+        ->name('peserta.verifikasi');
 
-Route::apiResource('pendaftaran', PendaftaranController::class)
-    ->parameters([
-        'pendaftaran' => 'pendaftaran',
-    ]);
+    Route::apiResource('pendaftaran', PendaftaranController::class)
+        ->parameters([
+            'pendaftaran' => 'pendaftaran',
+        ]);
 
-// PATCH /pendaftaran/{pendaftaran}/status — ubah status & catatan_admin
-Route::patch('pendaftaran/{pendaftaran}/status', [PendaftaranController::class, 'updateStatus'])
-    ->name('pendaftaran.updateStatus');
+    // PATCH /pendaftaran/{pendaftaran}/status — ubah status & catatan_admin
+    Route::patch('pendaftaran/{pendaftaran}/status', [PendaftaranController::class, 'updateStatus'])
+        ->name('pendaftaran.updateStatus');
 
-Route::apiResource('upload', UploadController::class)
-    ->parameters([
-        'upload' => 'upload',
-    ]);
+    Route::apiResource('upload', UploadController::class)
+        ->parameters([
+            'upload' => 'upload',
+        ]);
+});
 
 // ─── Dashboard Stats (Reyhan) ──────────────────────────────────────────────────
 

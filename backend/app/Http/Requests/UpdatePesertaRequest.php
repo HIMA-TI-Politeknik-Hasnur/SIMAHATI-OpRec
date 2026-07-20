@@ -26,8 +26,6 @@ class UpdatePesertaRequest extends FormRequest
         $peserta = $this->route('peserta');
 
         return [
-            'user_id' => 'required|exists:users,id',
-
             'nama_lengkap' => 'required|string|max:100',
 
             'nim' => [
