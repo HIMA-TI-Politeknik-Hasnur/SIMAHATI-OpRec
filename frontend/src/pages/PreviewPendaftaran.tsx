@@ -3,6 +3,7 @@ import './PreviewPendaftaran.css';
 import { Alert } from '../components/Alert';
 import { StatusBadge } from '../components/StatusBadge';
 import { DUMMY_DIVISI, type PesertaRecord, type UploadRecord } from '../types/pendaftaran';
+import type { JenisDokumen } from '../components/UploadCard';
 import { getAuthToken } from '../api';
 
 interface PreviewPendaftaranProps {
@@ -117,7 +118,7 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
   }
 
   const docs: UploadRecord[] = peserta.uploads ?? [];
-  const WAJIB_DOKUMEN = ['foto', 'ktm', 'cv'];
+  const WAJIB_DOKUMEN: JenisDokumen[] = ['foto', 'ktm', 'cv'];
   const dokumenTerkirim = new Set((peserta.uploads || []).map(u => u.jenis_dokumen));
   const dokumenKurang = WAJIB_DOKUMEN.filter(j => !dokumenTerkirim.has(j));
 
@@ -209,13 +210,7 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
       {dokumenKurang.length > 0 && !dismissWarning && (
         <Alert
           type="warning"
-          message={
-            <>
-              <strong>Peringatan:</strong> Dokumen berikut belum diunggah:{' '}
-              {dokumenKurang.map(j => j.toUpperCase()).join(', ')}.
-              Anda tetap bisa submit, tapi proses verifikasi mungkin tertunda.
-            </>
-          }
+          message={`Peringatan: Dokumen ${dokumenKurang.map(j => j.toUpperCase()).join(', ')} belum diunggah. Anda tetap bisa submit, tapi proses verifikasi mungkin tertunda.`}
           onClose={() => setDismissWarning(true)}
         />
       )}
