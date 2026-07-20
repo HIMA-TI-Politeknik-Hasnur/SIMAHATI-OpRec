@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\DivisiController;
 use App\Http\Controllers\Api\InterviewController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\PermissionController;
 
 // ─── Auth (Reyhan) ───────────────────────────────────────────────────────────
 
@@ -58,6 +60,22 @@ Route::apiResource('upload', UploadController::class)
 
 Route::middleware(['auth:sanctum', 'role:super_admin,admin_oprec'])->prefix('dashboard')->group(function () {
     Route::get('/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
+});
+
+// ─── Roles & Permissions (Reyhan) ─────────────────────────────────────────────
+
+Route::middleware(['auth:sanctum', 'role:super_admin,admin_oprec'])->group(function () {
+    Route::get('roles', [RoleController::class, 'index']);
+    Route::get('permissions', [PermissionController::class, 'index']);
+    Route::get('roles/{role}', [RoleController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
+    Route::post('roles', [RoleController::class, 'store']);
+    Route::put('roles/{role}', [RoleController::class, 'update']);
+    Route::delete('roles/{role}', [RoleController::class, 'destroy']);
+    Route::post('roles/{role}/permissions', [RoleController::class, 'assignPermissions']);
+    Route::post('users/{user}/roles', [RoleController::class, 'assignRoleToUser']);
 });
 
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
