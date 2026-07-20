@@ -116,6 +116,10 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
   }
 
   const docs: UploadRecord[] = peserta.uploads ?? [];
+  const WAJIB_DOKUMEN = ['foto', 'ktm', 'cv'];
+  const dokumenTerkirim = new Set((peserta.uploads || []).map(u => u.jenis_dokumen));
+  const dokumenKurang = WAJIB_DOKUMEN.filter(j => !dokumenTerkirim.has(j));
+  const [dismissWarning, setDismissWarning] = useState(false);
 
   const content = (
     <div className="preview-body">
@@ -200,6 +204,21 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
           </div>
         )}
       </div>
+
+      {/* Peringatan dokumen */}
+      {dokumenKurang.length > 0 && !dismissWarning && (
+        <Alert
+          type="warning"
+          message={
+            <>
+              <strong>Peringatan:</strong> Dokumen berikut belum diunggah:{' '}
+              {dokumenKurang.map(j => j.toUpperCase()).join(', ')}.
+              Anda tetap bisa submit, tapi proses verifikasi mungkin tertunda.
+            </>
+          }
+          onClose={() => setDismissWarning(true)}
+        />
+      )}
 
       {/* Footer */}
       <div className="preview-footer">
