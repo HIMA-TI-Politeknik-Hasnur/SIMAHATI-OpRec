@@ -74,27 +74,41 @@ export const DashboardPeserta = ({ pesertaId, onNavigate }: DashboardPesertaProp
     <div className="dash-peserta-layout">
       {/* ─── Sidebar ─────────────────────────────────────────── */}
       <aside className="dash-peserta-sidebar">
-        <div className="dash-peserta-sidebar__logo">SIMAHATI OpRec</div>
-        <ul className="dash-peserta-nav">
+        <div className="dash-peserta-sidebar-header">
+          <h2 className="dash-peserta-sidebar-title">SIMAHATI OpRec</h2>
+          <p className="dash-peserta-sidebar-subtitle">Portal Pendaftaran</p>
+        </div>
+        <nav className="dash-peserta-sidebar-nav">
           {navItems.map(item => (
-            <li
+            <button
               key={item.key}
-              className={activeNav === item.key ? 'active' : ''}
+              className={`dash-peserta-nav-item ${activeNav === item.key ? 'dash-peserta-nav-item--active' : ''}`}
               onClick={() => handleNav(item.key)}
             >
-              <span className="dash-peserta-nav__icon">{item.icon}</span>
+              <span className="dash-peserta-nav-item__icon">{item.icon}</span>
               {item.label}
-            </li>
+            </button>
           ))}
-        </ul>
+        </nav>
+        {peserta && (
+          <div className="dash-peserta-sidebar-footer">
+            <div className="dash-peserta-sidebar-user">{peserta.nama_lengkap}</div>
+            <div className="dash-peserta-sidebar-email">{peserta.email}</div>
+          </div>
+        )}
       </aside>
 
       {/* ─── Main ────────────────────────────────────────────── */}
       <main className="dash-peserta-main">
         <div className="dash-peserta-topbar">
           <h1 className="dash-peserta-topbar__title">Dashboard Peserta</h1>
-          <div className="dash-peserta-topbar__avatar" aria-label="Avatar pengguna">
-            {peserta?.nama_lengkap?.[0]?.toUpperCase() ?? 'P'}
+          <div className="dash-peserta-topbar__right">
+            <span className="dash-peserta-topbar__greeting">
+              Halo, {peserta?.nama_lengkap?.split(' ')[0] ?? 'Peserta'}!
+            </span>
+            <div className="dash-peserta-topbar__avatar" aria-label="Avatar pengguna">
+              {peserta?.nama_lengkap?.[0]?.toUpperCase() ?? 'P'}
+            </div>
           </div>
         </div>
 
