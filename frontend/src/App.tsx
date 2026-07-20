@@ -82,7 +82,18 @@ function App() {
 
   useEffect(() => {
     if (!isAuthenticated()) return;
-    if (getStoredUser()) return;
+
+    const stored = getStoredUser();
+    if (stored) {
+      const role = stored.roles?.[0] ?? '';
+      if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
+        const dest = role === 'Peserta' ? 'dashboard-peserta'
+          : ['Super Admin', 'Admin'].includes(role) ? 'admin-dashboard'
+          : 'interview';
+        setCurrentPage(dest);
+      }
+      return;
+    }
 
     const fetchUser = async () => {
       const { data, error: apiError } = isSessionAuth()
@@ -95,7 +106,12 @@ function App() {
         setStoredUser(u);
         if (u.peserta_id) setPesertaId(u.peserta_id);
         const role = u.roles?.[0] ?? '';
-        if (role === 'Peserta' && currentPage === 'admin-dashboard') {
+        if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
+          const dest = role === 'Peserta' ? 'dashboard-peserta'
+            : ['Super Admin', 'Admin'].includes(role) ? 'admin-dashboard'
+            : 'interview';
+          setCurrentPage(dest);
+        } else if (role === 'Peserta' && currentPage === 'admin-dashboard') {
           setCurrentPage('dashboard-peserta');
         } else if (!['Super Admin', 'Admin', 'Peserta'].includes(role) && currentPage === 'admin-dashboard') {
           setCurrentPage('interview');
@@ -203,28 +219,32 @@ function App() {
         <div className="nav-logo" onClick={() => setCurrentPage('landing')}>
           SIMAHATI OPREC
         </div>
-        <ul className="nav-links">
-          {currentLinks.map(link => (
-            <li key={link.action}>
-              {link.action === 'logout' || ['login', 'register', 'daftar'].includes(String(link.action)) ? (
-                <button
-                  className={`nav-btn${link.action === 'logout' ? ' nav-btn--outline' : ''}`}
-                  onClick={() => handleNav(link.action)}
-                >
-                  {link.label}
-                </button>
-              ) : (
-                <a
-                  href={link.action.startsWith('scroll-') ? `#${link.action.replace('scroll-', '')}` : `#${link.action}`}
-                  className={isNavActive(link) ? 'active' : ''}
-                  onClick={(e) => { e.preventDefault(); handleNav(link.action); }}
-                >
-                  {link.label}
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
+        {navMode === 'guest' && (
+          <ul className="nav-links">
+            {currentLinks.map(link => (
+              <li key={link.action}>
+                {['login', 'register', 'daftar'].includes(String(link.action)) ? (
+                  <button className="nav-btn" onClick={() => handleNav(link.action)}>
+                    {link.label}
+                  </button>
+                ) : (
+                  <a
+                    href={`#${link.action.replace('scroll-', '')}`}
+                    className={isNavActive(link) ? 'active' : ''}
+                    onClick={(e) => { e.preventDefault(); handleNav(link.action); }}
+                  >
+                    {link.label}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {navMode !== 'guest' && (
+          <ul className="nav-links">
+            <li><button className="nav-btn nav-btn--outline" onClick={handleLogout}>Logout</button></li>
+          </ul>
+        )}
       </nav>
 
       {currentPage === 'landing' && (
