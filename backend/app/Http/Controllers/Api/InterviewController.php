@@ -37,6 +37,10 @@ class InterviewController extends Controller
 
         $interview = Interview::create($validated);
 
+        \App\Models\Peserta::where('id', $validated['peserta_id'])
+            ->whereNotIn('status_seleksi', ['interview', 'accepted', 'rejected'])
+            ->update(['status_seleksi' => 'interview']);
+
         return response()->json([
             'success' => true,
             'message' => 'Jadwal interview berhasil dibuat.',
@@ -67,6 +71,10 @@ class InterviewController extends Controller
         ]);
 
         $interview->update($validated);
+
+        \App\Models\Peserta::where('id', $interview->peserta_id)
+            ->whereNotIn('status_seleksi', ['interview', 'accepted', 'rejected'])
+            ->update(['status_seleksi' => 'interview']);
 
         return response()->json([
             'success' => true,
