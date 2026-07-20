@@ -182,6 +182,26 @@ function App() {
     setCurrentPage('landing');
   };
 
+  const [activeSection, setActiveSection] = useState('landing');
+
+  useEffect(() => {
+    if (currentPage !== 'landing') return;
+    const ids = ['landing', 'about', 'timeline', 'faq'];
+    const observer = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          setActiveSection(e.target.id);
+          break;
+        }
+      }
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [currentPage]);
+
   const handleNav = (action: string) => {
     if (action === 'logout') {
       handleLogout();
@@ -189,6 +209,7 @@ function App() {
     }
     if (action.startsWith('scroll-')) {
       const sectionId = action.replace('scroll-', '');
+      setActiveSection(sectionId);
       if (currentPage !== 'landing') {
         setCurrentPage('landing');
         setTimeout(() => {
@@ -199,11 +220,17 @@ function App() {
       }
       return;
     }
+    setActiveSection(action);
     setCurrentPage(action as Page);
   };
 
-  const isNavActive = (link: NavLink) =>
-    currentPage === link.action || (link.match?.includes(currentPage) ?? false);
+  const isNavActive = (link: NavLink) => {
+    if (link.action.startsWith('scroll-')) {
+      const sectionId = link.action.replace('scroll-', '');
+      return currentPage === 'landing' && activeSection === sectionId;
+    }
+    return currentPage === link.action || (link.match?.includes(currentPage) ?? false);
+  };
 
   if (authLoading) {
     return (

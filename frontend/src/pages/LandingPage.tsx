@@ -21,7 +21,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
   return (
     <div className="landing-wrapper">
-      <section className="hero-section">
+      <section id="landing" className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">Waktunya Berkontribusi untuk HIMATI</h1>
           <p className="hero-subtitle">Open Recruitment Pengurus Himpunan Mahasiswa Teknik Informatika 2026</p>
