@@ -1,21 +1,46 @@
 #!/usr/bin/env bash
 set -e
 
-echo "==> Starting backend (Laravel) on port 8000 ..."
-cd backend
-php artisan serve --host=127.0.0.1 --port=8000 &
-BACKEND_PID=$!
+DIR="$(cd "$(dirname "$0")" && pwd)"
+PID_FILE="/tmp/simahati-dev.pids"
 
-echo "==> Starting frontend (Vite) on port 5173 ..."
-cd ../frontend
-npx vite --host 2>/dev/null &
-FRONTEND_PID=$!
+start() {
+  echo "==> Starting backend (Laravel) on port 8000 ..."
+  cd "$DIR/backend"
+  nohup php artisan serve --host=127.0.0.1 --port=8000 > /tmp/laravel.log 2>&1 &
+  echo $! > "$PID_FILE"
 
-echo ""
-echo "  Backend:  http://127.0.0.1:8000"
-echo "  Frontend: http://127.0.0.1:5173"
-echo ""
-echo "Press Ctrl+C to stop both servers."
+  echo "==> Starting frontend (Vite) on port 5173 ..."
+  cd "$DIR/frontend"
+  nohup npx vite --host > /tmp/vite.log 2>&1 &
+  echo $! >> "$PID_FILE"
 
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT TERM
-wait
+  echo ""
+  echo "  Backend:  http://127.0.0.1:8000"
+  echo "  Frontend: http://127.0.0.1:5173"
+  echo "  Logs:     tail -f /tmp/laravel.log /tmp/vite.log"
+  echo ""
+  echo "  Run ./dev.sh stop to stop all servers."
+}
+
+stop() {
+  if [ ! -f "$PID_FILE" ]; then
+    echo "No PID file found. Killing by process name..."
+    pkill -f "artisan serve" 2>/dev/null || true
+    pkill -f "bin/vite" 2>/dev/null || true
+    echo "Done."
+    return
+  fi
+  echo "==> Stopping servers ..."
+  while IFS= read -r pid; do
+    kill "$pid" 2>/dev/null && echo "  Stopped PID $pid" || true
+  done < "$PID_FILE"
+  rm -f "$PID_FILE"
+  echo "Done."
+}
+
+case "${1:-start}" in
+  start) start ;;
+  stop)  stop ;;
+  *)     echo "Usage: $0 {start|stop}" ;;
+esac
