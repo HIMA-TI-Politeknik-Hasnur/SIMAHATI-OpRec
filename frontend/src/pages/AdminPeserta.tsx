@@ -131,6 +131,30 @@ export function AdminPeserta() {
     }
   };
 
+  const handleSeleksi = async (id: number, status: string) => {
+    setUpdating(id);
+    const token = getAuthToken();
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      const res = await fetch(`/api/peserta/${id}/seleksi`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status_seleksi: status }),
+      });
+      const json = await res.json();
+      if (json.success) { setDetail(null); fetchData(); }
+      else alert(json.message || 'Gagal memperbarui status seleksi');
+    } catch {
+      alert('Gagal terhubung ke server');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const handleDelete = async (p: Peserta) => {
     if (!window.confirm(`Yakin ingin menghapus data ${p.nama_lengkap}?`)) return;
     const token = getAuthToken();
@@ -320,6 +344,39 @@ export function AdminPeserta() {
                 </button>
               )}
             </div>
+
+            {detail.status_verifikasi === 'verified' && (
+              <div className="ap-modal-footer ap-modal-footer--seleksi">
+                <span className="ap-seleksi-label">Status Seleksi:</span>
+                {detail.status_seleksi !== 'interview' && (
+                  <button
+                    className="ap-btn ap-btn--info"
+                    disabled={updating === detail.id}
+                    onClick={() => handleSeleksi(detail.id, 'interview')}
+                  >
+                    {updating === detail.id ? '...' : 'Interview'}
+                  </button>
+                )}
+                {detail.status_seleksi !== 'accepted' && (
+                  <button
+                    className="ap-btn ap-btn--terima"
+                    disabled={updating === detail.id}
+                    onClick={() => handleSeleksi(detail.id, 'accepted')}
+                  >
+                    {updating === detail.id ? '...' : 'Terima'}
+                  </button>
+                )}
+                {detail.status_seleksi !== 'rejected' && detail.status_seleksi !== 'draft' && (
+                  <button
+                    className="ap-btn ap-btn--tolak"
+                    disabled={updating === detail.id}
+                    onClick={() => handleSeleksi(detail.id, 'rejected')}
+                  >
+                    {updating === detail.id ? '...' : 'Tolak'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
