@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getAuthToken } from '../api';
 import './DivisiDetailPage.css';
 
 interface Divisi {
@@ -14,6 +15,7 @@ interface Peserta {
   nim: string;
   email: string;
   status_administrasi: 'pending' | 'verified' | 'rejected';
+  pilihan_divisi_1?: number;
 }
 
 interface DivisiDetailPageProps {
@@ -27,22 +29,27 @@ export const DivisiDetailPage = ({ divisiId, onBack }: DivisiDetailPageProps) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const API = 'http://localhost:8000/api';
+  const authHeaders = (): Record<string, string> => {
+    const token = getAuthToken();
+    const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const divisiRes = await fetch(`${API}/divisi/${divisiId}`);
+        const divisiRes = await fetch(`/api/divisi/${divisiId}`, { headers: authHeaders() });
         const divisiJson = await divisiRes.json();
         if (!divisiRes.ok) throw new Error(divisiJson.message ?? 'Gagal memuat divisi.');
         setDivisi(divisiJson.data);
 
-        // Ambil peserta yang memilih divisi ini (jika endpoint tersedia)
-        const pesertaRes = await fetch(`${API}/peserta?divisi_id=${divisiId}`);
+        const pesertaRes = await fetch('/api/peserta', { headers: authHeaders() });
         if (pesertaRes.ok) {
           const pesertaJson = await pesertaRes.json();
-          setPesertaList(pesertaJson.data ?? []);
+          const semuaPeserta: Peserta[] = pesertaJson.data ?? [];
+          setPesertaList(semuaPeserta.filter(p => p.pilihan_divisi_1 === divisiId));
         }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Terjadi kesalahan.');

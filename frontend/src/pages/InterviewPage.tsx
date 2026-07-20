@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getAuthToken } from '../api';
 import { Calendar } from '../components/Calendar';
 import './InterviewPage.css';
 
@@ -32,15 +33,20 @@ export const InterviewPage = () => {
   const [success, setSuccess] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const API = 'http://localhost:8000/api/interview';
-
   // Ambil tanggal yang sudah ada jadwal untuk ditandai di kalender
   const eventDates = interviews.map(iv => iv.tanggal);
+
+  const authHeaders = (): Record<string, string> => {
+    const token = getAuthToken();
+    const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
 
   const fetchInterviews = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API);
+      const res = await fetch('/api/interview', { headers: authHeaders() });
       const json = await res.json();
       setInterviews(json.data ?? []);
     } catch {
@@ -57,12 +63,12 @@ export const InterviewPage = () => {
     setError('');
     setSuccess('');
     const method = editId ? 'PUT' : 'POST';
-    const url = editId ? `${API}/${editId}` : API;
+    const url = editId ? `/api/interview/${editId}` : '/api/interview';
 
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           ...form,
           peserta_id: Number(form.peserta_id),
@@ -103,7 +109,7 @@ export const InterviewPage = () => {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch(`${API}/${id}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+      const res = await fetch(`/api/interview/${id}`, { method: 'DELETE', headers: authHeaders() });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message ?? 'Gagal menghapus.');
       setSuccess(json.message);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiFetch, removeAuthToken, getAuthToken, isSessionAuth, sessionFetch, clearAuth } from '../api';
+import { apiFetch, getAuthToken, isSessionAuth, sessionFetch, clearAuth, apiPost, sessionPost } from '../api';
 import { AdminRoleManagement } from './AdminDashboardRoleManagement';
 import { AdminPengumuman } from './AdminDashboardPengumuman';
 import './AdminDashboard.css';
@@ -129,7 +129,12 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     fetchData();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (isSessionAuth()) {
+      await sessionPost('/api/session/logout');
+    } else if (getAuthToken()) {
+      await apiPost('/api/logout');
+    }
     clearAuth();
     onNavigate('landing');
   };

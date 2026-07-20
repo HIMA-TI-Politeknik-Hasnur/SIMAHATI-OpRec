@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getAuthToken } from '../api';
 import './DashboardDivisi.css';
 
 interface Divisi {
@@ -19,28 +20,32 @@ export const DashboardDivisi = () => {
   const [stats, setStats] = useState<DashboardStats>({ totalDivisi: 0, totalInterview: 0, totalPendaftar: 0 });
   const [loading, setLoading] = useState(true);
 
-  const API = 'http://localhost:8000/api';
+  const authHeaders = (): Record<string, string> => {
+    const token = getAuthToken();
+    const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        // Ambil divisi
-        const divisiRes = await fetch(`${API}/divisi`);
+        const headers = authHeaders();
+
+        const divisiRes = await fetch('/api/divisi', { headers });
         const divisiJson = await divisiRes.json();
         const divisiData: Divisi[] = divisiJson.data ?? [];
         setDivisis(divisiData);
 
-        // Ambil interview
-        const interviewRes = await fetch(`${API}/interview`);
+        const interviewRes = await fetch('/api/interview', { headers });
         const interviewJson = await interviewRes.json();
         const totalInterview: number = (interviewJson.data ?? []).length;
 
-        // Ambil peserta (jika tersedia)
         let totalPendaftar = 0;
         const countMap: Record<number, number> = {};
         try {
-          const pesertaRes = await fetch(`${API}/peserta`);
+          const pesertaRes = await fetch('/api/peserta', { headers });
           if (pesertaRes.ok) {
             const pesertaJson = await pesertaRes.json();
             const pesertaData = pesertaJson.data ?? [];

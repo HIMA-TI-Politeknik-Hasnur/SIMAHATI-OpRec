@@ -1,8 +1,38 @@
 import { useState } from 'react';
 import './CmsPanel.css';
 
+import { getAuthToken } from '../api';
+
 export const CmsPanel = () => {
   const [activeTab, setActiveTab] = useState('pengumuman');
+  const [downloading, setDownloading] = useState<'excel' | 'pdf' | null>(null);
+
+  const handleDownload = async (type: 'excel' | 'pdf') => {
+    setDownloading(type);
+    const token = getAuthToken();
+    const url = type === 'excel' ? '/api/report/excel' : '/api/report/pdf';
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error('Gagal mengunduh laporan');
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = type === 'excel' ? 'laporan.xlsx' : 'laporan.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      alert('Gagal mengunduh laporan. Silakan coba lagi.');
+    }
+    setDownloading(null);
+  };
 
   return (
     <div className="cms-layout">
@@ -107,8 +137,12 @@ export const CmsPanel = () => {
                 Unduh seluruh data pengumuman sistem dalam format Excel (CSV) atau format cetak halaman (PDF).
               </p>
               <div className="export-actions">
-                <a href="/api/report/excel" target="_blank" rel="noreferrer" className="btn-export excel">Unduh Excel</a>
-                <a href="/api/report/pdf" target="_blank" rel="noreferrer" className="btn-export pdf">Cetak PDF</a>
+                <button onClick={() => handleDownload('excel')} disabled={downloading === 'excel'} className="btn-export excel">
+                  {downloading === 'excel' ? 'Mengunduh...' : 'Unduh Excel'}
+                </button>
+                <button onClick={() => handleDownload('pdf')} disabled={downloading === 'pdf'} className="btn-export pdf">
+                  {downloading === 'pdf' ? 'Mengunduh...' : 'Cetak PDF'}
+                </button>
               </div>
             </div>
           )}
