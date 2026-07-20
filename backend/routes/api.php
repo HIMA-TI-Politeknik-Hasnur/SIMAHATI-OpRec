@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\PermissionController;
 
 // ─── Auth (Reyhan) ───────────────────────────────────────────────────────────
 
+Route::get('health', fn () => response()->json(['status' => 'ok', 'time' => now()]));
+
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('email/resend-verification', [AuthController::class, 'resendVerification']);

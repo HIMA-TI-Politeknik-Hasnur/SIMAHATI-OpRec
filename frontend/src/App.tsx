@@ -266,7 +266,7 @@ function App() {
         )}
         {navMode !== 'guest' && (
           <ul className="nav-links">
-            {navMode === 'staff' && currentLinks.map(link => (
+            {navMode === 'staff' && !canViewDashboard && currentLinks.map(link => (
               <li key={link.action}>
                 <button
                   className={`nav-btn ${isNavActive(link) ? 'active' : ''}`}

@@ -1,0 +1,23 @@
+{
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://RAILWAY_URL/api/$1"
+    },
+    {
+      "source": "/sanctum/(.*)",
+      "destination": "https://RAILWAY_URL/sanctum/$1"
+    },
+    {
+      "source": "/storage/(.*)",
+      "destination": "https://RAILWAY_URL/storage/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
