@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiPost } from '../api';
+import './ResetPasswordPage.css';
 
 interface ResetPasswordPageProps {
   onBackToLogin: () => void;
