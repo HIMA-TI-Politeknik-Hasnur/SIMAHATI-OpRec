@@ -162,6 +162,8 @@
   text-decoration: none;
   color: white;
   transition: opacity 0.2s, transform 0.2s;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-export:hover {

@@ -3,6 +3,7 @@ import './DashboardPeserta.css';
 import { StatusBadge } from '../components/StatusBadge';
 import { Alert } from '../components/Alert';
 import { type PesertaRecord } from '../types/pendaftaran';
+import { getAuthToken } from '../api';
 
 interface DashboardPesertaProps {
   pesertaId: number;
@@ -31,7 +32,10 @@ export const DashboardPeserta = ({ pesertaId, onNavigate }: DashboardPesertaProp
   const [activeNav, setActiveNav] = useState('dashboard');
 
   useEffect(() => {
-    fetch(`/api/peserta/${pesertaId}`, { headers: { Accept: 'application/json' } })
+    const token = getAuthToken();
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    fetch(`/api/peserta/${pesertaId}`, { headers })
       .then(r => r.json())
       .then(json => {
         if (json.success) setPeserta(json.data);

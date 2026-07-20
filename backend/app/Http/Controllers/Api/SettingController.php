@@ -26,6 +26,23 @@ class SettingController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'key' => 'required|string|max:255|unique:settings,key',
+            'value' => 'required',
+            'type' => 'in:string,boolean,file'
+        ]);
+
+        $setting = Setting::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Setting berhasil dibuat.',
+            'data' => $setting
+        ], 201);
+    }
+
     public function update(Request $request, $key)
     {
         $validated = $request->validate([
@@ -40,6 +57,17 @@ class SettingController extends Controller
             'success' => true,
             'message' => 'Setting berhasil diupdate.',
             'data' => $setting
+        ]);
+    }
+
+    public function destroy($key)
+    {
+        $setting = Setting::where('key', $key)->firstOrFail();
+        $setting->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Setting berhasil dihapus.'
         ]);
     }
 }

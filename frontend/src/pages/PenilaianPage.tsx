@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getAuthToken } from '../api';
 import { Rating } from '../components/Rating';
 import './PenilaianPage.css';
 
@@ -35,12 +36,17 @@ export const PenilaianPage = () => {
   const [formNilai, setFormNilai] = useState(0);
   const [formCatatan, setFormCatatan] = useState('');
 
-  const API_INTERVIEW = 'http://localhost:8000/api/interview';
+  const authHeaders = (): Record<string, string> => {
+    const token = getAuthToken();
+    const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
 
   const fetchInterviews = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_INTERVIEW);
+      const res = await fetch('/api/interview', { headers: authHeaders() });
       const json = await res.json();
       setInterviews(json.data ?? []);
     } catch {
@@ -78,9 +84,9 @@ export const PenilaianPage = () => {
     setSuccess('');
 
     try {
-      const res = await fetch(`${API_INTERVIEW}/${modal.interviewId}/penilaian`, {
+      const res = await fetch(`/api/interview/${modal.interviewId}/penilaian`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           nilai: formNilai,
           catatan: formCatatan || null,

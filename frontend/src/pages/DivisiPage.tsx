@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getAuthToken } from '../api';
 import './DivisiPage.css';
 
 interface Divisi {
@@ -22,12 +23,17 @@ export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const API = 'http://localhost:8000/api/divisi';
+  const authHeaders = (): Record<string, string> => {
+    const token = getAuthToken();
+    const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
 
   const fetchDivisi = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API);
+      const res = await fetch('/api/divisi', { headers: authHeaders() });
       const json = await res.json();
       setDivisis(json.data);
     } catch {
@@ -44,12 +50,12 @@ export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
     setError('');
     setSuccess('');
     const method = editId ? 'PUT' : 'POST';
-    const url = editId ? `${API}/${editId}` : API;
+    const url = editId ? `/api/divisi/${editId}` : '/api/divisi';
 
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ ...form, kuota: Number(form.kuota) }),
       });
       const json = await res.json();
@@ -75,7 +81,7 @@ export const DivisiPage = ({ onViewDetail }: DivisiPageProps) => {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch(`${API}/${id}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+      const res = await fetch(`/api/divisi/${id}`, { method: 'DELETE', headers: authHeaders() });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message ?? 'Gagal menghapus.');
       setSuccess(json.message);

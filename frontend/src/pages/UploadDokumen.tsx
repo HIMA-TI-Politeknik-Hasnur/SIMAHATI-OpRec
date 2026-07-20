@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './UploadDokumen.css';
 import { UploadCard, type JenisDokumen } from '../components/UploadCard';
 import { Alert } from '../components/Alert';
+import { getAuthToken } from '../api';
 
 interface UploadDokumenProps {
   pesertaId: number;
@@ -45,9 +46,12 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess }: UploadDokumenPro
     fd.append('jenis_dokumen', jenis);
     fd.append('file',          file);
 
+    const token = getAuthToken();
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch('/api/upload', {
       method:  'POST',
-      headers: { Accept: 'application/json' },
+      headers,
       body:    fd,
     });
 
