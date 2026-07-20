@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -29,6 +30,49 @@ class AuthController extends Controller
                 'token' => $token,
             ],
         ], 201);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $token = $request->user()->currentAccessToken();
+
+        if (! $token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak ditemukan.',
+            ], 401);
+        }
+
+        $token->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil.',
+        ]);
+    }
+
+    public function user(Request $request): JsonResponse
+    {
+        $user = $request->user()->load('roles.permissions');
+
+        $roles = $user->roles->pluck('name');
+        $permissions = $user->roles
+            ->flatMap(fn ($role) => $role->permissions->pluck('name'))
+            ->unique()
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $roles,
+                'permissions' => $permissions,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+            ],
+        ]);
     }
 
     public function login(Request $request)
