@@ -1,24 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './UploadDokumen.css';
 import { UploadCard, type JenisDokumen } from '../components/UploadCard';
 import { Alert } from '../components/Alert';
 import { getAuthToken } from '../api';
+import type { UploadRecord } from '../types/pendaftaran';
 
 interface UploadDokumenProps {
   pesertaId: number;
   onBack: () => void;
   onSuccess: () => void;
   inline?: boolean;
+  existingUploads?: UploadRecord[];
 }
 
 type FileMap = Record<JenisDokumen, File | null>;
 type ErrorMap = Record<JenisDokumen, string>;
 
 const JENIS_LIST: JenisDokumen[] = ['foto', 'ktm', 'cv', 'sertifikat'];
-
 const WAJIB: JenisDokumen[] = ['foto', 'ktm', 'cv'];
 
-export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDokumenProps) => {
+export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUploads }: UploadDokumenProps) => {
   const [files, setFiles] = useState<FileMap>({
     foto: null, ktm: null, cv: null, sertifikat: null,
   });
@@ -27,6 +28,12 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDo
   const [apiSuccess, setApiSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (existingUploads?.length) {
+      setApiSuccess('Dokumen sudah pernah diunggah.');
+    }
+  }, [existingUploads]);
+
   const handleChange = (jenis: JenisDokumen, file: File | null) => {
     setFiles(prev => ({ ...prev, [jenis]: file }));
     if (file) setFieldErrors(prev => ({ ...prev, [jenis]: undefined }));
@@ -34,8 +41,9 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDo
 
   const validate = (): boolean => {
     const errs: Partial<ErrorMap> = {};
+    const sudahUpload = new Set((existingUploads || []).map(u => u.jenis_dokumen));
     WAJIB.forEach(j => {
-      if (!files[j]) errs[j] = 'Dokumen ini wajib diunggah.';
+      if (!files[j] && !sudahUpload.has(j)) errs[j] = 'Dokumen ini wajib diunggah.';
     });
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -69,7 +77,6 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDo
     setApiSuccess(null);
 
     try {
-      // Upload semua file secara berurutan
       for (const jenis of JENIS_LIST) {
         const file = files[jenis];
         if (file) await uploadSingle(jenis, file);
@@ -85,6 +92,11 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDo
   };
 
   const handleSkip = () => onSuccess();
+
+  const getExistingUrl = (jenis: JenisDokumen): string | undefined => {
+    const found = (existingUploads || []).find(u => u.jenis_dokumen === jenis);
+    return found?.file_url;
+  };
 
   const content = (
     <div className="upload-dok-body">
@@ -104,6 +116,7 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDo
             file={files[jenis]}
             onChange={handleChange}
             error={fieldErrors[jenis]}
+            existingUrl={getExistingUrl(jenis)}
           />
         ))}
       </div>

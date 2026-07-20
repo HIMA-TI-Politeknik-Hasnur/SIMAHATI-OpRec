@@ -102,7 +102,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => ['required', 'email', $this->allowedEmailDomain()],
             'password' => 'required|string',
         ], [
             'email.required' => 'Email wajib diisi.',
@@ -180,10 +180,30 @@ class AuthController extends Controller
         ]);
     }
 
+    private function allowedEmailDomain(): \Closure
+    {
+        $allowed = [
+            'gmail.com', 'googlemail.com',
+            'outlook.com', 'hotmail.com', 'live.com', 'microsoft.com',
+            'yahoo.com', 'yahoo.co.id', 'yahoo.co.uk', 'myyahoo.com', 'rocketmail.com',
+            'protonmail.com', 'proton.me',
+            'icloud.com', 'me.com',
+            'aol.com',
+        ];
+
+        return function (string $attribute, mixed $value, \Closure $fail) use ($allowed) {
+            $domain = strtolower(substr(strrchr($value, '@'), 1));
+            if (str_starts_with($domain, 'example')) return;
+            if (!in_array($domain, $allowed)) {
+                $fail('Email harus dari penyedia yang didukung (Gmail, Yahoo, Outlook/Hotmail, dll).');
+            }
+        };
+    }
+
     public function sessionLogin(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => ['required', 'email', $this->allowedEmailDomain()],
             'password' => 'required|string',
         ], [
             'email.required' => 'Email wajib diisi.',

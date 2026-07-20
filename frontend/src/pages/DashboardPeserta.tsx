@@ -3,7 +3,7 @@ import './DashboardPeserta.css';
 import { StatusBadge } from '../components/StatusBadge';
 import { Alert } from '../components/Alert';
 import { type PesertaRecord } from '../types/pendaftaran';
-import { getAuthToken } from '../api';
+import { apiGet } from '../api';
 import { FormPendaftaran } from './FormPendaftaran';
 import { UploadDokumen } from './UploadDokumen';
 import { PreviewPendaftaran } from './PreviewPendaftaran';
@@ -36,18 +36,16 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
   const [localPesertaId, setLocalPesertaId] = useState(pesertaId);
 
   useEffect(() => {
-    const token = getAuthToken();
-    const headers: Record<string, string> = { Accept: 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    fetch(`/api/peserta/${pesertaId}`, { headers })
-      .then(r => r.json())
-      .then(json => {
-        if (json.success) setPeserta(json.data);
-        else { setError('Data tidak ditemukan, menampilkan demo.'); setPeserta(DEMO); }
+    setLoading(true);
+    setError(null);
+    apiGet<{ success: boolean; data: PesertaRecord }>(`/api/peserta/${localPesertaId}`)
+      .then(res => {
+        if (res.data?.success) setPeserta(res.data.data);
+        else { setError('Data tidak ditemukan.'); }
       })
       .catch(() => { setError('Tidak bisa terhubung ke server, menampilkan demo.'); setPeserta(DEMO); })
       .finally(() => setLoading(false));
-  }, [pesertaId]);
+  }, [localPesertaId, activeNav]);
 
   const navItems = [
     { key: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -84,6 +82,7 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
         return (
           <FormPendaftaran
             inline
+            pesertaId={localPesertaId || peserta?.id}
             onBack={() => setActiveNav('dashboard')}
             onSuccess={handleFormSuccess}
           />
@@ -93,6 +92,7 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
           <UploadDokumen
             inline
             pesertaId={localPesertaId}
+            existingUploads={peserta?.uploads}
             onBack={() => setActiveNav('form')}
             onSuccess={() => setActiveNav('preview')}
           />

@@ -80,10 +80,11 @@ function App() {
       const role = stored.roles?.[0] ?? '';
       if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
         const dest = role === 'Peserta' ? 'dashboard-peserta'
-          : ['Super Admin', 'Admin'].includes(role) ? 'admin-dashboard'
+          : ['Super Admin', 'Admin', 'Panitia'].includes(role) ? 'admin-dashboard'
           : 'interview';
         setCurrentPage(dest);
       }
+      if (stored.peserta_id) setPesertaId(stored.peserta_id);
       return;
     }
 

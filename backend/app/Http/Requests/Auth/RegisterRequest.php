@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class RegisterRequest extends FormRequest
@@ -18,7 +18,14 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email',
+                $this->allowedEmailDomain(),
+            ],
             'password' => 'required|string|min:8|confirmed',
         ];
     }
@@ -39,6 +46,26 @@ class RegisterRequest extends FormRequest
             'password.min' => 'Kata sandi minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ];
+    }
+
+    private function allowedEmailDomain(): callable
+    {
+        $allowed = [
+            'gmail.com', 'googlemail.com',
+            'outlook.com', 'hotmail.com', 'live.com', 'microsoft.com',
+            'yahoo.com', 'yahoo.co.id', 'yahoo.co.uk', 'myyahoo.com', 'rocketmail.com',
+            'protonmail.com', 'proton.me',
+            'icloud.com', 'me.com',
+            'aol.com',
+        ];
+
+        return function (string $attribute, mixed $value, \Closure $fail) use ($allowed) {
+            $domain = strtolower(substr(strrchr($value, '@'), 1));
+            if (str_starts_with($domain, 'example')) return;
+            if (!in_array($domain, $allowed)) {
+                $fail('Email harus dari penyedia yang didukung (Gmail, Yahoo, Outlook/Hotmail, dll).');
+            }
+        };
     }
 
     protected function failedValidation(Validator $validator)

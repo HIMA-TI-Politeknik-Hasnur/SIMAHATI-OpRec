@@ -14,7 +14,7 @@ interface StatusBadgeProps {
 
 const STATUS_CONFIG: Record<string, { label: string; modifier: string }> = {
   // Verifikasi
-  pending:   { label: 'Menunggu Verifikasi', modifier: 'warning' },
+  pending:   { label: 'Menunggu',             modifier: 'warning' },
   verified:  { label: 'Terverifikasi',        modifier: 'success' },
   // Seleksi / Pendaftaran
   draft:     { label: 'Draft',               modifier: 'neutral' },

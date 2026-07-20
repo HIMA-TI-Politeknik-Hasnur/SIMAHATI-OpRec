@@ -60,7 +60,10 @@ export const UploadCard = ({ jenis, file, onChange, error, existingUrl, uploadin
     e.preventDefault();
     setDragOver(false);
     const selected = e.dataTransfer.files?.[0];
-    if (selected) handleFile(selected);
+    if (selected) {
+      setExistingPreview(null);
+      handleFile(selected);
+    }
   };
 
   const handleRemove = () => {

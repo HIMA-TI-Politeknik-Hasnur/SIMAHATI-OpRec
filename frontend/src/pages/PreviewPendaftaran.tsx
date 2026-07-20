@@ -64,7 +64,6 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
   }, [pesertaId]);
 
   const handleSubmit = async () => {
-    if (!peserta?.pendaftaran) return;
     setSubmitting(true);
     setApiError(null);
 
@@ -72,7 +71,19 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
       const token = getAuthToken();
       const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`/api/pendaftaran/${peserta.pendaftaran.id}/status`, {
+
+      let pendaftaranId = peserta?.pendaftaran?.id;
+      if (!pendaftaranId) {
+        const pRes = await fetch('/api/pendaftaran', {
+          method: 'POST', headers,
+          body: JSON.stringify({ peserta_id: pesertaId, status: 'draft' }),
+        });
+        const pJson = await pRes.json();
+        pendaftaranId = pJson.data?.id;
+        if (!pendaftaranId) { setApiError('Gagal membuat data pendaftaran.'); return; }
+      }
+
+      const res = await fetch(`/api/pendaftaran/${pendaftaranId}/status`, {
         method:  'PATCH',
         headers,
         body:    JSON.stringify({ status: 'submitted' }),

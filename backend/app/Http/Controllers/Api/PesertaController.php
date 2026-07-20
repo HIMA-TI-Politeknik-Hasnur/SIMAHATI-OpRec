@@ -136,4 +136,31 @@ class PesertaController extends Controller
             'data'    => $peserta,
         ]);
     }
+
+    /**
+     * Memperbarui status seleksi peserta (interview / accepted / rejected).
+     *
+     * PATCH /peserta/{peserta}/seleksi
+     *
+     * Body JSON:
+     *   - status_seleksi : interview|accepted|rejected  (wajib)
+     */
+    public function seleksi(Request $request, Peserta $peserta)
+    {
+        $validated = $request->validate([
+            'status_seleksi' => 'required|in:interview,accepted,rejected',
+        ], [
+            'status_seleksi.required' => 'Status seleksi wajib diisi.',
+            'status_seleksi.in'       => 'Status seleksi tidak valid.',
+        ]);
+
+        $peserta->update(['status_seleksi' => $validated['status_seleksi']]);
+        $peserta->load(['user', 'pendaftaran', 'uploads']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status seleksi peserta berhasil diperbarui.',
+            'data'    => $peserta,
+        ]);
+    }
 }

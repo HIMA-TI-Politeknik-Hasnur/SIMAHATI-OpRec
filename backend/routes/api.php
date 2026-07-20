@@ -53,6 +53,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('peserta/{peserta}/verifikasi', [PesertaController::class, 'verifikasi'])
         ->name('peserta.verifikasi');
 
+    // PATCH /peserta/{peserta}/seleksi — ubah status_seleksi (interview/accepted/rejected)
+    Route::patch('peserta/{peserta}/seleksi', [PesertaController::class, 'seleksi'])
+        ->name('peserta.seleksi');
+
     Route::apiResource('pendaftaran', PendaftaranController::class)
         ->parameters([
             'pendaftaran' => 'pendaftaran',

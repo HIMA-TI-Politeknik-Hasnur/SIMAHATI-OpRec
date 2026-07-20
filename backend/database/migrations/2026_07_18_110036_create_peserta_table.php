@@ -17,27 +17,25 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->string('nama_lengkap', 100);
-            $table->string('nim', 20)->unique();
-            $table->tinyInteger('semester');
-            $table->string('program_studi', 100)->index();
-            $table->smallInteger('angkatan')->index();
+            $table->string('nim', 20)->nullable()->unique();
+            $table->tinyInteger('semester')->nullable();
+            $table->string('program_studi', 100)->nullable()->index();
+            $table->smallInteger('angkatan')->nullable()->index();
 
             $table->string('email', 100);
-            $table->string('nomor_hp', 20);
-
-            $table->text('alamat');
+            $table->string('nomor_hp', 20)->nullable();
+            $table->text('alamat')->nullable();
 
             $table->text('pengalaman_organisasi')->nullable();
             $table->text('skill')->nullable();
             $table->text('prestasi')->nullable();
 
-            // Foreign key akan ditambahkan setelah migration tabel divisi tersedia.
-            $table->unsignedBigInteger('pilihan_divisi_1');
+            $table->unsignedBigInteger('pilihan_divisi_1')->nullable();
             $table->unsignedBigInteger('pilihan_divisi_2')->nullable();
 
-            $table->text('motivasi');
-            $table->text('kontribusi');
-            $table->text('harapan');
+            $table->text('motivasi')->nullable();
+            $table->text('kontribusi')->nullable();
+            $table->text('harapan')->nullable();
 
             $table->enum('status_verifikasi', [
                 'pending',

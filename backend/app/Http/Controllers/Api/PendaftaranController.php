@@ -31,13 +31,18 @@ class PendaftaranController extends Controller
      */
     public function store(StorePendaftaranRequest $request)
     {
-        $pendaftaran = Pendaftaran::create($request->validated());
+        $data = $request->validated();
+        $pendaftaran = Pendaftaran::firstOrCreate(
+            ['peserta_id' => $data['peserta_id']],
+            $data
+        );
 
+        $created = $pendaftaran->wasRecentlyCreated;
         return response()->json([
             'success' => true,
-            'message' => 'Data pendaftaran berhasil ditambahkan.',
+            'message' => $created ? 'Data pendaftaran berhasil ditambahkan.' : 'Data pendaftaran sudah ada.',
             'data' => $pendaftaran,
-        ], 201);
+        ], $created ? 201 : 200);
     }
 
     /**
@@ -116,6 +121,10 @@ class PendaftaranController extends Controller
 
         $pendaftaran->update($data);
         $pendaftaran->load('peserta');
+
+        if ($validated['status'] === 'submitted' && $pendaftaran->peserta) {
+            $pendaftaran->peserta->update(['status_seleksi' => 'submitted']);
+        }
 
         return response()->json([
             'success' => true,

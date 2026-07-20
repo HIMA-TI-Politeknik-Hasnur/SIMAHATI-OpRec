@@ -1,0 +1,63 @@
+- generic [ref=f7e3]:
+  - navigation [ref=f7e4]:
+    - generic [ref=f7e5] [cursor=pointer]: SIMAHATI OPREC
+    - list [ref=f7e6]:
+      - listitem [ref=f7e7]:
+        - link "Beranda" [ref=f7e8] [cursor=pointer]:
+          - /url: "#landing"
+      - listitem [ref=f7e9]:
+        - link "Tentang" [ref=f7e10] [cursor=pointer]:
+          - /url: "#about"
+      - listitem [ref=f7e11]:
+        - link "Timeline" [ref=f7e12] [cursor=pointer]:
+          - /url: "#timeline"
+      - listitem [ref=f7e13]:
+        - link "FAQ" [ref=f7e14] [cursor=pointer]:
+          - /url: "#faq"
+      - listitem [ref=f7e15]:
+        - button "Login" [ref=f7e16] [cursor=pointer]
+      - listitem [ref=f7e17]:
+        - button "Daftar" [ref=f7e18] [cursor=pointer]
+  - generic [ref=f7e19]:
+    - generic [ref=f7e21]:
+      - heading "Waktunya Berkontribusi untuk HIMATI" [level=1] [ref=f7e22]
+      - paragraph [ref=f7e23]: Open Recruitment Pengurus Himpunan Mahasiswa Teknik Informatika 2026
+      - button "Daftar Sekarang" [ref=f7e24] [cursor=pointer]
+    - generic [ref=f7e25]:
+      - heading "Kenapa Harus Bergabung?" [level=2] [ref=f7e26]
+      - generic [ref=f7e27]:
+        - generic [ref=f7e28]:
+          - heading "🤝 Relasi Bertambah" [level=3] [ref=f7e29]
+          - paragraph [ref=f7e30]: Perluas jaringan pertemananmu di lingkup mahasiswa hingga alumni.
+        - generic [ref=f7e31]:
+          - heading "📈 Upgrade Skill" [level=3] [ref=f7e32]
+          - paragraph [ref=f7e33]: Latih kemampuan hardskill & softskill langsung di lapangan.
+        - generic [ref=f7e34]:
+          - heading "💡 Portofolio" [level=3] [ref=f7e35]
+          - paragraph [ref=f7e36]: Pengalaman organisasi berharga untuk bekal karir masa depan.
+    - generic [ref=f7e37]:
+      - heading "Timeline Kegiatan" [level=2] [ref=f7e38]
+      - generic [ref=f7e40]:
+        - generic [ref=f7e43]:
+          - heading "Pendaftaran Buka" [level=3] [ref=f7e44]
+          - generic [ref=f7e45]: 01/08/2026
+        - generic [ref=f7e48]:
+          - heading "Seleksi Berkas" [level=3] [ref=f7e49]
+          - generic [ref=f7e50]: 15/08/2026
+          - paragraph [ref=f7e51]: Pengumuman lolos administrasi
+        - generic [ref=f7e54]:
+          - heading "Wawancara" [level=3] [ref=f7e55]
+          - generic [ref=f7e56]: 20/08/2026
+    - generic [ref=f7e57]:
+      - heading "Pertanyaan Sering Ditanyakan" [level=2] [ref=f7e58]
+      - generic [ref=f7e60]:
+        - generic [ref=f7e61]:
+          - button "Siapa saja yang bisa mendaftar?" [ref=f7e62] [cursor=pointer]
+          - generic: Seluruh mahasiswa aktif Teknik Informatika.
+        - generic [ref=f7e68]:
+          - button "Apakah bayar?" [ref=f7e69] [cursor=pointer]
+          - generic: Gratis, tidak dipungut biaya apapun.
+    - contentinfo [ref=f7e75]:
+      - generic [ref=f7e76]:
+        - heading "SIMAHATI" [level=2] [ref=f7e77]
+        - paragraph [ref=f7e78]: © 2026 Himpunan Mahasiswa Teknik Informatika. All rights reserved.

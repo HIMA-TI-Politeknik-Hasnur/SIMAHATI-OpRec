@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './FormPendaftaran.css';
 import { ProgressStep } from '../components/ProgressStep';
 import { Alert } from '../components/Alert';
-import { getAuthToken } from '../api';
+import { apiGet, getAuthToken } from '../api';
 import {
   INITIAL_FORM,
-  DUMMY_DIVISI,
   validateDataDiri,
   validateDivisi,
   validateEssay,
@@ -18,6 +17,7 @@ interface FormPendaftaranProps {
   onBack: () => void;
   onSuccess: (pesertaId: number) => void;
   inline?: boolean;
+  pesertaId?: number | null;
 }
 
 const STEPS = [
@@ -52,12 +52,24 @@ const Field = ({ label, required, error, hint, children, full }: FieldProps) => 
 
 // ─── Komponen utama ────────────────────────────────────────────
 
-export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranProps) => {
+interface DivisiOption {
+  id: number;
+  nama: string;
+}
+
+export const FormPendaftaran = ({ onBack, onSuccess, inline, pesertaId }: FormPendaftaranProps) => {
   const [step, setStep]     = useState(0);
   const [form, setForm]     = useState<FormPendaftaranData>(INITIAL_FORM);
   const [errors, setErrors] = useState<ValidationErrors<FormPendaftaranData>>({});
   const [loading, setLoading]   = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [divisiList, setDivisiList] = useState<DivisiOption[]>([]);
+
+  useEffect(() => {
+    apiGet<{ success: boolean; data: DivisiOption[] }>('/api/divisi')
+      .then(res => { if (res.data?.success) setDivisiList(res.data.data); })
+      .catch(() => {});
+  }, []);
 
   const set = (key: keyof FormPendaftaranData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -103,12 +115,12 @@ export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranPr
       const token = getAuthToken();
       const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch('/api/peserta', {
-        method:  'POST',
-        headers,
-        body:    JSON.stringify(payload),
-      });
 
+      const isUpdate = !!pesertaId;
+      const url = isUpdate ? `/api/peserta/${pesertaId}` : '/api/peserta';
+      const method = isUpdate ? 'PUT' : 'POST';
+
+      const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
       const json = await res.json();
 
       if (!res.ok) {
@@ -119,14 +131,14 @@ export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranPr
         return;
       }
 
-      // Buat record pendaftaran
+      const savedId = json.data.id;
       await fetch('/api/pendaftaran', {
         method:  'POST',
         headers,
-        body:    JSON.stringify({ peserta_id: json.data.id, status: 'draft' }),
+        body:    JSON.stringify({ peserta_id: savedId, status: 'draft' }),
       });
 
-      onSuccess(json.data.id);
+      onSuccess(savedId);
     } catch {
       setApiError('Gagal terhubung ke server. Pastikan backend sudah berjalan.');
     } finally {
@@ -194,7 +206,7 @@ export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranPr
               hint="Pilihan utama divisi yang ingin kamu masuki">
               <select value={form.pilihan_divisi_1} onChange={set('pilihan_divisi_1')}>
                 <option value="">-- Pilih Divisi --</option>
-                {DUMMY_DIVISI.map(d => (
+                {divisiList.map(d => (
                   <option key={d.id} value={String(d.id)}>{d.nama}</option>
                 ))}
               </select>
@@ -203,7 +215,7 @@ export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranPr
               hint="Opsional — pilihan cadangan jika pilihan 1 tidak tersedia">
               <select value={form.pilihan_divisi_2} onChange={set('pilihan_divisi_2')}>
                 <option value="">-- Tidak Ada --</option>
-                {DUMMY_DIVISI.filter(d => String(d.id) !== form.pilihan_divisi_1).map(d => (
+                {divisiList.filter(d => String(d.id) !== form.pilihan_divisi_1).map(d => (
                   <option key={d.id} value={String(d.id)}>{d.nama}</option>
                 ))}
               </select>

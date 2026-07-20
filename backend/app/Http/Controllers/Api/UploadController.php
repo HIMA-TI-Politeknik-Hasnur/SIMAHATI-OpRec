@@ -68,14 +68,10 @@ class UploadController extends Controller
     {
         $upload->load('peserta');
 
-        // Sertakan URL publik agar frontend bisa langsung menampilkan file.
-        $data             = $upload->toArray();
-        $data['file_url'] = Storage::disk('public')->url($upload->file_path);
-
         return response()->json([
             'success' => true,
             'message' => 'Detail upload berhasil diambil.',
-            'data'    => $data,
+            'data'    => $upload,
         ]);
     }
 

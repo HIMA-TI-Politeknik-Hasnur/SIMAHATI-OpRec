@@ -89,6 +89,10 @@ export async function apiFetch<T>(
   }
 }
 
+export async function apiGet<T>(url: string): Promise<{ data: T | null; error: ApiError | null; status: number }> {
+  return apiFetch<T>(url, { method: 'GET' });
+}
+
 export async function apiPost<T>(url: string, body: unknown): Promise<{ data: T | null; error: ApiError | null; status: number }> {
   return apiFetch<T>(url, {
     method: 'POST',
