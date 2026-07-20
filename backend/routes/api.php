@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Reyhan: Auth
+use App\Http\Controllers\Api\AuthController;
+
 // Nadil: Pendaftaran
 use App\Http\Controllers\Api\PesertaController;
 use App\Http\Controllers\Api\PendaftaranController;
@@ -15,6 +18,11 @@ use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\DivisiController;
 use App\Http\Controllers\Api\InterviewController;
+
+// ─── Auth (Reyhan) ───────────────────────────────────────────────────────────
+
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
 
 // ─── Pendaftaran (Nadil) ──────────────────────────────────────────────────────
 
