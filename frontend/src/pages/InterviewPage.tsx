@@ -14,6 +14,9 @@ interface Interview {
   catatan: string | null;
 }
 
+interface PesertaOption { id: number; nama_lengkap: string; nim: string; }
+interface UserOption { id: number; name: string; email: string; }
+
 const emptyForm = {
   peserta_id: '',
   interviewer_id: '',
@@ -30,6 +33,8 @@ interface InterviewPageProps {
 
 export const InterviewPage = ({ inline }: InterviewPageProps) => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [pesertaList, setPesertaList] = useState<PesertaOption[]>([]);
+  const [interviewerList, setInterviewerList] = useState<UserOption[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,7 +42,6 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
   const [success, setSuccess] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
 
-  // Ambil tanggal yang sudah ada jadwal untuk ditandai di kalender
   const eventDates = interviews.map(iv => iv.tanggal);
 
   const authHeaders = (): Record<string, string> => {
@@ -60,7 +64,22 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
     }
   };
 
-  useEffect(() => { fetchInterviews(); }, []);
+  const fetchOptions = async () => {
+    try {
+      const [pRes, iRes] = await Promise.all([
+        fetch('/api/peserta', { headers: authHeaders() }),
+        fetch('/api/users/interviewers', { headers: authHeaders() }),
+      ]);
+      const pJson = await pRes.json();
+      const iJson = await iRes.json();
+      setPesertaList(pJson.data ?? []);
+      setInterviewerList(iJson.data ?? []);
+    } catch {
+      /* abaikan — form tetap bisa pakai input manual */
+    }
+  };
+
+  useEffect(() => { fetchInterviews(); fetchOptions(); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,24 +167,34 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
           <h3>{editId ? 'Edit Jadwal' : 'Tambah Jadwal Baru'}</h3>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>ID Peserta</label>
-              <input
-                type="number" min={1}
-                placeholder="ID peserta"
+              <label>Peserta</label>
+              <select
                 value={form.peserta_id}
                 onChange={e => setForm({ ...form, peserta_id: e.target.value })}
                 required
-              />
+              >
+                <option value="">— Pilih Peserta —</option>
+                {pesertaList.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama_lengkap} ({p.nim ? `#${p.nim}` : `#${p.id}`})
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
-              <label>ID Interviewer</label>
-              <input
-                type="number" min={1}
-                placeholder="ID user interviewer"
+              <label>Interviewer</label>
+              <select
                 value={form.interviewer_id}
                 onChange={e => setForm({ ...form, interviewer_id: e.target.value })}
                 required
-              />
+              >
+                <option value="">— Pilih Interviewer —</option>
+                {interviewerList.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.email})
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Tanggal pakai Calendar */}
@@ -268,6 +297,7 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
               <thead>
                 <tr>
                   <th>Peserta</th>
+                  <th>Interviewer</th>
                   <th>Tanggal & Waktu</th>
                   <th>Lokasi</th>
                   <th>Status</th>
@@ -275,27 +305,32 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
                 </tr>
               </thead>
               <tbody>
-                {interviews.map(iv => (
-                  <tr key={iv.id}>
-                    <td>#{iv.peserta_id}</td>
-                    <td>
-                      {iv.tanggal}<br />
-                      <small>{iv.waktu.slice(0, 5)} WIB</small>
-                    </td>
-                    <td>{iv.lokasi}</td>
-                    <td>
-                      <span className={`badge-status ${iv.status}`}>
-                        {statusLabel[iv.status]}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn-edit" onClick={() => handleEdit(iv)}>Edit</button>
-                        <button className="btn-delete" onClick={() => handleDelete(iv.id)}>Hapus</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                  {interviews.map(iv => {
+                    const peserta = pesertaList.find(p => p.id === iv.peserta_id);
+                    const interviewer = interviewerList.find(u => u.id === iv.interviewer_id);
+                    return (
+                      <tr key={iv.id}>
+                        <td>{peserta?.nama_lengkap ?? `#${iv.peserta_id}`}</td>
+                        <td>{interviewer?.name ?? `#${iv.interviewer_id}`}</td>
+                        <td>
+                          {iv.tanggal}<br />
+                          <small>{iv.waktu.slice(0, 5)} WIB</small>
+                        </td>
+                        <td>{iv.lokasi}</td>
+                        <td>
+                          <span className={`badge-status ${iv.status}`}>
+                            {statusLabel[iv.status]}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-edit" onClick={() => handleEdit(iv)}>Edit</button>
+                            <button className="btn-delete" onClick={() => handleDelete(iv.id)}>Hapus</button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           )}

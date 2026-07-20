@@ -125,4 +125,11 @@ Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia,Interviewer']
     Route::apiResource('divisi', DivisiController::class);
     Route::apiResource('interview', InterviewController::class);
     Route::post('interview/{interview}/penilaian', [InterviewController::class, 'beriPenilaian']);
+
+    // Untuk dropdown pilih interviewer
+    Route::get('users/interviewers', function () {
+        $users = \App\Models\User::whereHas('roles', fn ($q) => $q->where('slug', 'interviewer'))
+            ->select('id', 'name', 'email')->get();
+        return response()->json(['success' => true, 'data' => $users]);
+    });
 });
