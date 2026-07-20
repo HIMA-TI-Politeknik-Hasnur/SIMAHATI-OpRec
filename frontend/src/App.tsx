@@ -12,6 +12,8 @@ import { FormPendaftaran } from './pages/FormPendaftaran';
 import { UploadDokumen } from './pages/UploadDokumen';
 import { PreviewPendaftaran } from './pages/PreviewPendaftaran';
 import { StatusPendaftaran } from './pages/StatusPendaftaran';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 type Page =
   | 'landing'
@@ -26,7 +28,9 @@ type Page =
   | 'form-pendaftaran'
   | 'upload-dokumen'
   | 'preview-pendaftaran'
-  | 'status-pendaftaran';
+  | 'status-pendaftaran'
+  | 'login'
+  | 'register';
 
 const navItems: { key: Page; label: string; group: 'rizky' | 'anton' }[] = [
   { key: 'landing',          label: 'Landing Page',         group: 'rizky' },
@@ -101,6 +105,12 @@ function App() {
         ))}
 
         <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', padding: '0 4px', borderLeft: '1px solid #475569', paddingLeft: '12px' }}>
+          Reyhan:
+        </span>
+        <button onClick={() => setCurrentPage('login')} style={{ padding: '6px 12px', background: currentPage === 'login' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Login</button>
+        <button onClick={() => setCurrentPage('register')} style={{ padding: '6px 12px', background: currentPage === 'register' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Register</button>
+
+        <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', padding: '0 4px', borderLeft: '1px solid #475569', paddingLeft: '12px' }}>
           Nadil:
         </span>
         <button onClick={() => setCurrentPage('dashboard-peserta')} style={{ padding: '6px 12px', background: currentPage === 'dashboard-peserta' ? '#3b82f6' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Dashboard Peserta</button>
@@ -158,6 +168,18 @@ function App() {
         <StatusPendaftaran
           pesertaId={pesertaId}
           onBack={() => setCurrentPage('dashboard-peserta')}
+        />
+      )}
+      {currentPage === 'login' && (
+        <LoginPage
+          onLoginSuccess={() => setCurrentPage('landing')}
+          onSwitchToRegister={() => setCurrentPage('register')}
+        />
+      )}
+      {currentPage === 'register' && (
+        <RegisterPage
+          onRegisterSuccess={() => setCurrentPage('login')}
+          onSwitchToLogin={() => setCurrentPage('login')}
         />
       )}
     </div>
