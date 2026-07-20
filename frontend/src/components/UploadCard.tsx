@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type DragEvent, type ChangeEvent } from 'react';
 import './UploadCard.css';
 
 export type JenisDokumen = 'foto' | 'ktm' | 'cv' | 'sertifikat';
@@ -37,6 +37,8 @@ export const UploadCard = ({ jenis, file, onChange, error, existingUrl, uploadin
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [existingPreview, setExistingPreview] = useState<string | null>(existingUrl ?? null);
 
+  useEffect(() => { setExistingPreview(existingUrl ?? null); }, [existingUrl]);
+
   const handleFile = (selected: File) => {
     onChange(jenis, selected);
     if (isImage(selected)) {
@@ -69,6 +71,7 @@ export const UploadCard = ({ jenis, file, onChange, error, existingUrl, uploadin
   const handleRemove = () => {
     onChange(jenis, null);
     setPreviewUrl(null);
+    setExistingPreview(null);
     if (inputRef.current) inputRef.current.value = '';
   };
 

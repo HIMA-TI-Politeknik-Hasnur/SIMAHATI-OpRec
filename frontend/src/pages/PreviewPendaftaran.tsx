@@ -48,6 +48,7 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
   const [submitting, setSubmitting] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [apiError, setApiError]     = useState<string | null>(null);
+  const [dismissWarning, setDismissWarning] = useState(false);
 
   useEffect(() => {
     const token = getAuthToken();
@@ -119,7 +120,6 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess, inline 
   const WAJIB_DOKUMEN = ['foto', 'ktm', 'cv'];
   const dokumenTerkirim = new Set((peserta.uploads || []).map(u => u.jenis_dokumen));
   const dokumenKurang = WAJIB_DOKUMEN.filter(j => !dokumenTerkirim.has(j));
-  const [dismissWarning, setDismissWarning] = useState(false);
 
   const content = (
     <div className="preview-body">
