@@ -8,6 +8,7 @@ interface UploadDokumenProps {
   pesertaId: number;
   onBack: () => void;
   onSuccess: () => void;
+  inline?: boolean;
 }
 
 type FileMap = Record<JenisDokumen, File | null>;
@@ -17,7 +18,7 @@ const JENIS_LIST: JenisDokumen[] = ['foto', 'ktm', 'cv', 'sertifikat'];
 
 const WAJIB: JenisDokumen[] = ['foto', 'ktm', 'cv'];
 
-export const UploadDokumen = ({ pesertaId, onBack, onSuccess }: UploadDokumenProps) => {
+export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline }: UploadDokumenProps) => {
   const [files, setFiles] = useState<FileMap>({
     foto: null, ktm: null, cv: null, sertifikat: null,
   });
@@ -85,43 +86,47 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess }: UploadDokumenPro
 
   const handleSkip = () => onSuccess();
 
+  const content = (
+    <div className="upload-dok-body">
+      {apiError   && <Alert type="error"   message={apiError}   onClose={() => setApiError(null)} />}
+      {apiSuccess && <Alert type="success" message={apiSuccess} />}
+
+      <p className="upload-dok-desc">
+        Unggah dokumen persyaratan di bawah ini. <strong>Foto, KTM, dan CV wajib</strong> diunggah sebelum melanjutkan.
+        Sertifikat bersifat opsional namun akan memperkuat berkas pendaftaranmu.
+      </p>
+
+      <div className="upload-dok-grid">
+        {JENIS_LIST.map(jenis => (
+          <UploadCard
+            key={jenis}
+            jenis={jenis}
+            file={files[jenis]}
+            onChange={handleChange}
+            error={fieldErrors[jenis]}
+          />
+        ))}
+      </div>
+
+      <div className="upload-dok-footer">
+        <button className="btn-upload-skip" onClick={handleSkip}>
+          Lewati untuk sekarang
+        </button>
+        <button className="btn-upload-submit" onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Mengunggah...' : 'Unggah & Lanjutkan →'}
+        </button>
+      </div>
+    </div>
+  );
+
+  if (inline) return content;
   return (
     <div className="upload-dok-layout">
       <header className="upload-dok-header">
         <button className="upload-dok-header__back" onClick={onBack} aria-label="Kembali">←</button>
         <h1 className="upload-dok-header__title">Upload Dokumen Persyaratan</h1>
       </header>
-
-      <div className="upload-dok-body">
-        {apiError   && <Alert type="error"   message={apiError}   onClose={() => setApiError(null)} />}
-        {apiSuccess && <Alert type="success" message={apiSuccess} />}
-
-        <p className="upload-dok-desc">
-          Unggah dokumen persyaratan di bawah ini. <strong>Foto, KTM, dan CV wajib</strong> diunggah sebelum melanjutkan.
-          Sertifikat bersifat opsional namun akan memperkuat berkas pendaftaranmu.
-        </p>
-
-        <div className="upload-dok-grid">
-          {JENIS_LIST.map(jenis => (
-            <UploadCard
-              key={jenis}
-              jenis={jenis}
-              file={files[jenis]}
-              onChange={handleChange}
-              error={fieldErrors[jenis]}
-            />
-          ))}
-        </div>
-
-        <div className="upload-dok-footer">
-          <button className="btn-upload-skip" onClick={handleSkip}>
-            Lewati untuk sekarang
-          </button>
-          <button className="btn-upload-submit" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Mengunggah...' : 'Unggah & Lanjutkan →'}
-          </button>
-        </div>
-      </div>
+      {content}
     </div>
   );
 };

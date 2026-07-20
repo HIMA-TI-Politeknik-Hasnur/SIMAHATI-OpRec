@@ -8,10 +8,6 @@ import { InterviewPage } from './pages/InterviewPage';
 import { PenilaianPage } from './pages/PenilaianPage';
 import { DashboardDivisi } from './pages/DashboardDivisi';
 import { DashboardPeserta } from './pages/DashboardPeserta';
-import { FormPendaftaran } from './pages/FormPendaftaran';
-import { UploadDokumen } from './pages/UploadDokumen';
-import { PreviewPendaftaran } from './pages/PreviewPendaftaran';
-import { StatusPendaftaran } from './pages/StatusPendaftaran';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -41,10 +37,6 @@ type Page =
   | 'penilaian'
   | 'dashboard-divisi'
   | 'dashboard-peserta'
-  | 'form-pendaftaran'
-  | 'upload-dokumen'
-  | 'preview-pendaftaran'
-  | 'status-pendaftaran'
   | 'login'
   | 'register'
   | 'admin-dashboard'
@@ -156,17 +148,6 @@ function App() {
   const handleViewDivisiDetail = (id: number) => {
     setSelectedDivisiId(id);
     setCurrentPage('divisi-detail');
-  };
-
-  const handlePesertaNavigate = (page: string, id?: number) => {
-    if (id) setPesertaId(id);
-    const pageMap: Record<string, Page> = {
-      form:    'form-pendaftaran',
-      upload:  'upload-dokumen',
-      preview: 'preview-pendaftaran',
-      status:  'status-pendaftaran',
-    };
-    if (pageMap[page]) setCurrentPage(pageMap[page]);
   };
 
   const handleLogout = async () => {
@@ -299,36 +280,6 @@ function App() {
       {currentPage === 'dashboard-peserta' && (
         <DashboardPeserta
           pesertaId={pesertaId}
-          onNavigate={handlePesertaNavigate}
-        />
-      )}
-      {currentPage === 'form-pendaftaran' && (
-        <FormPendaftaran
-          onBack={() => setCurrentPage('dashboard-peserta')}
-          onSuccess={(id) => {
-            setPesertaId(id);
-            setCurrentPage('upload-dokumen');
-          }}
-        />
-      )}
-      {currentPage === 'upload-dokumen' && (
-        <UploadDokumen
-          pesertaId={pesertaId}
-          onBack={() => setCurrentPage('form-pendaftaran')}
-          onSuccess={() => setCurrentPage('preview-pendaftaran')}
-        />
-      )}
-      {currentPage === 'preview-pendaftaran' && (
-        <PreviewPendaftaran
-          pesertaId={pesertaId}
-          onBack={() => setCurrentPage('upload-dokumen')}
-          onSubmitSuccess={() => setCurrentPage('status-pendaftaran')}
-        />
-      )}
-      {currentPage === 'status-pendaftaran' && (
-        <StatusPendaftaran
-          pesertaId={pesertaId}
-          onBack={() => setCurrentPage('dashboard-peserta')}
         />
       )}
       {currentPage === 'login' && (

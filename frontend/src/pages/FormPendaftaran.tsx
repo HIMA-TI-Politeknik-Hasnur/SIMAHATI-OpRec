@@ -17,6 +17,7 @@ import {
 interface FormPendaftaranProps {
   onBack: () => void;
   onSuccess: (pesertaId: number) => void;
+  inline?: boolean;
 }
 
 const STEPS = [
@@ -51,7 +52,7 @@ const Field = ({ label, required, error, hint, children, full }: FieldProps) => 
 
 // ─── Komponen utama ────────────────────────────────────────────
 
-export const FormPendaftaran = ({ onBack, onSuccess }: FormPendaftaranProps) => {
+export const FormPendaftaran = ({ onBack, onSuccess, inline }: FormPendaftaranProps) => {
   const [step, setStep]     = useState(0);
   const [form, setForm]     = useState<FormPendaftaranData>(INITIAL_FORM);
   const [errors, setErrors] = useState<ValidationErrors<FormPendaftaranData>>({});
@@ -238,39 +239,43 @@ export const FormPendaftaran = ({ onBack, onSuccess }: FormPendaftaranProps) => 
   // ─── Render utama ───────────────────────────────────────────
   const stepTitles = ['Data Diri', 'Pengalaman Organisasi', 'Pilihan Divisi', 'Essay'];
 
+  const content = (
+    <div className="form-pend-body">
+      <ProgressStep steps={STEPS} currentStep={step} />
+
+      {apiError && (
+        <Alert type="error" message={apiError} onClose={() => setApiError(null)} />
+      )}
+
+      <div className="form-pend-card">
+        <h2 className="form-pend-card__title">{stepTitles[step]}</h2>
+        {renderStep()}
+
+        <div className="form-pend-nav">
+          {step > 0
+            ? <button className="btn-pend-prev" onClick={handlePrev}>← Sebelumnya</button>
+            : <span />
+          }
+          {step < STEPS.length - 1 ? (
+            <button className="btn-pend-next" onClick={handleNext}>Selanjutnya →</button>
+          ) : (
+            <button className="btn-pend-next" onClick={handleSubmit} disabled={loading}>
+              {loading ? 'Menyimpan...' : 'Simpan & Lanjut Upload Dokumen →'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  if (inline) return content;
   return (
     <div className="form-pend-layout">
       <header className="form-pend-header">
         <button className="form-pend-header__back" onClick={onBack} aria-label="Kembali">←</button>
         <h1 className="form-pend-header__title">Form Pendaftaran HMTI</h1>
       </header>
-
-      <div className="form-pend-body">
-        <ProgressStep steps={STEPS} currentStep={step} />
-
-        {apiError && (
-          <Alert type="error" message={apiError} onClose={() => setApiError(null)} />
-        )}
-
-        <div className="form-pend-card">
-          <h2 className="form-pend-card__title">{stepTitles[step]}</h2>
-          {renderStep()}
-
-          <div className="form-pend-nav">
-            {step > 0
-              ? <button className="btn-pend-prev" onClick={handlePrev}>← Sebelumnya</button>
-              : <span />
-            }
-            {step < STEPS.length - 1 ? (
-              <button className="btn-pend-next" onClick={handleNext}>Selanjutnya →</button>
-            ) : (
-              <button className="btn-pend-next" onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Menyimpan...' : 'Simpan & Lanjut Upload Dokumen →'}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      {content}
     </div>
   );
 };

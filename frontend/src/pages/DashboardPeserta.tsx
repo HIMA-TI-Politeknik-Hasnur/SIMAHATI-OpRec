@@ -4,10 +4,13 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Alert } from '../components/Alert';
 import { type PesertaRecord } from '../types/pendaftaran';
 import { getAuthToken } from '../api';
+import { FormPendaftaran } from './FormPendaftaran';
+import { UploadDokumen } from './UploadDokumen';
+import { PreviewPendaftaran } from './PreviewPendaftaran';
+import { StatusPendaftaran } from './StatusPendaftaran';
 
 interface DashboardPesertaProps {
   pesertaId: number;
-  onNavigate: (page: string, id?: number) => void;
 }
 
 // ─── Demo peserta fallback (saat backend belum berjalan) ───────
@@ -25,11 +28,12 @@ const DEMO: PesertaRecord = {
   created_at: new Date().toISOString(),
 };
 
-export const DashboardPeserta = ({ pesertaId, onNavigate }: DashboardPesertaProps) => {
+export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
   const [peserta, setPeserta] = useState<PesertaRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const [activeNav, setActiveNav] = useState('dashboard');
+  const [localPesertaId, setLocalPesertaId] = useState(pesertaId);
 
   useEffect(() => {
     const token = getAuthToken();
@@ -53,14 +57,158 @@ export const DashboardPeserta = ({ pesertaId, onNavigate }: DashboardPesertaProp
     { key: 'status',    icon: '🔔', label: 'Status' },
   ];
 
+  const pageTitles: Record<string, string> = {
+    dashboard: 'Dashboard Peserta',
+    form:      'Form Pendaftaran',
+    upload:    'Upload Dokumen',
+    preview:   'Preview Data',
+    status:    'Status Pendaftaran',
+  };
+
   const handleNav = (key: string) => {
     setActiveNav(key);
-    if (key !== 'dashboard') onNavigate(key, pesertaId);
+  };
+
+  const handleFormSuccess = (id: number) => {
+    setLocalPesertaId(id);
+    setActiveNav('upload');
   };
 
   const docsCount   = peserta?.uploads?.length ?? 0;
   const hasSubmitted = peserta?.pendaftaran?.status === 'submitted' ||
                        peserta?.pendaftaran?.status === 'verified';
+
+  const renderContent = () => {
+    switch (activeNav) {
+      case 'form':
+        return (
+          <FormPendaftaran
+            inline
+            onBack={() => setActiveNav('dashboard')}
+            onSuccess={handleFormSuccess}
+          />
+        );
+      case 'upload':
+        return (
+          <UploadDokumen
+            inline
+            pesertaId={localPesertaId}
+            onBack={() => setActiveNav('form')}
+            onSuccess={() => setActiveNav('preview')}
+          />
+        );
+      case 'preview':
+        return (
+          <PreviewPendaftaran
+            inline
+            pesertaId={localPesertaId}
+            onBack={() => setActiveNav('upload')}
+            onSubmitSuccess={() => setActiveNav('status')}
+          />
+        );
+      case 'status':
+        return (
+          <StatusPendaftaran
+            inline
+            pesertaId={localPesertaId}
+            onBack={() => setActiveNav('dashboard')}
+          />
+        );
+      default:
+        return (
+          <>
+            {error && (
+              <Alert type="warning" message={error} onClose={() => setError(null)} />
+            )}
+
+            {/* ─── Banner ────────────────────────────────────── */}
+            <div className="dash-welcome-banner">
+              <div className="dash-welcome-banner__text">
+                <h2>Halo, {peserta?.nama_lengkap ?? 'Peserta'}! 👋</h2>
+                <p>Selamat datang di portal pendaftaran HMTI. Pantau status pendaftaranmu di sini.</p>
+              </div>
+              <div className="dash-welcome-banner__badge">
+                <span>Status Seleksi</span>
+                <strong>{peserta?.status_seleksi?.toUpperCase() ?? '—'}</strong>
+              </div>
+            </div>
+
+            {/* ─── Stat cards ────────────────────────────────── */}
+            <div className="dash-stats-grid">
+              <div className="dash-stat-card">
+                <span className="dash-stat-card__icon">📋</span>
+                <div>
+                  <p className="dash-stat-card__label">Status Pendaftaran</p>
+                  {peserta
+                    ? <StatusBadge status={peserta.pendaftaran?.status ?? 'draft'} />
+                    : <p className="dash-stat-card__value">—</p>
+                  }
+                </div>
+              </div>
+              <div className="dash-stat-card">
+                <span className="dash-stat-card__icon">✅</span>
+                <div>
+                  <p className="dash-stat-card__label">Verifikasi Berkas</p>
+                  {peserta
+                    ? <StatusBadge status={peserta.status_verifikasi} />
+                    : <p className="dash-stat-card__value">—</p>
+                  }
+                </div>
+              </div>
+              <div className="dash-stat-card">
+                <span className="dash-stat-card__icon">📎</span>
+                <div>
+                  <p className="dash-stat-card__label">Dokumen Terunggah</p>
+                  <p className="dash-stat-card__value">{docsCount} / 4 file</p>
+                </div>
+              </div>
+              <div className="dash-stat-card">
+                <span className="dash-stat-card__icon">🎯</span>
+                <div>
+                  <p className="dash-stat-card__label">Status Seleksi</p>
+                  {peserta
+                    ? <StatusBadge status={peserta.status_seleksi} />
+                    : <p className="dash-stat-card__value">—</p>
+                  }
+                </div>
+              </div>
+            </div>
+
+            {/* ─── Quick actions ──────────────────────────────── */}
+            <h2 className="dash-quick-title">Aksi Cepat</h2>
+            <div className="dash-quick-grid">
+              {!hasSubmitted && (
+                <button
+                  className="dash-quick-card dash-quick-card--primary"
+                  onClick={() => handleNav('form')}
+                >
+                  <span className="dash-quick-card__icon">📝</span>
+                  <p className="dash-quick-card__label">Isi Form Pendaftaran</p>
+                  <p className="dash-quick-card__desc">Lengkapi data diri, divisi, dan essay.</p>
+                </button>
+              )}
+              <button className="dash-quick-card" onClick={() => handleNav('upload')}>
+                <span className="dash-quick-card__icon">📎</span>
+                <p className="dash-quick-card__label">Upload Dokumen</p>
+                <p className="dash-quick-card__desc">
+                  {docsCount > 0 ? `${docsCount} dokumen terunggah. Tambah atau ganti.` : 'Unggah foto, KTM, CV, dan sertifikat.'}
+                </p>
+              </button>
+              <button className="dash-quick-card" onClick={() => handleNav('preview')}>
+                <span className="dash-quick-card__icon">👁️</span>
+                <p className="dash-quick-card__label">Preview & Submit</p>
+                <p className="dash-quick-card__desc">Periksa kembali data sebelum mengirimkan.</p>
+              </button>
+              <button className="dash-quick-card" onClick={() => handleNav('status')}>
+                <span className="dash-quick-card__icon">🔔</span>
+                <p className="dash-quick-card__label">Cek Status</p>
+                <p className="dash-quick-card__desc">Pantau perkembangan seleksimu secara real-time.</p>
+              </button>
+            </div>
+          </>
+        );
+    }
+  };
 
   if (loading) return (
     <div className="dash-peserta-layout">
@@ -101,7 +249,7 @@ export const DashboardPeserta = ({ pesertaId, onNavigate }: DashboardPesertaProp
       {/* ─── Main ────────────────────────────────────────────── */}
       <main className="dash-peserta-main">
         <div className="dash-peserta-topbar">
-          <h1 className="dash-peserta-topbar__title">Dashboard Peserta</h1>
+          <h1 className="dash-peserta-topbar__title">{pageTitles[activeNav]}</h1>
           <div className="dash-peserta-topbar__right">
             <span className="dash-peserta-topbar__greeting">
               Halo, {peserta?.nama_lengkap?.split(' ')[0] ?? 'Peserta'}!
@@ -113,94 +261,7 @@ export const DashboardPeserta = ({ pesertaId, onNavigate }: DashboardPesertaProp
         </div>
 
         <div className="dash-peserta-content">
-          {error && (
-            <Alert type="warning" message={error} onClose={() => setError(null)} />
-          )}
-
-          {/* ─── Banner ────────────────────────────────────── */}
-          <div className="dash-welcome-banner">
-            <div className="dash-welcome-banner__text">
-              <h2>Halo, {peserta?.nama_lengkap ?? 'Peserta'}! 👋</h2>
-              <p>Selamat datang di portal pendaftaran HMTI. Pantau status pendaftaranmu di sini.</p>
-            </div>
-            <div className="dash-welcome-banner__badge">
-              <span>Status Seleksi</span>
-              <strong>{peserta?.status_seleksi?.toUpperCase() ?? '—'}</strong>
-            </div>
-          </div>
-
-          {/* ─── Stat cards ────────────────────────────────── */}
-          <div className="dash-stats-grid">
-            <div className="dash-stat-card">
-              <span className="dash-stat-card__icon">📋</span>
-              <div>
-                <p className="dash-stat-card__label">Status Pendaftaran</p>
-                {peserta
-                  ? <StatusBadge status={peserta.pendaftaran?.status ?? 'draft'} />
-                  : <p className="dash-stat-card__value">—</p>
-                }
-              </div>
-            </div>
-            <div className="dash-stat-card">
-              <span className="dash-stat-card__icon">✅</span>
-              <div>
-                <p className="dash-stat-card__label">Verifikasi Berkas</p>
-                {peserta
-                  ? <StatusBadge status={peserta.status_verifikasi} />
-                  : <p className="dash-stat-card__value">—</p>
-                }
-              </div>
-            </div>
-            <div className="dash-stat-card">
-              <span className="dash-stat-card__icon">📎</span>
-              <div>
-                <p className="dash-stat-card__label">Dokumen Terunggah</p>
-                <p className="dash-stat-card__value">{docsCount} / 4 file</p>
-              </div>
-            </div>
-            <div className="dash-stat-card">
-              <span className="dash-stat-card__icon">🎯</span>
-              <div>
-                <p className="dash-stat-card__label">Status Seleksi</p>
-                {peserta
-                  ? <StatusBadge status={peserta.status_seleksi} />
-                  : <p className="dash-stat-card__value">—</p>
-                }
-              </div>
-            </div>
-          </div>
-
-          {/* ─── Quick actions ──────────────────────────────── */}
-          <h2 className="dash-quick-title">Aksi Cepat</h2>
-          <div className="dash-quick-grid">
-            {!hasSubmitted && (
-              <button
-                className="dash-quick-card dash-quick-card--primary"
-                onClick={() => handleNav('form')}
-              >
-                <span className="dash-quick-card__icon">📝</span>
-                <p className="dash-quick-card__label">Isi Form Pendaftaran</p>
-                <p className="dash-quick-card__desc">Lengkapi data diri, divisi, dan essay.</p>
-              </button>
-            )}
-            <button className="dash-quick-card" onClick={() => handleNav('upload')}>
-              <span className="dash-quick-card__icon">📎</span>
-              <p className="dash-quick-card__label">Upload Dokumen</p>
-              <p className="dash-quick-card__desc">
-                {docsCount > 0 ? `${docsCount} dokumen terunggah. Tambah atau ganti.` : 'Unggah foto, KTM, CV, dan sertifikat.'}
-              </p>
-            </button>
-            <button className="dash-quick-card" onClick={() => handleNav('preview')}>
-              <span className="dash-quick-card__icon">👁️</span>
-              <p className="dash-quick-card__label">Preview & Submit</p>
-              <p className="dash-quick-card__desc">Periksa kembali data sebelum mengirimkan.</p>
-            </button>
-            <button className="dash-quick-card" onClick={() => handleNav('status')}>
-              <span className="dash-quick-card__icon">🔔</span>
-              <p className="dash-quick-card__label">Cek Status</p>
-              <p className="dash-quick-card__desc">Pantau perkembangan seleksimu secara real-time.</p>
-            </button>
-          </div>
+          {renderContent()}
         </div>
       </main>
     </div>

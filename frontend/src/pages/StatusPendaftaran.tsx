@@ -8,6 +8,7 @@ import { getAuthToken } from '../api';
 interface StatusPendaftaranProps {
   pesertaId: number;
   onBack: () => void;
+  inline?: boolean;
 }
 
 // Urutan tahapan seleksi
@@ -31,7 +32,7 @@ function formatDate(iso: string | null | undefined): string {
   });
 }
 
-export const StatusPendaftaran = ({ pesertaId, onBack }: StatusPendaftaranProps) => {
+export const StatusPendaftaran = ({ pesertaId, onBack, inline }: StatusPendaftaranProps) => {
   const [peserta, setPeserta]     = useState<PesertaRecord | null>(null);
   const [loading, setLoading]     = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -50,34 +51,34 @@ export const StatusPendaftaran = ({ pesertaId, onBack }: StatusPendaftaranProps)
       .finally(() => setLoading(false));
   }, [pesertaId]);
 
-  if (loading) return (
-    <div className="status-pend-layout">
-      <div className="status-pend-body">
-        <p className="preview-loading">⏳ Memuat status...</p>
-      </div>
+  const loadingContent = (
+    <div className="status-pend-body">
+      <p className="preview-loading">⏳ Memuat status...</p>
     </div>
   );
 
-  if (fetchError || !peserta) return (
-    <div className="status-pend-layout">
-      <div className="status-pend-body">
-        <Alert type="error" message={fetchError ?? 'Data tidak ditemukan.'} />
-        <button style={{ marginTop: '1rem' }} onClick={onBack}>← Kembali</button>
-      </div>
+  if (loading) {
+    if (inline) return loadingContent;
+    return <div className="status-pend-layout">{loadingContent}</div>;
+  }
+
+  const errorContent = (
+    <div className="status-pend-body">
+      <Alert type="error" message={fetchError ?? 'Data tidak ditemukan.'} />
+      <button style={{ marginTop: '1rem' }} onClick={onBack}>← Kembali</button>
     </div>
   );
+
+  if (fetchError || !peserta) {
+    if (inline) return errorContent;
+    return <div className="status-pend-layout">{errorContent}</div>;
+  }
 
   const currentSeleksiIdx = getStepIndex(peserta.status_seleksi);
   const isRejected = peserta.status_seleksi === 'rejected';
 
-  return (
-    <div className="status-pend-layout">
-      <header className="status-pend-header">
-        <button className="status-pend-header__back" onClick={onBack} aria-label="Kembali">←</button>
-        <h1 className="status-pend-header__title">Status Pendaftaran</h1>
-      </header>
-
-      <div className="status-pend-body">
+  const content = (
+    <div className="status-pend-body">
         {/* Ditolak — banner khusus */}
         {isRejected && (
           <Alert type="error" message="Pendaftaranmu tidak lolos seleksi berkas. Silakan hubungi panitia untuk informasi lebih lanjut." />
@@ -157,7 +158,17 @@ export const StatusPendaftaran = ({ pesertaId, onBack }: StatusPendaftaranProps)
             })}
           </div>
         </div>
-      </div>
+    </div>
+  );
+
+  if (inline) return content;
+  return (
+    <div className="status-pend-layout">
+      <header className="status-pend-header">
+        <button className="status-pend-header__back" onClick={onBack} aria-label="Kembali">←</button>
+        <h1 className="status-pend-header__title">Status Pendaftaran</h1>
+      </header>
+      {content}
     </div>
   );
 };
