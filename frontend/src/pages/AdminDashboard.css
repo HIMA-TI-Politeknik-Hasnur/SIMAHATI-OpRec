@@ -220,3 +220,214 @@
   color: white;
   cursor: pointer;
 }
+
+/* ===== Role Management ===== */
+.admin-rm {
+  padding: 0;
+}
+
+.admin-rm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-rm-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.admin-rm-add-btn {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.admin-rm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-rm-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #334155;
+}
+
+.admin-rm-table td {
+  padding: 12px 14px;
+  font-size: 0.875rem;
+  color: #f1f5f9;
+  border-bottom: 1px solid #1e293b;
+}
+
+.admin-rm-table tr:hover td {
+  background: #1e293b;
+}
+
+.admin-rm-role-name {
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.admin-rm-role-slug {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-family: monospace;
+}
+
+.admin-rm-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.admin-rm-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-rm-action-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.admin-rm-action-btn--edit { background: #3b82f6; color: white; }
+.admin-rm-action-btn--perm { background: #8b5cf6; color: white; }
+.admin-rm-action-btn--delete { background: #ef4444; color: white; }
+
+/* Modal */
+.admin-rm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-rm-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.admin-rm-modal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 16px;
+}
+
+.admin-rm-form-group {
+  margin-bottom: 16px;
+}
+
+.admin-rm-form-label {
+  display: block;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.admin-rm-form-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+}
+
+.admin-rm-form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.admin-rm-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.admin-rm-btn-primary {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.admin-rm-btn-secondary {
+  padding: 8px 16px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+/* Permissions checkboxes */
+.admin-rm-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-rm-perm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #0f172a;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #f1f5f9;
+  cursor: pointer;
+}
+
+.admin-rm-perm-item input[type="checkbox"] {
+  accent-color: #3b82f6;
+}
+
+.admin-rm-empty {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+/* ===== Pengumuman (shared admin-rm styles) ===== */
+.admin-pm {
+  padding: 0;
+}
