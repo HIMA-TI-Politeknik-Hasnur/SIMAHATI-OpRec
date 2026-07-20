@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'slug', 'description'])]
+#[Fillable(['name', 'slug', 'description', 'guard_name'])]
 class Role extends Model
 {
     protected $table = 'roles';
