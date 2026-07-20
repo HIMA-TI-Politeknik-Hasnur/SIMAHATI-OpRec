@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Interview;
+use App\Models\Pengumuman;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Divisi;
@@ -27,6 +29,9 @@ class DashboardController extends Controller
             $totalDivisi = Divisi::count();
         }
 
+        $totalInterview = Interview::count();
+        $totalPengumuman = Pengumuman::count();
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -35,6 +40,8 @@ class DashboardController extends Controller
                 'lolos_wawancara' => $lolosWawancara,
                 'total_divisi' => $totalDivisi,
                 'total_admin' => $totalAdmin,
+                'total_interview' => $totalInterview,
+                'total_pengumuman' => $totalPengumuman,
             ],
         ]);
     }
