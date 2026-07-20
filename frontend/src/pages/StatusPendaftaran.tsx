@@ -3,7 +3,17 @@ import './StatusPendaftaran.css';
 import { Alert } from '../components/Alert';
 import { StatusBadge } from '../components/StatusBadge';
 import { type PesertaRecord } from '../types/pendaftaran';
-import { getAuthToken } from '../api';
+import { getAuthToken, apiGet } from '../api';
+
+interface InterviewData {
+  id: number;
+  tanggal: string;
+  waktu: string;
+  lokasi: string;
+  status: string;
+  catatan: string | null;
+  interviewer: { id: number; name: string } | null;
+}
 
 interface StatusPendaftaranProps {
   pesertaId: number;
@@ -25,6 +35,12 @@ function getStepIndex(status: string): number {
   return SELEKSI_ORDER.indexOf(status);
 }
 
+function formatTime(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  const [h, m] = iso.split(':');
+  return `${h}:${m} WITA`;
+}
+
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('id-ID', {
@@ -33,8 +49,9 @@ function formatDate(iso: string | null | undefined): string {
 }
 
 export const StatusPendaftaran = ({ pesertaId, onBack, inline }: StatusPendaftaranProps) => {
-  const [peserta, setPeserta]     = useState<PesertaRecord | null>(null);
-  const [loading, setLoading]     = useState(true);
+  const [peserta, setPeserta]       = useState<PesertaRecord | null>(null);
+  const [interview, setInterview]   = useState<InterviewData | null>(null);
+  const [loading, setLoading]       = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,8 +61,13 @@ export const StatusPendaftaran = ({ pesertaId, onBack, inline }: StatusPendaftar
     fetch(`/api/peserta/${pesertaId}`, { headers })
       .then(r => r.json())
       .then(json => {
-        if (json.success) setPeserta(json.data);
-        else setFetchError('Data peserta tidak ditemukan.');
+        if (json.success) {
+          setPeserta(json.data);
+          if (json.data.status_seleksi === 'interview') {
+            apiGet<{ success: boolean; data: InterviewData | null }>('/api/interview/saya')
+              .then(res => { if (res.data?.data) setInterview(res.data.data); });
+          }
+        } else setFetchError('Data peserta tidak ditemukan.');
       })
       .catch(() => setFetchError('Gagal mengambil data dari server.'))
       .finally(() => setLoading(false));
@@ -114,6 +136,39 @@ export const StatusPendaftaran = ({ pesertaId, onBack, inline }: StatusPendaftar
           </div>
         </div>
 
+        {/* Kartu jadwal interview */}
+        {peserta.status_seleksi === 'interview' && interview && (
+          <div className="status-interview-card">
+            <h2 className="status-interview-card__title">📅 Jadwal Interview</h2>
+            <div className="status-interview-grid">
+              <div className="status-interview-item">
+                <span className="status-interview-item__label">Tanggal</span>
+                <span className="status-interview-item__value">{formatDate(interview.tanggal)}</span>
+              </div>
+              <div className="status-interview-item">
+                <span className="status-interview-item__label">Waktu</span>
+                <span className="status-interview-item__value">{formatTime(interview.waktu)}</span>
+              </div>
+              <div className="status-interview-item">
+                <span className="status-interview-item__label">Lokasi</span>
+                <span className="status-interview-item__value">{interview.lokasi}</span>
+              </div>
+              {interview.interviewer && (
+                <div className="status-interview-item">
+                  <span className="status-interview-item__label">Penguji</span>
+                  <span className="status-interview-item__value">{interview.interviewer.name}</span>
+                </div>
+              )}
+              {interview.catatan && (
+                <div className="status-interview-item status-interview-item--full">
+                  <span className="status-interview-item__label">Catatan</span>
+                  <span className="status-interview-item__value">{interview.catatan}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Catatan admin (jika ada) */}
         {peserta.pendaftaran?.catatan_admin && (
           <div className="status-catatan">
@@ -149,7 +204,9 @@ export const StatusPendaftaran = ({ pesertaId, onBack, inline }: StatusPendaftar
                       <p className="status-tl-content__date">
                         {tahap.key === 'draft' || tahap.key === 'submitted'
                           ? formatDate(peserta.pendaftaran?.tanggal_daftar)
-                          : 'Sedang diproses...'}
+                          : tahap.key === 'interview' && interview
+                            ? `${formatDate(interview.tanggal)} • ${formatTime(interview.waktu)}`
+                            : 'Sedang diproses...'}
                       </p>
                     )}
                   </div>

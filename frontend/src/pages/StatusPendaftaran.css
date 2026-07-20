@@ -211,6 +211,44 @@
 
 .status-catatan strong { display: block; margin-bottom: 0.35rem; }
 
+/* ─── Kartu jadwal interview ─────────────────────────────────── */
+.status-interview-card {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: white;
+}
+
+.status-interview-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.status-interview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.status-interview-item--full {
+  grid-column: 1 / -1;
+}
+
+.status-interview-item__label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.75;
+  margin-bottom: 0.2rem;
+}
+
+.status-interview-item__value {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 @media (max-width: 600px) {
   .status-pend-body { padding: 1rem; }
 }
