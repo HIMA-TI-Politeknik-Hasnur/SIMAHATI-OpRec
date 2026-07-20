@@ -17,6 +17,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import './App.css';
 
 type Page =
   | 'landing'
@@ -71,63 +72,58 @@ function App() {
     if (pageMap[page]) setCurrentPage(pageMap[page]);
   };
 
-  const btnStyle = (key: Page, group: 'rizky' | 'anton'): React.CSSProperties => ({
-    padding: '8px 16px',
-    background: currentPage === key || (key === 'divisi' && currentPage === 'divisi-detail')
-      ? (group === 'anton' ? '#ea580c' : '#3b82f6')
-      : '#334155',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: 500,
-    fontSize: '0.875rem',
-  });
+  const isActive = (key: Page) => currentPage === key || (key === 'divisi' && currentPage === 'divisi-detail');
+
+  const cls = (key: Page, group: string) =>
+    `app-nav-btn--${group}${isActive(key) ? ' active' : ''}`;
+
+  const reyhanPages: { key: Page; label: string }[] = [
+    { key: 'login', label: 'Login' },
+    { key: 'register', label: 'Register' },
+    { key: 'admin-dashboard', label: 'Admin Dashboard' },
+    { key: 'forgot-password', label: 'Forgot Password' },
+    { key: 'reset-password', label: 'Reset Password' },
+  ];
+
+  const nadilPages: { key: Page; label: string }[] = [
+    { key: 'dashboard-peserta', label: 'Dashboard Peserta' },
+    { key: 'form-pendaftaran', label: 'Form Pendaftaran' },
+    { key: 'upload-dokumen', label: 'Upload Dokumen' },
+    { key: 'preview-pendaftaran', label: 'Preview' },
+    { key: 'status-pendaftaran', label: 'Status' },
+  ];
 
   return (
     <div>
-      <div style={{
-        background: '#1e293b', padding: '10px 20px',
-        display: 'flex', gap: '8px', flexWrap: 'wrap',
-        justifyContent: 'center', zIndex: 1000, position: 'relative',
-        borderBottom: '2px solid #0f172a',
-      }}>
-        <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', paddingRight: '4px' }}>
-          Rizky:
-        </span>
+      <nav className="app-nav">
+        <span className="app-nav-group" style={{ paddingRight: '4px', borderLeft: 'none' }}>Rizky:</span>
         {navItems.filter(n => n.group === 'rizky').map(n => (
-          <button key={n.key} onClick={() => setCurrentPage(n.key)} style={btnStyle(n.key, n.group)}>
+          <button key={n.key} className={`app-nav-btn ${cls(n.key, 'rizky')}`} onClick={() => setCurrentPage(n.key)}>
             {n.label}
           </button>
         ))}
 
-        <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', padding: '0 4px', borderLeft: '1px solid #475569', paddingLeft: '12px' }}>
-          Anton:
-        </span>
+        <span className="app-nav-group">Anton:</span>
         {navItems.filter(n => n.group === 'anton').map(n => (
-          <button key={n.key} onClick={() => setCurrentPage(n.key)} style={btnStyle(n.key, n.group)}>
+          <button key={n.key} className={`app-nav-btn ${cls(n.key, 'anton')}`} onClick={() => setCurrentPage(n.key)}>
             {n.label}
           </button>
         ))}
 
-        <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', padding: '0 4px', borderLeft: '1px solid #475569', paddingLeft: '12px' }}>
-          Reyhan:
-        </span>
-        <button onClick={() => setCurrentPage('login')} style={{ padding: '6px 12px', background: currentPage === 'login' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Login</button>
-        <button onClick={() => setCurrentPage('register')} style={{ padding: '6px 12px', background: currentPage === 'register' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Register</button>
-        <button onClick={() => setCurrentPage('admin-dashboard')} style={{ padding: '6px 12px', background: currentPage === 'admin-dashboard' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Admin Dashboard</button>
-        <button onClick={() => setCurrentPage('forgot-password')} style={{ padding: '6px 12px', background: currentPage === 'forgot-password' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Forgot Password</button>
-        <button onClick={() => setCurrentPage('reset-password')} style={{ padding: '6px 12px', background: currentPage === 'reset-password' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Reset Password</button>
+        <span className="app-nav-group">Reyhan:</span>
+        {reyhanPages.map(p => (
+          <button key={p.key} className={`app-nav-btn ${cls(p.key, 'reyhan')}`} onClick={() => setCurrentPage(p.key)}>
+            {p.label}
+          </button>
+        ))}
 
-        <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', padding: '0 4px', borderLeft: '1px solid #475569', paddingLeft: '12px' }}>
-          Nadil:
-        </span>
-        <button onClick={() => setCurrentPage('dashboard-peserta')} style={{ padding: '6px 12px', background: currentPage === 'dashboard-peserta' ? '#3b82f6' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Dashboard Peserta</button>
-        <button onClick={() => setCurrentPage('form-pendaftaran')} style={{ padding: '6px 12px', background: currentPage === 'form-pendaftaran' ? '#3b82f6' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Form Pendaftaran</button>
-        <button onClick={() => setCurrentPage('upload-dokumen')} style={{ padding: '6px 12px', background: currentPage === 'upload-dokumen' ? '#3b82f6' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Upload Dokumen</button>
-        <button onClick={() => setCurrentPage('preview-pendaftaran')} style={{ padding: '6px 12px', background: currentPage === 'preview-pendaftaran' ? '#3b82f6' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Preview</button>
-        <button onClick={() => setCurrentPage('status-pendaftaran')} style={{ padding: '6px 12px', background: currentPage === 'status-pendaftaran' ? '#3b82f6' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Status</button>
-      </div>
+        <span className="app-nav-group">Nadil:</span>
+        {nadilPages.map(p => (
+          <button key={p.key} className={`app-nav-btn ${cls(p.key, 'nadil')}`} onClick={() => setCurrentPage(p.key)}>
+            {p.label}
+          </button>
+        ))}
+      </nav>
 
       {currentPage === 'landing'          && <LandingPage />}
       {currentPage === 'dashboard'        && <Dashboard />}
