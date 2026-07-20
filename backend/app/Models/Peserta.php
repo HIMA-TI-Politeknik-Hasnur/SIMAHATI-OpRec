@@ -47,4 +47,9 @@ class Peserta extends Model
     {
         return $this->hasMany(Upload::class);
     }
+
+    public function interviews(): HasMany
+    {
+        return $this->hasMany(Interview::class);
+    }
 }

@@ -103,7 +103,12 @@ Route::middleware(['auth:sanctum', 'role:Super Admin'])->group(function () {
 
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
 
-Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->group(function () {
+// Route interview khusus peserta (lihat jadwal sendiri)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('interview/saya', [InterviewController::class, 'saya']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia,Interviewer'])->group(function () {
     Route::apiResource('pengumuman', PengumumanController::class);
     Route::apiResource('timeline', TimelineController::class);
     Route::apiResource('faq', FaqController::class);

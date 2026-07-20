@@ -85,6 +85,36 @@ class InterviewController extends Controller
         ]);
     }
 
+    public function saya(Request $request)
+    {
+        $user = $request->user();
+        $peserta = $user->peserta;
+
+        if (!$peserta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum terdaftar sebagai peserta.',
+            ], 404);
+        }
+
+        $interview = Interview::with(['interviewer:id,name', 'penilaian'])
+            ->where('peserta_id', $peserta->id)
+            ->first();
+
+        if (!$interview) {
+            return response()->json([
+                'success' => true,
+                'data'    => null,
+                'message' => 'Belum ada jadwal interview.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $interview,
+        ]);
+    }
+
     public function beriPenilaian(Request $request, Interview $interview)
     {
         $validated = $request->validate([
