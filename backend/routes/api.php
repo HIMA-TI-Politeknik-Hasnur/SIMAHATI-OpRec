@@ -103,19 +103,21 @@ Route::middleware(['auth:sanctum', 'role:Super Admin'])->group(function () {
 
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
 
-Route::apiResource('pengumuman', PengumumanController::class);
-Route::apiResource('timeline', TimelineController::class);
-Route::apiResource('faq', FaqController::class);
-Route::apiResource('settings', SettingController::class);
+Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->group(function () {
+    Route::apiResource('pengumuman', PengumumanController::class);
+    Route::apiResource('timeline', TimelineController::class);
+    Route::apiResource('faq', FaqController::class);
+    Route::apiResource('settings', SettingController::class);
 
-Route::get('notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
-Route::post('notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+    Route::get('notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+    Route::post('notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
 
-Route::get('report/excel', [\App\Http\Controllers\Api\ReportController::class, 'exportExcel']);
-Route::get('report/pdf', [\App\Http\Controllers\Api\ReportController::class, 'exportPdf']);
+    Route::get('report/excel', [\App\Http\Controllers\Api\ReportController::class, 'exportExcel']);
+    Route::get('report/pdf', [\App\Http\Controllers\Api\ReportController::class, 'exportPdf']);
 
-// As per Anton's assignment:
+    // As per Anton's assignment:
 
-Route::apiResource('divisi', DivisiController::class);
-Route::apiResource('interview', InterviewController::class);
-Route::post('interview/{interview}/penilaian', [InterviewController::class, 'beriPenilaian']);
+    Route::apiResource('divisi', DivisiController::class);
+    Route::apiResource('interview', InterviewController::class);
+    Route::post('interview/{interview}/penilaian', [InterviewController::class, 'beriPenilaian']);
+});
