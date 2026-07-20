@@ -3,6 +3,7 @@ import './PreviewPendaftaran.css';
 import { Alert } from '../components/Alert';
 import { StatusBadge } from '../components/StatusBadge';
 import { DUMMY_DIVISI, type PesertaRecord, type UploadRecord } from '../types/pendaftaran';
+import { getAuthToken } from '../api';
 
 interface PreviewPendaftaranProps {
   pesertaId: number;
@@ -48,7 +49,10 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess }: Previ
   const [apiError, setApiError]     = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/peserta/${pesertaId}`, { headers: { Accept: 'application/json' } })
+    const token = getAuthToken();
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    fetch(`/api/peserta/${pesertaId}`, { headers })
       .then(r => r.json())
       .then(json => {
         if (json.success) setPeserta(json.data);
@@ -64,9 +68,12 @@ export const PreviewPendaftaran = ({ pesertaId, onBack, onSubmitSuccess }: Previ
     setApiError(null);
 
     try {
+      const token = getAuthToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch(`/api/pendaftaran/${peserta.pendaftaran.id}/status`, {
         method:  'PATCH',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers,
         body:    JSON.stringify({ status: 'submitted' }),
       });
 

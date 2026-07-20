@@ -3,6 +3,7 @@ import './StatusPendaftaran.css';
 import { Alert } from '../components/Alert';
 import { StatusBadge } from '../components/StatusBadge';
 import { type PesertaRecord } from '../types/pendaftaran';
+import { getAuthToken } from '../api';
 
 interface StatusPendaftaranProps {
   pesertaId: number;
@@ -36,7 +37,10 @@ export const StatusPendaftaran = ({ pesertaId, onBack }: StatusPendaftaranProps)
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/peserta/${pesertaId}`, { headers: { Accept: 'application/json' } })
+    const token = getAuthToken();
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    fetch(`/api/peserta/${pesertaId}`, { headers })
       .then(r => r.json())
       .then(json => {
         if (json.success) setPeserta(json.data);

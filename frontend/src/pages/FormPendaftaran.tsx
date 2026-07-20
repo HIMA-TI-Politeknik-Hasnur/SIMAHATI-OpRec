@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './FormPendaftaran.css';
 import { ProgressStep } from '../components/ProgressStep';
 import { Alert } from '../components/Alert';
+import { getAuthToken } from '../api';
 import {
   INITIAL_FORM,
   DUMMY_DIVISI,
@@ -100,9 +101,12 @@ export const FormPendaftaran = ({ onBack, onSuccess }: FormPendaftaranProps) => 
         pilihan_divisi_2: form.pilihan_divisi_2 ? Number(form.pilihan_divisi_2) : null,
       };
 
+      const token = getAuthToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch('/api/peserta', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers,
         body:    JSON.stringify(payload),
       });
 
@@ -119,7 +123,7 @@ export const FormPendaftaran = ({ onBack, onSuccess }: FormPendaftaranProps) => 
       // Buat record pendaftaran
       await fetch('/api/pendaftaran', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers,
         body:    JSON.stringify({ peserta_id: json.data.id, status: 'draft' }),
       });
 
