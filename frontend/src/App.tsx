@@ -146,7 +146,6 @@ function App() {
     if (canViewDivisi) links.push({ label: 'Divisi', action: 'divisi', match: ['divisi-detail'] });
     if (isStaff) links.push({ label: 'Interview', action: 'interview' });
     if (canViewPenilaian) links.push({ label: 'Penilaian', action: 'penilaian' });
-    links.push({ label: 'Logout', action: 'logout' });
     return links;
   };
 
@@ -267,6 +266,16 @@ function App() {
         )}
         {navMode !== 'guest' && (
           <ul className="nav-links">
+            {navMode === 'staff' && currentLinks.map(link => (
+              <li key={link.action}>
+                <button
+                  className={`nav-btn ${isNavActive(link) ? 'active' : ''}`}
+                  onClick={() => handleNav(link.action)}
+                >
+                  {link.label}
+                </button>
+              </li>
+            ))}
             <li><button className="nav-btn nav-btn--outline" onClick={handleLogout}>Logout</button></li>
           </ul>
         )}
