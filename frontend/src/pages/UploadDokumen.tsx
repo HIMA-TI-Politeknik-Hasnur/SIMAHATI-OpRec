@@ -65,8 +65,7 @@ export const UploadDokumen = ({ pesertaId, onBack, onSuccess, inline, existingUp
       fd.append('jenis_dokumen', jenis);
       fd.append('file',          file);
 
-      const url  = existing ? `/api/upload/${existing.id}` : '/api/upload';
-      const method = existing ? 'PUT' : 'POST';
+      const url = existing ? `/api/upload/${existing.id}` : '/api/upload';
 
       if (existing) {
         fd.append('_method', 'PUT');
