@@ -32,7 +32,7 @@ export const VerifikasiEmailPage = ({ email, onLogin }: VerifikasiEmailPageProps
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
+      <div className="auth-card verifikasi-email-page">
         <h1 className="auth-title">Cek Email Kamu</h1>
         <p className="auth-subtitle">
           Kami sudah mengirim link verifikasi ke <strong>{email}</strong>

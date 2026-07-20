@@ -5,3 +5,13 @@
   color: #6b7280;
   font-size: 0.9rem;
 }
+
+.verifikasi-email-page .auth-title,
+.verifikasi-email-page .auth-subtitle {
+  text-align: center;
+}
+
+.verifikasi-email-page .auth-btn {
+  display: block;
+  width: 100%;
+}
