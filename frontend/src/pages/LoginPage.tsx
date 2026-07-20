@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiPost, setAuthToken } from '../api';
+import { apiPost, setAuthToken, fetchCsrfCookie, sessionPost, setSessionAuth, getAuthToken, refreshAuthToken } from '../api';
 import { Alert } from '../components/Alert';
 import './LoginPage.css';
 
@@ -24,6 +24,8 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [sessionMode, setSessionMode] = useState(false);
+  const [refreshMsg, setRefreshMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +50,27 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword
       onLoginSuccess();
     }
     setLoading(false);
+  };
+
+  const handleSessionLogin = async () => {
+    setLoading(true);
+    setError('');
+    await fetchCsrfCookie();
+    const res = await sessionPost<{ success: boolean; data: { user: { id: number; name: string; email: string; roles: string[] } } }>('/api/session/login', { email, password });
+    if (res.data?.success) {
+      setSessionAuth();
+      onLoginSuccess();
+    } else {
+      setError(res.error?.message || 'Login gagal.');
+    }
+    setLoading(false);
+  };
+
+  const handleRefreshToken = async () => {
+    const token = getAuthToken();
+    if (!token) { setRefreshMsg('Tidak ada token.'); return; }
+    const newToken = await refreshAuthToken();
+    setRefreshMsg(newToken ? 'Token berhasil diperbarui!' : 'Gagal memperbarui token.');
   };
 
   return (
@@ -109,6 +132,20 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword
             </button>
           </div>
         </form>
+
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <button onClick={handleSessionLogin} disabled={loading} style={{ padding: '8px 16px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>
+            {loading ? 'Memproses...' : 'Login dengan Session'}
+          </button>
+        </div>
+
+        <hr style={{ borderColor: '#334155', margin: '20px 0' }} />
+
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '0 0 8px' }}>Token: {getAuthToken() ? `${getAuthToken()!.substring(0, 20)}...` : '(kosong)'}</p>
+          <button onClick={handleRefreshToken} style={{ padding: '6px 12px', background: '#14b8a6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>Refresh Token</button>
+          {refreshMsg && <p style={{ color: '#22c55e', fontSize: '0.75rem', margin: '4px 0 0' }}>{refreshMsg}</p>}
+        </div>
 
         <p className="auth-footer">
           Belum punya akun?{' '}

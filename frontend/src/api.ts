@@ -21,6 +21,11 @@ interface ApiError {
   errors?: Record<string, string[]>;
 }
 
+interface ApiResponse<T> {
+  data?: T;
+  error?: { message: string; errors?: Record<string, string[]> };
+}
+
 export async function apiFetch<T>(
   url: string,
   options: RequestInit = {}
@@ -63,4 +68,60 @@ export async function apiPost<T>(url: string, body: unknown): Promise<{ data: T 
     method: 'POST',
     body: JSON.stringify(body),
   });
+}
+
+// --- Refresh Token ---
+export async function refreshAuthToken(): Promise<string | null> {
+  const res = await apiPost<{ success: boolean; data: { token: string } }>('/api/refresh-token', undefined);
+  if (res.data?.data?.token) {
+    setAuthToken(res.data.data.token);
+    return res.data.data.token;
+  }
+  return null;
+}
+
+// --- Session-based auth ---
+export async function fetchCsrfCookie(): Promise<boolean> {
+  try {
+    await fetch('/sanctum/csrf-cookie', { method: 'GET', credentials: 'include' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function sessionFetch<T>(url: string): Promise<ApiResponse<T>> {
+  try {
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
+    const json = await res.json();
+    if (!res.ok) return { error: { message: json.message || 'Terjadi kesalahan.' } };
+    return { data: json as T };
+  } catch {
+    return { error: { message: 'Gagal terhubung ke server.' } };
+  }
+}
+
+export async function sessionPost<T>(url: string, body?: Record<string, unknown>): Promise<ApiResponse<T>> {
+  try {
+    const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+    const res = await fetch(url, { method: 'POST', headers, body: body ? JSON.stringify(body) : undefined, credentials: 'include' });
+    const json = await res.json();
+    if (!res.ok) return { error: { message: json.message || 'Terjadi kesalahan.', errors: json.errors as Record<string, string[]> } };
+    return { data: json as T };
+  } catch {
+    return { error: { message: 'Gagal terhubung ke server.' } };
+  }
+}
+
+export function isSessionAuth(): boolean {
+  return localStorage.getItem('auth_method') === 'session';
+}
+
+export function setSessionAuth(): void {
+  localStorage.setItem('auth_method', 'session');
+}
+
+export function clearAuth(): void {
+  removeAuthToken();
+  localStorage.removeItem('auth_method');
 }
