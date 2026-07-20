@@ -106,14 +106,15 @@ function App() {
         setStoredUser(u);
         if (u.peserta_id) setPesertaId(u.peserta_id);
         const role = u.roles?.[0] ?? '';
+        const adminRoles = ['Super Admin', 'Admin', 'Panitia'];
         if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
           const dest = role === 'Peserta' ? 'dashboard-peserta'
-            : ['Super Admin', 'Admin'].includes(role) ? 'admin-dashboard'
+            : adminRoles.includes(role) ? 'admin-dashboard'
             : 'interview';
           setCurrentPage(dest);
         } else if (role === 'Peserta' && currentPage === 'admin-dashboard') {
           setCurrentPage('dashboard-peserta');
-        } else if (!['Super Admin', 'Admin', 'Peserta'].includes(role) && currentPage === 'admin-dashboard') {
+        } else if (![...adminRoles, 'Peserta'].includes(role) && currentPage === 'admin-dashboard') {
           setCurrentPage('interview');
         }
       } else if (apiError) {
@@ -129,14 +130,16 @@ function App() {
   const userRole = user?.roles?.[0] ?? '';
   const isPeserta = userRole === 'Peserta';
   const isStaff = ['Super Admin', 'Admin', 'Panitia', 'Interviewer'].includes(userRole);
-  const canViewDashboard = ['Super Admin', 'Admin'].includes(userRole);
+  const canViewDashboard = ['Super Admin', 'Admin', 'Panitia'].includes(userRole);
+  const canViewDivisi = ['Super Admin', 'Admin', 'Panitia'].includes(userRole);
+  const canViewPenilaian = ['Super Admin', 'Admin', 'Interviewer'].includes(userRole);
 
   const buildStaffLinks = (): NavLink[] => {
     const links: NavLink[] = [];
     if (canViewDashboard) links.push({ label: 'Dashboard', action: 'admin-dashboard' });
-    if (canViewDashboard) links.push({ label: 'Divisi', action: 'divisi', match: ['divisi-detail'] });
+    if (canViewDivisi) links.push({ label: 'Divisi', action: 'divisi', match: ['divisi-detail'] });
     if (isStaff) links.push({ label: 'Interview', action: 'interview' });
-    if (isStaff) links.push({ label: 'Penilaian', action: 'penilaian' });
+    if (canViewPenilaian) links.push({ label: 'Penilaian', action: 'penilaian' });
     links.push({ label: 'Logout', action: 'logout' });
     return links;
   };
@@ -336,8 +339,9 @@ function App() {
             setStoredUser(userData);
             if (userData.peserta_id) setPesertaId(userData.peserta_id);
             const role = userData.roles?.[0] ?? '';
+            const adminRoles = ['Super Admin', 'Admin', 'Panitia'];
             const dest = role === 'Peserta' ? 'dashboard-peserta'
-              : ['Super Admin', 'Admin'].includes(role) ? 'admin-dashboard'
+              : adminRoles.includes(role) ? 'admin-dashboard'
               : 'interview';
             setCurrentPage(dest);
           }}

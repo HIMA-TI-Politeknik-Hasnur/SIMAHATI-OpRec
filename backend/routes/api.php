@@ -68,7 +68,7 @@ Route::apiResource('upload', UploadController::class)
 
 // ─── Dashboard Stats (Reyhan) ──────────────────────────────────────────────────
 
-Route::middleware(['auth:sanctum', 'role:Super Admin,Admin'])->prefix('dashboard')->group(function () {
+Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->prefix('dashboard')->group(function () {
     Route::get('/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
 });
 
