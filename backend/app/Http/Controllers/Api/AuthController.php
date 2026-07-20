@@ -130,4 +130,92 @@ class AuthController extends Controller
             ],
         ]);
     }
+
+    public function refreshToken(Request $request)
+    {
+        $user = $request->user();
+        $currentToken = $request->user()->currentAccessToken();
+
+        if (! $currentToken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak ditemukan.',
+            ], 401);
+        }
+
+        $currentToken->delete();
+        $newToken = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Token berhasil diperbarui.',
+            'data' => [
+                'token' => $newToken,
+            ],
+        ]);
+    }
+
+    public function sessionLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ], [
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Email harus berupa alamat email yang valid.',
+            'password.required' => 'Kata sandi wajib diisi.',
+        ]);
+
+        if (auth()->attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            $request->session()->regenerate();
+
+            $user = auth()->user()->load('roles');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login berhasil.',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => $user->roles->pluck('name'),
+                    ],
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Email atau password salah.',
+        ], 401);
+    }
+
+    public function sessionLogout(Request $request)
+    {
+        auth()->guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil.',
+        ]);
+    }
+
+    public function sessionUser(Request $request)
+    {
+        $user = $request->user()->load('roles.permissions');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles->pluck('name'),
+                'permissions' => $user->roles->flatMap(fn ($r) => $r->permissions->pluck('name'))->unique()->values(),
+            ],
+        ]);
+    }
 }

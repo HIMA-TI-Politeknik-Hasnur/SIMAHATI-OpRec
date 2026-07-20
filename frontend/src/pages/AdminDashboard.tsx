@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiFetch, removeAuthToken, getAuthToken } from '../api';
+import { apiFetch, removeAuthToken, getAuthToken, isSessionAuth, sessionFetch, clearAuth } from '../api';
 import { AdminRoleManagement } from './AdminDashboardRoleManagement';
 import { AdminPengumuman } from './AdminDashboardPengumuman';
 import './AdminDashboard.css';
@@ -75,16 +75,37 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [adminPage, setAdminPage] = useState('dashboard');
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token) {
-      setLoading(false);
-      setError('not-authenticated');
-      return;
-    }
-
     const fetchData = async () => {
       setLoading(true);
       setError(null);
+
+      if (isSessionAuth()) {
+        const [userRes, statsRes] = await Promise.all([
+          sessionFetch<UserResponse>('/api/session/user'),
+          sessionFetch<StatsResponse>('/api/dashboard/stats'),
+        ]);
+
+        if (userRes.data) setUser(userRes.data.data);
+        if (statsRes.data) setStats(statsRes.data.data);
+
+        if (userRes.error && statsRes.error) {
+          setError(userRes.error.message || statsRes.error.message);
+        } else if (userRes.error) {
+          setError(userRes.error.message);
+        } else if (statsRes.error) {
+          setError(statsRes.error.message);
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      const token = getAuthToken();
+      if (!token) {
+        setLoading(false);
+        setError('not-authenticated');
+        return;
+      }
 
       const [userRes, statsRes] = await Promise.all([
         apiFetch<UserResponse>('/api/user'),
@@ -109,7 +130,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   }, []);
 
   const handleLogout = () => {
-    removeAuthToken();
+    clearAuth();
     onNavigate('landing');
   };
 
