@@ -32,6 +32,13 @@ Route::post('reset-password', [\App\Http\Controllers\Api\ForgotPasswordControlle
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'user']);
+    Route::post('refresh-token', [AuthController::class, 'refreshToken']);
+});
+
+Route::post('session/login', [AuthController::class, 'sessionLogin']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('session/logout', [AuthController::class, 'sessionLogout']);
+    Route::get('session/user', [AuthController::class, 'sessionUser']);
 });
 
 // ─── Pendaftaran (Nadil) ──────────────────────────────────────────────────────
