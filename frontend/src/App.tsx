@@ -15,6 +15,8 @@ import { StatusPendaftaran } from './pages/StatusPendaftaran';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 type Page =
   | 'landing'
@@ -32,7 +34,9 @@ type Page =
   | 'status-pendaftaran'
   | 'login'
   | 'register'
-  | 'admin-dashboard';
+  | 'admin-dashboard'
+  | 'forgot-password'
+  | 'reset-password';
 
 const navItems: { key: Page; label: string; group: 'rizky' | 'anton' }[] = [
   { key: 'landing',          label: 'Landing Page',         group: 'rizky' },
@@ -112,6 +116,8 @@ function App() {
         <button onClick={() => setCurrentPage('login')} style={{ padding: '6px 12px', background: currentPage === 'login' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Login</button>
         <button onClick={() => setCurrentPage('register')} style={{ padding: '6px 12px', background: currentPage === 'register' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Register</button>
         <button onClick={() => setCurrentPage('admin-dashboard')} style={{ padding: '6px 12px', background: currentPage === 'admin-dashboard' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Admin Dashboard</button>
+        <button onClick={() => setCurrentPage('forgot-password')} style={{ padding: '6px 12px', background: currentPage === 'forgot-password' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Forgot Password</button>
+        <button onClick={() => setCurrentPage('reset-password')} style={{ padding: '6px 12px', background: currentPage === 'reset-password' ? '#22c55e' : '#334155', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Reset Password</button>
 
         <span style={{ color: '#64748b', fontSize: '0.75rem', alignSelf: 'center', padding: '0 4px', borderLeft: '1px solid #475569', paddingLeft: '12px' }}>
           Nadil:
@@ -177,6 +183,7 @@ function App() {
         <LoginPage
           onLoginSuccess={() => setCurrentPage('admin-dashboard')}
           onSwitchToRegister={() => setCurrentPage('register')}
+          onForgotPassword={() => setCurrentPage('forgot-password')}
         />
       )}
       {currentPage === 'register' && (
@@ -187,6 +194,12 @@ function App() {
       )}
       {currentPage === 'admin-dashboard' && (
         <AdminDashboard onNavigate={(page) => setCurrentPage(page as Page)} />
+      )}
+      {currentPage === 'forgot-password' && (
+        <ForgotPasswordPage onBackToLogin={() => setCurrentPage('login')} />
+      )}
+      {currentPage === 'reset-password' && (
+        <ResetPasswordPage onBackToLogin={() => setCurrentPage('login')} />
       )}
     </div>
   );
