@@ -69,6 +69,7 @@ export function AdminPeserta() {
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState<Peserta | null>(null);
   const [updating, setUpdating] = useState<number | null>(null);
+  const [catatan, setCatatan] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
@@ -104,7 +105,7 @@ export function AdminPeserta() {
     return d ? d.nama : `Divisi #${id}`;
   };
 
-  const handleVerifikasi = async (id: number, status: string) => {
+  const handleVerifikasi = async (id: number, status: string, catat?: string) => {
     setUpdating(id);
     const token = getAuthToken();
     const headers: Record<string, string> = {
@@ -113,13 +114,15 @@ export function AdminPeserta() {
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
+      const body: Record<string, string> = { status_verifikasi: status };
+      if (catat?.trim()) body.catatan = catat.trim();
       const res = await fetch(`/api/peserta/${id}/verifikasi`, {
         method: 'PATCH',
         headers,
-        body: JSON.stringify({ status_verifikasi: status }),
+        body: JSON.stringify(body),
       });
       const json = await res.json();
-      if (json.success) fetchData();
+      if (json.success) { setDetail(null); fetchData(); }
       else alert(json.message || 'Gagal memperbarui status');
     } catch {
       alert('Gagal terhubung ke server');
@@ -214,7 +217,7 @@ export function AdminPeserta() {
                 <td><span className={badgeClass(p.status_seleksi, 'seleksi')}>{SELEKSI_LABEL[p.status_seleksi] || p.status_seleksi}</span></td>
                 <td>
                   <div className="ap-actions">
-                    <button className="ap-btn ap-btn--detail" onClick={() => setDetail(p)}>Detail</button>
+                    <button className="ap-btn ap-btn--detail" onClick={() => { setDetail(p); setCatatan(p.pendaftaran?.catatan_admin ?? ''); }}>Detail</button>
                     {p.status_verifikasi === 'pending' && (
                       <>
                         <button className="ap-btn ap-btn--terima" disabled={updating === p.id} onClick={() => handleVerifikasi(p.id, 'verified')}>
@@ -259,6 +262,9 @@ export function AdminPeserta() {
               <div className="ap-field"><label>Email</label><span>{detail.email}</span></div>
               <div className="ap-field"><label>No. HP</label><span>{detail.nomor_hp}</span></div>
               <div className="ap-field"><label>Alamat</label><span>{detail.alamat}</span></div>
+              <div className="ap-field"><label>Pengalaman Organisasi</label><span>{detail.pengalaman_organisasi || '—'}</span></div>
+              <div className="ap-field"><label>Skill</label><span>{detail.skill || '—'}</span></div>
+              <div className="ap-field"><label>Prestasi</label><span>{detail.prestasi || '—'}</span></div>
               <div className="ap-field"><label>Divisi Pilihan 1</label><span>{getDivisiName(detail.pilihan_divisi_1)}</span></div>
               <div className="ap-field"><label>Divisi Pilihan 2</label><span>{getDivisiName(detail.pilihan_divisi_2)}</span></div>
               <div className="ap-field"><label>Motivasi</label><span>{detail.motivasi}</span></div>
@@ -279,6 +285,40 @@ export function AdminPeserta() {
               )}
               <div className="ap-field"><label>Status Verifikasi</label><span className={badgeClass(detail.status_verifikasi, 'verif')}>{VERIF_LABEL[detail.status_verifikasi] || detail.status_verifikasi}</span></div>
               <div className="ap-field"><label>Status Seleksi</label><span className={badgeClass(detail.status_seleksi, 'seleksi')}>{SELEKSI_LABEL[detail.status_seleksi] || detail.status_seleksi}</span></div>
+
+              <div className="ap-field">
+                <label>Catatan Admin</label>
+                {detail.pendaftaran?.catatan_admin && (
+                  <div className="ap-catatan-lama">{detail.pendaftaran.catatan_admin}</div>
+                )}
+                <textarea
+                  className="ap-catatan-input"
+                  rows={3}
+                  placeholder="Tulis catatan untuk peserta..."
+                  value={catatan}
+                  onChange={(e) => setCatatan(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="ap-modal-footer">
+              {detail.status_verifikasi !== 'verified' && (
+                <button
+                  className="ap-btn ap-btn--terima"
+                  disabled={updating === detail.id}
+                  onClick={() => handleVerifikasi(detail.id, 'verified', catatan)}
+                >
+                  {updating === detail.id ? '...' : 'Verifikasi'}
+                </button>
+              )}
+              {detail.status_verifikasi !== 'rejected' && (
+                <button
+                  className="ap-btn ap-btn--tolak"
+                  disabled={updating === detail.id}
+                  onClick={() => handleVerifikasi(detail.id, 'rejected', catatan)}
+                >
+                  {updating === detail.id ? '...' : 'Tolak'}
+                </button>
+              )}
             </div>
           </div>
         </div>
