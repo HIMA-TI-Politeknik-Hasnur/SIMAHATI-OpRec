@@ -13,3 +13,8 @@ Thumbs.db
 # ===== FILE LAIN =====
 *.zip
 *.rar
+
+# ===== ARTIFAK =====
+.planning/
+.playwright-mcp/
+REVIEW.md
