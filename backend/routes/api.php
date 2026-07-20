@@ -54,6 +54,12 @@ Route::apiResource('upload', UploadController::class)
         'upload' => 'upload',
     ]);
 
+// ─── Dashboard Stats (Reyhan) ──────────────────────────────────────────────────
+
+Route::middleware(['auth:sanctum', 'role:super_admin,admin_oprec'])->prefix('dashboard')->group(function () {
+    Route::get('/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
+});
+
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
 
 Route::apiResource('pengumuman', PengumumanController::class);
