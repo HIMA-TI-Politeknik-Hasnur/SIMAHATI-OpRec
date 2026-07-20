@@ -16,5 +16,6 @@ Thumbs.db
 
 # ===== ARTIFAK =====
 .planning/
+docs/superpowers/
 .playwright-mcp/
 REVIEW.md
