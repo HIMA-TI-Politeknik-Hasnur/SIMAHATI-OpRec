@@ -44,33 +44,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ─── Pendaftaran (Nadil) ──────────────────────────────────────────────────────
 
+// Route yang bisa diakses peserta (data milik sendiri)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('peserta', PesertaController::class)
-        ->parameters([
-            'peserta' => 'peserta',
-        ]);
+    Route::post('peserta', [PesertaController::class, 'store']);
+    Route::put('peserta/{peserta}', [PesertaController::class, 'update']);
+    Route::get('peserta/{peserta}', [PesertaController::class, 'show']);
 
-    // PATCH /peserta/{peserta}/verifikasi — ubah status_verifikasi & status_seleksi
+    Route::post('pendaftaran', [PendaftaranController::class, 'store']);
+    Route::post('upload', [UploadController::class, 'store']);
+});
+
+// Route khusus panitia/admin (manajemen peserta)
+Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->group(function () {
+    Route::get('peserta', [PesertaController::class, 'index']);
+    Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy']);
+
     Route::patch('peserta/{peserta}/verifikasi', [PesertaController::class, 'verifikasi'])
         ->name('peserta.verifikasi');
 
-    // PATCH /peserta/{peserta}/seleksi — ubah status_seleksi (interview/accepted/rejected)
     Route::patch('peserta/{peserta}/seleksi', [PesertaController::class, 'seleksi'])
         ->name('peserta.seleksi');
 
-    Route::apiResource('pendaftaran', PendaftaranController::class)
-        ->parameters([
-            'pendaftaran' => 'pendaftaran',
-        ]);
+    Route::get('pendaftaran', [PendaftaranController::class, 'index']);
+    Route::get('pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show']);
+    Route::put('pendaftaran/{pendaftaran}', [PendaftaranController::class, 'update']);
+    Route::delete('pendaftaran/{pendaftaran}', [PendaftaranController::class, 'destroy']);
 
-    // PATCH /pendaftaran/{pendaftaran}/status — ubah status & catatan_admin
     Route::patch('pendaftaran/{pendaftaran}/status', [PendaftaranController::class, 'updateStatus'])
         ->name('pendaftaran.updateStatus');
 
-    Route::apiResource('upload', UploadController::class)
-        ->parameters([
-            'upload' => 'upload',
-        ]);
+    Route::get('upload', [UploadController::class, 'index']);
+    Route::get('upload/{upload}', [UploadController::class, 'show']);
+    Route::put('upload/{upload}', [UploadController::class, 'update']);
+    Route::delete('upload/{upload}', [UploadController::class, 'destroy']);
 });
 
 // ─── Dashboard Stats (Reyhan) ──────────────────────────────────────────────────
