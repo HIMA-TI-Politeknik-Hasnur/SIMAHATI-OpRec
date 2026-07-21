@@ -302,6 +302,9 @@ start() {
   header "MENJALANKAN SERVER"
   echo ""
 
+  git_sync_branch
+  echo ""
+
   if ! command -v lsof &>/dev/null; then
     warn "lsof tidak tersedia, deteksi port conflict dilewati."
   else
@@ -606,10 +609,45 @@ check() {
   check_prereqs
 }
 
+# ─── Git sync branch ────────────────────────────────────────────
+
+git_sync_branch() {
+  local target="${1:-feature/deploy-localhost}"
+  local branch
+  branch=$(cd "$DIR" && git branch --show-current 2>/dev/null)
+
+  sub "Memeriksa branch git"
+
+  if [ "$branch" != "$target" ]; then
+    warn "Sekarang di branch '$branch', bukan '$target'"
+    if ask_yes_no "  Beralih ke $target?" "y"; then
+      git checkout "$target" 2>/dev/null && ok "Berpindah ke $target" || {
+        fail "Gagal checkout $target. Branch belum ada?"
+        return 1
+      }
+    else
+      info "Tetap di branch '$branch'"
+      return 0
+    fi
+  else
+    ok "Branch: $target"
+  fi
+
+  info "Menarik perubahan terbaru dari origin/$target..."
+  cd "$DIR"
+  git pull origin "$target" 2>/dev/null && ok "Branch diperbarui" || warn "Gagal pull (mungkin offline)"
+}
+
 # ─── Interactive Menu ───────────────────────────────────────────
 
 menu() {
   local choice
+
+  clear 2>/dev/null || true
+  header "SIMAHATI OpRec — DEV TOOL"
+  echo ""
+  git_sync_branch
+  echo ""
 
   while true; do
     clear 2>/dev/null || true
@@ -620,12 +658,17 @@ menu() {
     be_pid=$(port_pid 8000)
     fe_pid=$(port_pid 5173)
 
+    echo -e "  ${BOLD}Branch:${NC} $(cd "$DIR" && git branch --show-current 2>/dev/null)"
+
     if [ -n "$be_pid" ] || [ -n "$fe_pid" ]; then
+      echo ""
       echo -e "  ${BOLD}Server Status:${NC}"
       [ -n "$be_pid" ] && echo -e "    ${GREEN}●${NC} Backend  RUNNING  (PID $be_pid)" \
                      || echo -e "    ${RED}○${NC} Backend  STOPPED"
       [ -n "$fe_pid" ] && echo -e "    ${GREEN}●${NC} Frontend RUNNING  (PID $fe_pid)" \
                      || echo -e "    ${RED}○${NC} Frontend STOPPED"
+      echo ""
+    else
       echo ""
     fi
 
