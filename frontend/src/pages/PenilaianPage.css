@@ -232,3 +232,81 @@
 }
 
 .btn-nilai:hover { background-color: #fed7aa; }
+
+/* =============================================
+   RESPONSIVE — PenilaianPage
+   ============================================= */
+
+/* Laptop */
+@media (max-width: 1024px) {
+  .page-layout {
+    padding: 2rem 2rem;
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .page-layout {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .table-card {
+    padding: 1.5rem;
+  }
+
+  .modal-card {
+    max-width: 92vw;
+    padding: 1.5rem;
+    margin: 0 1rem;
+  }
+}
+
+/* HP */
+@media (max-width: 480px) {
+  .page-layout {
+    padding: 1.25rem 1rem;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .table-card {
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 500px;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding-bottom: 0;
+  }
+
+  .modal-card {
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}

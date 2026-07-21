@@ -175,3 +175,81 @@
 .badge-status.pending { background: #fef9c3; color: #854d0e; }
 .badge-status.verified { background: #f0fdf4; color: #16a34a; }
 .badge-status.rejected { background: #fef2f2; color: #dc2626; }
+
+/* =============================================
+   RESPONSIVE — DivisiDetailPage
+   ============================================= */
+
+/* Laptop */
+@media (max-width: 1024px) {
+  .page-layout {
+    padding: 2rem 2rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Tablet — info di atas, tabel di bawah */
+@media (max-width: 768px) {
+  .page-layout {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .page-header {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .info-card,
+  .peserta-card {
+    padding: 1.5rem;
+  }
+}
+
+/* HP */
+@media (max-width: 480px) {
+  .page-layout {
+    padding: 1.25rem 1rem;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+    word-break: break-word;
+  }
+
+  .btn-back {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .info-card,
+  .peserta-card {
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+  }
+
+  /* Tabel scroll horizontal */
+  .peserta-card {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 440px;
+  }
+}
