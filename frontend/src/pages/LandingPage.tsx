@@ -97,11 +97,6 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <Accordion items={faqItems} />
         </div>
       </section>
-        <h2 className="section-title">Pertanyaan Sering Ditanyakan</h2>
-        <div className="faq-container-wrapper">
-          <Accordion items={faqItems} />
-        </div>
-      </section>
 
       <footer className="footer">
         <div className="footer-content">
