@@ -1,5 +1,6 @@
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
+const API_BASE_URL = 'https://simahati-oprec.infinityfreeapp.com';
 
 export interface UserData {
   id: number;
@@ -68,7 +69,7 @@ export async function apiFetch<T>(
   }
 
   try {
-    const res = await fetch(url, { ...options, headers });
+    const res = await fetch(API_BASE_URL + url, { ...options, headers });
     const json = await res.json();
 
     if (!res.ok) {
@@ -113,7 +114,7 @@ export async function refreshAuthToken(): Promise<string | null> {
 // --- Session-based auth ---
 export async function fetchCsrfCookie(): Promise<boolean> {
   try {
-    await fetch('/sanctum/csrf-cookie', { method: 'GET', credentials: 'include' });
+    await fetch(API_BASE_URL + '/sanctum/csrf-cookie', { method: 'GET', credentials: 'include' });
     return true;
   } catch {
     return false;
@@ -122,7 +123,7 @@ export async function fetchCsrfCookie(): Promise<boolean> {
 
 export async function sessionFetch<T>(url: string): Promise<ApiResponse<T>> {
   try {
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
+    const res = await fetch(API_BASE_URL + url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
     const json = await res.json();
     if (!res.ok) return { error: { message: json.message || 'Terjadi kesalahan.' } };
     return { data: json as T };
@@ -134,7 +135,7 @@ export async function sessionFetch<T>(url: string): Promise<ApiResponse<T>> {
 export async function sessionPost<T>(url: string, body?: Record<string, unknown>): Promise<ApiResponse<T>> {
   try {
     const headers: Record<string, string> = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
-    const res = await fetch(url, { method: 'POST', headers, body: body ? JSON.stringify(body) : undefined, credentials: 'include' });
+    const res = await fetch(API_BASE_URL + url, { method: 'POST', headers, body: body ? JSON.stringify(body) : undefined, credentials: 'include' });
     const json = await res.json();
     if (!res.ok) return { error: { message: json.message || 'Terjadi kesalahan.', errors: json.errors as Record<string, string[]> } };
     return { data: json as T };

@@ -3,21 +3,6 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://simahati-oprec.infinityfreeapp.com/api/$1"
-    },
-    {
-      "source": "/sanctum/(.*)",
-      "destination": "https://simahati-oprec.infinityfreeapp.com/sanctum/$1"
-    },
-    {
-      "source": "/storage/(.*)",
-      "destination": "https://simahati-oprec.infinityfreeapp.com/storage/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
