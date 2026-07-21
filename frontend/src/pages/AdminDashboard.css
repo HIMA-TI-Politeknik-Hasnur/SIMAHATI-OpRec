@@ -1108,12 +1108,11 @@
     padding: 1rem;
   }
 
-  /* Tabel verifikasi pendaftar — scroll horizontal */
-  .admin-db-content-area .ap-table,
-  .admin-db-content-area .admin-rm-table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  /* Tabel verifikasi pendaftar — scroll horizontal HANYA tabelnya */
+  .ap-table,
+  .admin-rm-table {
+    display: table;
+    overflow-x: unset;
     white-space: nowrap;
     font-size: 0.78rem;
   }
@@ -1181,5 +1180,58 @@
 
   .admin-db-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ── Tabel wrapper scroll (hanya tabel yang geser, bukan header) ── */
+.ap-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Pastikan ap-header tidak overflow */
+.ap {
+  width: 100%;
+  overflow: visible;
+}
+
+.ap-header {
+  overflow: visible;
+}
+
+/* HP — ap-header stack vertikal, search & filter full width */
+@media screen and (max-width: 480px) {
+  .ap-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .ap-search {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .ap-filter {
+    width: 100%;
+  }
+
+  /* Tabel di dalam wrapper tetap min-width agar tidak gepeng */
+  .ap-table {
+    min-width: 520px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .ap-table th {
+    font-size: 0.7rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .ap-table td {
+    font-size: 0.78rem;
+    padding: 0.6rem 0.75rem;
   }
 }
