@@ -1,12 +1,30 @@
+import { useState, useEffect } from 'react';
 import './LandingPage.css';
 import { Timeline } from '../components/Timeline';
 import { Accordion } from '../components/Accordion';
+import { AnnouncementCard } from '../components/AnnouncementCard';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
 
+interface Pengumuman {
+  id: number;
+  judul: string;
+  isi: string;
+  tipe: 'info' | 'warning' | 'success' | 'danger';
+  published_at: string;
+}
+
 export const LandingPage = ({ onNavigate }: LandingPageProps) => {
+  const [pengumumanList, setPengumumanList] = useState<Pengumuman[]>([]);
+
+  useEffect(() => {
+    fetch('/api/pengumuman/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success) setPengumumanList(json.data ?? []); })
+      .catch(() => {/* abaikan error */});
+  }, []);
   // Dummy data for preview
   const timelineEvents = [
     { id: 1, judul: 'Pendaftaran Buka', tanggal_mulai: '2026-08-01', is_active: true },
@@ -55,7 +73,30 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </div>
       </section>
 
+      {pengumumanList.length > 0 && (
+        <section id="pengumuman" className="pengumuman-section">
+          <h2 className="section-title">📢 Pengumuman</h2>
+          <div className="pengumuman-container-wrapper">
+            {pengumumanList.map(p => (
+              <AnnouncementCard
+                key={p.id}
+                id={p.id}
+                judul={p.judul}
+                isi={p.isi}
+                tipe={p.tipe}
+                published_at={p.published_at}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section id="faq" className="faq-section">
+        <h2 className="section-title">Pertanyaan Sering Ditanyakan</h2>
+        <div className="faq-container-wrapper">
+          <Accordion items={faqItems} />
+        </div>
+      </section>
         <h2 className="section-title">Pertanyaan Sering Ditanyakan</h2>
         <div className="faq-container-wrapper">
           <Accordion items={faqItems} />

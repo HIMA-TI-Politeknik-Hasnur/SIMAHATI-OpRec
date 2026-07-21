@@ -157,3 +157,99 @@
 .footer p {
   color: #9ca3af;
 }
+
+/* =============================================
+   RESPONSIVE — LandingPage
+   ============================================= */
+
+/* Laptop */
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 3.25rem;
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 5rem 5%;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .benefit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* HP */
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 4rem 5%;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-cta {
+    padding: 0.75rem 2rem;
+    font-size: 0.95rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .benefit-section,
+  .timeline-section,
+  .faq-section {
+    padding: 3rem 5%;
+  }
+
+  .benefit-card {
+    padding: 1.5rem;
+  }
+
+  .benefit-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .footer h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ─── Pengumuman section (Landing) ─────────────────────────────── */
+.pengumuman-section {
+  padding: 5rem 5%;
+  background: #fff7ed;
+}
+
+.pengumuman-container-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .pengumuman-section {
+    padding: 3rem 5%;
+  }
+}

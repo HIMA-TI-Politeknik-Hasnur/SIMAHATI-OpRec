@@ -227,3 +227,95 @@
 .btn-delete:hover {
   background-color: #fecaca;
 }
+
+/* =============================================
+   RESPONSIVE — DivisiPage
+   ============================================= */
+
+/* Laptop */
+@media (max-width: 1024px) {
+  .page-layout {
+    padding: 2rem 2rem;
+  }
+
+  .page-grid {
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Tablet — form di atas, tabel di bawah */
+@media (max-width: 768px) {
+  .page-layout {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .page-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-card,
+  .table-card {
+    padding: 1.5rem;
+  }
+
+  .td-deskripsi {
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* HP */
+@media (max-width: 480px) {
+  .page-layout {
+    padding: 1.25rem 1rem;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-card,
+  .table-card {
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Tabel scroll horizontal di HP */
+  .table-card {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 480px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+}

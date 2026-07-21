@@ -89,6 +89,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [stats, setStats] = useState<StatsData | null>(null);
   const [adminPage, setAdminPage] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -157,6 +158,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   const handleSidebarClick = (key: string) => {
     setAdminPage(key);
+    // Tutup sidebar otomatis di mobile setelah klik menu
+    if (window.innerWidth <= 768) setSidebarOpen(false);
   };
 
   const renderContent = () => {
@@ -237,10 +240,29 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   return (
     <div className="admin-db-layout">
-      <aside className="admin-db-sidebar">
+      {/* Overlay gelap saat sidebar terbuka di mobile */}
+      {sidebarOpen && (
+        <div
+          className="admin-db-sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`admin-db-sidebar ${sidebarOpen ? 'admin-db-sidebar--open' : 'admin-db-sidebar--closed'}`}>
         <div className="admin-db-sidebar-header">
-          <h2 className="admin-db-sidebar-title">SIMAHATI OpRec</h2>
-          <p className="admin-db-sidebar-subtitle">Panel Admin</p>
+          <div className="admin-db-sidebar-header-row">
+            <div>
+              <h2 className="admin-db-sidebar-title">SIMAHATI OpRec</h2>
+              <p className="admin-db-sidebar-subtitle">Panel Admin</p>
+            </div>
+            <button
+              className="admin-db-sidebar-toggle-close"
+              onClick={() => setSidebarOpen(false)}
+              title="Sembunyikan sidebar"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <nav className="admin-db-sidebar-nav">
@@ -269,7 +291,16 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       <main className="admin-db-main">
         <div className="admin-db-navbar">
-          <h1 className="admin-db-page-title">{pageTitles[adminPage] || 'Dashboard'}</h1>
+          <div className="admin-db-navbar-left">
+            <button
+              className="admin-db-sidebar-toggle"
+              onClick={() => setSidebarOpen(v => !v)}
+              title={sidebarOpen ? 'Sembunyikan sidebar' : 'Tampilkan sidebar'}
+            >
+              {sidebarOpen ? '◀' : '☰'}
+            </button>
+            <h1 className="admin-db-page-title">{pageTitles[adminPage] || 'Dashboard'}</h1>
+          </div>
           {user && <span className="admin-db-greeting">Halo, {user.name}!</span>}
         </div>
 

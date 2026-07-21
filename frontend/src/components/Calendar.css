@@ -103,3 +103,44 @@
   font-weight: 600;
   color: #ea580c;
 }
+
+/* =============================================
+   RESPONSIVE — Calendar
+   ============================================= */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .calendar-cell {
+    font-size: 0.78rem;
+  }
+
+  .calendar-month-label {
+    font-size: 0.88rem;
+  }
+}
+
+/* HP */
+@media (max-width: 480px) {
+  .calendar-wrapper {
+    max-width: 100%;
+  }
+
+  .calendar-cell {
+    font-size: 0.72rem;
+    border-radius: 4px;
+  }
+
+  .calendar-day-name {
+    font-size: 0.65rem;
+  }
+
+  .calendar-nav {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .calendar-month-label {
+    font-size: 0.85rem;
+  }
+}

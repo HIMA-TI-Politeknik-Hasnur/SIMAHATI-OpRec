@@ -86,3 +86,29 @@
   border-radius: 99px;
   transition: width 0.3s ease;
 }
+
+/* =============================================
+   RESPONSIVE — Rating
+   ============================================= */
+
+/* HP */
+@media (max-width: 480px) {
+  .rating-star {
+    font-size: 1.3rem;
+  }
+
+  .rating-numeric {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .rating-bar-bg {
+    width: 100%;
+    flex: unset;
+  }
+
+  .rating-numeric-input {
+    width: 60px;
+    font-size: 1rem;
+  }
+}

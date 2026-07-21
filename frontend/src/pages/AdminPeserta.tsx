@@ -231,7 +231,8 @@ export function AdminPeserta() {
         <span className="ap-count">{filtered.length} pendaftar</span>
       </div>
 
-      <table className="ap-table">
+      <div className="ap-table-wrapper">
+        <table className="ap-table">
         <thead>
           <tr>
             <th>Nama</th>
@@ -288,6 +289,7 @@ export function AdminPeserta() {
           )}
         </tbody>
       </table>
+      </div>
 
       {detail && (
         <div className="ap-overlay" onClick={() => setDetail(null)}>

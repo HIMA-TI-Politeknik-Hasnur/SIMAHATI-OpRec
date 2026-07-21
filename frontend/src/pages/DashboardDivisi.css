@@ -164,3 +164,104 @@
   color: #1f2937;
   margin-bottom: 1.25rem;
 }
+
+/* =============================================
+   RESPONSIVE — DashboardDivisi
+   ============================================= */
+
+/* Laptop */
+@media (max-width: 1024px) {
+  .page-layout {
+    padding: 2rem 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .divisi-list {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .page-layout {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-icon {
+    font-size: 1.4rem;
+  }
+
+  .divisi-list {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* HP */
+@media (max-width: 480px) {
+  .page-layout {
+    padding: 1.25rem 1rem;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .stat-icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .divisi-list {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+}
