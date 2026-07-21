@@ -1,6 +1,8 @@
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
-const API_BASE_URL = 'https://simahati-oprec.infinityfreeapp.com';
+// Kosongkan agar Vite proxy yang handle /api → localhost:8000
+// Ganti ke URL production saat deploy
+const API_BASE_URL = '';
 
 export interface UserData {
   id: number;
