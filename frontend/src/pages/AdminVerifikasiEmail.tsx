@@ -92,7 +92,7 @@ export function AdminVerifikasiEmail() {
                 <tr key={u.id}>
                   <td><span className="ap-name">{u.name}</span></td>
                   <td>{u.email}</td>
-                  <td>{u.roles.join(', ')}</td>
+                  <td>{u.roles.map(r => ({ super_admin: 'Super Admin', admin: 'Admin', panitia: 'Panitia', interviewer: 'Interviewer', peserta: 'Peserta' })[r] || r).join(', ')}</td>
                   <td>{new Date(u.created_at).toLocaleDateString('id-ID')}</td>
                   <td>
                     <button

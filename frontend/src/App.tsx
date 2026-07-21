@@ -93,8 +93,8 @@ function App() {
     if (stored) {
       const role = stored.roles?.[0] ?? '';
       if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
-        const dest = role === 'Peserta' ? 'dashboard-peserta'
-          : ['Super Admin', 'Admin', 'Panitia'].includes(role) ? 'admin-dashboard'
+        const dest = role === 'peserta' ? 'dashboard-peserta'
+          : ['super_admin', 'admin', 'panitia'].includes(role) ? 'admin-dashboard'
           : 'interview';
         setCurrentPage(dest);
       }
@@ -113,15 +113,15 @@ function App() {
         setStoredUser(u);
         if (u.peserta_id) setPesertaId(u.peserta_id);
         const role = u.roles?.[0] ?? '';
-        const adminRoles = ['Super Admin', 'Admin', 'Panitia'];
+        const adminRoles = ['super_admin', 'admin', 'panitia'];
         if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
-          const dest = role === 'Peserta' ? 'dashboard-peserta'
+          const dest = role === 'peserta' ? 'dashboard-peserta'
             : adminRoles.includes(role) ? 'admin-dashboard'
             : 'interview';
           setCurrentPage(dest);
-        } else if (role === 'Peserta' && currentPage === 'admin-dashboard') {
+        } else if (role === 'peserta' && currentPage === 'admin-dashboard') {
           setCurrentPage('dashboard-peserta');
-        } else if (![...adminRoles, 'Peserta'].includes(role) && currentPage === 'admin-dashboard') {
+        } else if (![...adminRoles, 'peserta'].includes(role) && currentPage === 'admin-dashboard') {
           setCurrentPage('interview');
         }
       } else if (apiError) {
@@ -135,11 +135,11 @@ function App() {
   }, [currentPage]);
 
   const userRole = user?.roles?.[0] ?? '';
-  const isPeserta = userRole === 'Peserta';
-  const isStaff = ['Super Admin', 'Admin', 'Panitia', 'Interviewer'].includes(userRole);
-  const canViewDashboard = ['Super Admin', 'Admin', 'Panitia'].includes(userRole);
-  const canViewDivisi = ['Super Admin', 'Admin', 'Panitia'].includes(userRole);
-  const canViewPenilaian = ['Super Admin', 'Admin', 'Interviewer'].includes(userRole);
+  const isPeserta = userRole === 'peserta';
+  const isStaff = ['super_admin', 'admin', 'panitia', 'interviewer'].includes(userRole);
+  const canViewDashboard = ['super_admin', 'admin', 'panitia'].includes(userRole);
+  const canViewDivisi = ['super_admin', 'admin', 'panitia'].includes(userRole);
+  const canViewPenilaian = ['super_admin', 'admin', 'interviewer'].includes(userRole);
 
   const buildStaffLinks = (): NavLink[] => {
     const links: NavLink[] = [];
@@ -314,8 +314,8 @@ function App() {
             setStoredUser(userData);
             if (userData.peserta_id) setPesertaId(userData.peserta_id);
             const role = userData.roles?.[0] ?? '';
-            const adminRoles = ['Super Admin', 'Admin', 'Panitia'];
-            const dest = role === 'Peserta' ? 'dashboard-peserta'
+            const adminRoles = ['super_admin', 'admin', 'panitia'];
+            const dest = role === 'peserta' ? 'dashboard-peserta'
               : adminRoles.includes(role) ? 'admin-dashboard'
               : 'interview';
             setCurrentPage(dest);

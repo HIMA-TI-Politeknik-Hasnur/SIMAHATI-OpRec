@@ -13,7 +13,7 @@ class CheckRole
         $user = $request->user();
 
         foreach ($roles as $role) {
-            if ($user->roles->contains('name', $role)) {
+            if ($user->roles->contains('slug', $role)) {
                 return $next($request);
             }
         }

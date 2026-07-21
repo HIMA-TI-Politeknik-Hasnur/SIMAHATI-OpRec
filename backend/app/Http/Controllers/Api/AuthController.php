@@ -69,7 +69,7 @@ class AuthController extends Controller
     {
         $user = $request->user()->load('roles.permissions', 'peserta');
 
-        $roles = $user->roles->pluck('name');
+        $roles = $user->roles->pluck('slug');
         $permissions = $user->roles
             ->flatMap(fn ($role) => $role->permissions->pluck('name'))
             ->unique()
@@ -160,7 +160,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'roles' => $user->roles->pluck('name'),
+                    'roles' => $user->roles->pluck('slug'),
                     'peserta_id' => $user->peserta?->id,
                 ],
                 'token' => $token,
@@ -257,11 +257,10 @@ class AuthController extends Controller
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
-                        'roles' => $user->roles->pluck('name'),
+'roles' => $user->roles->pluck('slug'),
                         'peserta_id' => $user->peserta?->id,
                     ],
-                ],
-            ]);
+                ]);
         }
 
         return response()->json([
@@ -292,7 +291,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->roles->pluck('name'),
+                'roles' => $user->roles->pluck('slug'),
                 'permissions' => $user->roles->flatMap(fn ($r) => $r->permissions->pluck('name'))->unique()->values(),
                 'peserta_id' => $user->peserta?->id,
             ],

@@ -45,14 +45,14 @@ interface AdminDashboardProps {
 }
 
 const navItems = [
-  { key: 'dashboard', label: 'Dashboard', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { key: 'role-management', label: 'Role Management', roles: ['Super Admin', 'Admin'] },
-  { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { key: 'verifikasi-email', label: 'Verifikasi Email', roles: ['Super Admin'] },
-  { key: 'divisi', label: 'Divisi', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { key: 'interview', label: 'Interview', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { key: 'pengumuman', label: 'Pengumuman', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { key: 'settings', label: 'Settings', roles: ['Super Admin', 'Admin'] },
+  { key: 'dashboard', label: 'Dashboard', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'role-management', label: 'Role Management', roles: ['super_admin', 'admin'] },
+  { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'verifikasi-email', label: 'Verifikasi Email', roles: ['super_admin'] },
+  { key: 'divisi', label: 'Divisi', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'pengumuman', label: 'Pengumuman', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'settings', label: 'Settings', roles: ['super_admin', 'admin'] },
 ];
 
 const cardConfigs = [
@@ -69,11 +69,11 @@ const cardConfigs = [
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management', roles: ['Super Admin', 'Admin'] },
-  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { label: 'Verifikasi Email', key: 'verifikasi-email', roles: ['Super Admin'] },
-  { label: 'Atur Divisi', key: 'divisi', roles: ['Super Admin', 'Admin', 'Panitia'] },
-  { label: 'Pengaturan', key: 'settings', roles: ['Super Admin', 'Admin'] },
+  { label: 'Kelola Role', key: 'role-management', roles: ['super_admin', 'admin'] },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
+  { label: 'Verifikasi Email', key: 'verifikasi-email', roles: ['super_admin'] },
+  { label: 'Atur Divisi', key: 'divisi', roles: ['super_admin', 'admin', 'panitia'] },
+  { label: 'Pengaturan', key: 'settings', roles: ['super_admin', 'admin'] },
 ];
 
 const pageTitles: Record<string, string> = {

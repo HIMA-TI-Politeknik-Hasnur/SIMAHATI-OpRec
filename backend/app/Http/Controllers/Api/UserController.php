@@ -19,7 +19,7 @@ class UserController extends Controller
                 'id'            => $u->id,
                 'name'          => $u->name,
                 'email'         => $u->email,
-                'roles'         => $u->roles->pluck('name'),
+                'roles'         => $u->roles->pluck('slug'),
                 'created_at'    => $u->created_at,
             ]);
 

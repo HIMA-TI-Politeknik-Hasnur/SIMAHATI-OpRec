@@ -182,7 +182,7 @@ class RoleController extends Controller
             'data' => [
                 'user_id' => $user->id,
                 'name' => $user->name,
-                'roles' => $user->roles->pluck('name'),
+                'roles' => $user->roles->pluck('slug'),
             ],
         ]);
     }

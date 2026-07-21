@@ -24,7 +24,7 @@ class DashboardController extends Controller
         $ditolakSeleksi = Peserta::where('status_seleksi', 'rejected')->count();
 
         $totalAdmin = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', ['Super Admin', 'Admin']);
+            $q->whereIn('slug', ['super_admin', 'admin']);
         })->count();
 
         $totalDivisi  = Divisi::count();

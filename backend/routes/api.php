@@ -57,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Route khusus panitia/admin (manajemen peserta)
-Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:super_admin,admin,panitia'])->group(function () {
     Route::get('peserta', [PesertaController::class, 'index']);
     Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy']);
 
@@ -83,19 +83,19 @@ Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->group(fun
 
 // ─── Dashboard Stats (Reyhan) ──────────────────────────────────────────────────
 
-Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia'])->prefix('dashboard')->group(function () {
+Route::middleware(['auth:sanctum', 'role:super_admin,admin,panitia'])->prefix('dashboard')->group(function () {
     Route::get('/stats', [\App\Http\Controllers\Api\DashboardController::class, 'stats']);
 });
 
 // ─── Roles & Permissions (Reyhan) ─────────────────────────────────────────────
 
-Route::middleware(['auth:sanctum', 'role:Super Admin,Admin'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:super_admin,admin'])->group(function () {
     Route::get('roles', [RoleController::class, 'index']);
     Route::get('permissions', [PermissionController::class, 'index']);
     Route::get('roles/{role}', [RoleController::class, 'show']);
 });
 
-Route::middleware(['auth:sanctum', 'role:Super Admin'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
     Route::post('roles', [RoleController::class, 'store']);
     Route::put('roles/{role}', [RoleController::class, 'update']);
     Route::delete('roles/{role}', [RoleController::class, 'destroy']);
@@ -119,7 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('interview/saya', [InterviewController::class, 'saya']);
 });
 
-Route::middleware(['auth:sanctum', 'role:Super Admin,Admin,Panitia,Interviewer'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:super_admin,admin,panitia,interviewer'])->group(function () {
     Route::apiResource('pengumuman', PengumumanController::class);
     Route::apiResource('timeline', TimelineController::class);
     Route::apiResource('faq', FaqController::class);
