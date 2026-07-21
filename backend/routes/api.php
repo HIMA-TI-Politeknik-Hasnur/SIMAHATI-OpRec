@@ -105,6 +105,12 @@ Route::middleware(['auth:sanctum', 'role:Super Admin'])->group(function () {
 
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
 
+// Route publik — bisa diakses siapa saja (termasuk peserta yang belum login)
+Route::get('pengumuman/publik', [PengumumanController::class, 'publik']);
+Route::get('timeline/publik', [TimelineController::class, 'publik']);
+Route::get('faq/publik', [FaqController::class, 'publik']);
+Route::get('divisi/publik', [DivisiController::class, 'publik']);
+
 // Route interview khusus peserta (lihat jadwal sendiri)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('interview/saya', [InterviewController::class, 'saya']);

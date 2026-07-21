@@ -18,6 +18,23 @@ class PengumumanController extends Controller
         ]);
     }
 
+    /**
+     * Endpoint publik — hanya tampilkan yang sudah published (published_at <= sekarang).
+     * Bisa diakses tanpa login oleh peserta dan pengunjung.
+     */
+    public function publik()
+    {
+        $pengumumans = Pengumuman::whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->latest('published_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $pengumumans,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
