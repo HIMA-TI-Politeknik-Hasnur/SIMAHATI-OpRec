@@ -1,6 +1,6 @@
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
-const API_BASE_URL = 'https://simahati-oprec.infinityfreeapp.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export interface UserData {
   id: number;
