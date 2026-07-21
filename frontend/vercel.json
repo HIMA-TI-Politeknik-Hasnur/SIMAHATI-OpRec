@@ -3,6 +3,9 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "http://18.143.130.161/api/$1" },
+    { "source": "/sanctum/(.*)", "destination": "http://18.143.130.161/sanctum/$1" },
+    { "source": "/storage/(.*)", "destination": "http://18.143.130.161/storage/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
