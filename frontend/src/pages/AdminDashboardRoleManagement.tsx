@@ -112,7 +112,7 @@ export function AdminRoleManagement() {
   const handleAssignPermissions = async () => {
     if (!permRole) return;
     const res = await apiPost<{ success: boolean }>(`/api/roles/${permRole.id}/permissions`, {
-      permission_ids: selectedPerms,
+      permissions: selectedPerms,
     });
     if (res.data) {
       showSuccess('Permission berhasil di-assign');
