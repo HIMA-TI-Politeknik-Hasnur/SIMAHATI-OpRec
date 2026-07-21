@@ -101,6 +101,9 @@ Route::middleware(['auth:sanctum', 'role:Super Admin'])->group(function () {
     Route::delete('roles/{role}', [RoleController::class, 'destroy']);
     Route::post('roles/{role}/permissions', [RoleController::class, 'assignPermissions']);
     Route::post('users/{user}/roles', [RoleController::class, 'assignRoleToUser']);
+
+    Route::get('users/unverified', [\App\Http\Controllers\Api\UserController::class, 'unverified']);
+    Route::post('users/{user}/verify-email', [\App\Http\Controllers\Api\UserController::class, 'verifyEmail']);
 });
 
 // ─── CMS & Landing Page (Rizky) ───────────────────────────────────────────────
