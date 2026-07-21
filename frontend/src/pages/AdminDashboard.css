@@ -1045,42 +1045,58 @@
 @media screen and (max-width: 480px) {
   .admin-db-navbar {
     padding: 0.75rem 1rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
+    justify-content: space-between;
   }
 
   .admin-db-navbar-left {
     gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
   }
 
   .admin-db-page-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .admin-db-greeting {
-    font-size: 0.78rem;
-    width: 100%;
-    order: 2;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
   }
 
   .admin-db-content-area {
-    padding: 1rem 0.875rem;
+    padding: 0.875rem 0.75rem;
   }
 
   .admin-db-cards {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .admin-db-card {
-    padding: 0.875rem;
+    padding: 0.75rem;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.35rem;
+  }
+
+  .admin-db-card-icon {
+    font-size: 1.25rem;
+  }
+
+  .admin-db-card-label {
+    font-size: 0.7rem;
   }
 
   .admin-db-card-value {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 800;
   }
 
@@ -1090,6 +1106,44 @@
 
   .admin-db-action-btn {
     padding: 1rem;
+  }
+
+  /* Tabel verifikasi pendaftar — scroll horizontal */
+  .admin-db-content-area .ap-table,
+  .admin-db-content-area .admin-rm-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    font-size: 0.78rem;
+  }
+
+  .ap-table th,
+  .ap-table td {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .ap-table th {
+    font-size: 0.7rem;
+  }
+
+  /* Filter & search area */
+  .ap-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .ap-search {
+    max-width: 100%;
+    font-size: 0.85rem;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .ap-filter {
+    font-size: 0.82rem;
+    width: 100%;
   }
 
   /* Modal fullscreen di HP */
@@ -1111,15 +1165,6 @@
 
   .admin-rm-perm-grid {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .ap-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .ap-search {
-    max-width: 100%;
   }
 }
 
