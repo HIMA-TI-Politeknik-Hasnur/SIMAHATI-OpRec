@@ -18,4 +18,5 @@ Thumbs.db
 .planning/
 docs/superpowers/
 .playwright-mcp/
+*.yaml
 REVIEW.md
