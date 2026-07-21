@@ -305,7 +305,6 @@
   .dash-peserta-content { padding: 1rem; }
   .dash-stats-grid { grid-template-columns: 1fr 1fr; }
 }
-
 /* ─── Pengumuman section ─────────────────────────────────────── */
 .dash-pengumuman-list {
   margin-bottom: 1.5rem;
@@ -320,4 +319,289 @@
   color: #9ca3af;
   font-style: italic;
   margin-bottom: 1.5rem;
+}
+
+/* ─── Topbar kiri (toggle + title) ──────────────────────────── */
+.dash-peserta-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Toggle button ☰ */
+.dash-peserta-sidebar-toggle {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.dash-peserta-sidebar-toggle:hover {
+  background: #e5e7eb;
+}
+
+/* Tombol ✕ di dalam sidebar */
+.dash-peserta-sidebar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.dash-peserta-sidebar-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.dash-peserta-sidebar-close:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Overlay gelap */
+.dash-peserta-sidebar-overlay {
+  display: none;
+}
+
+/* =============================================
+   RESPONSIVE — DashboardPeserta
+   ============================================= */
+
+/* ── Laptop (≤ 1024px) ──────────────────────── */
+@media (max-width: 1024px) {
+  .dash-peserta-sidebar {
+    width: 210px;
+  }
+
+  .dash-peserta-content {
+    padding: 1.5rem;
+  }
+
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Tablet (≤ 768px) ───────────────────────── */
+@media (max-width: 768px) {
+  .dash-peserta-layout {
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Sidebar jadi overlay di atas konten */
+  .dash-peserta-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px !important;
+    z-index: 200;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    padding: 1.5rem 0;
+    overflow-y: auto;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .dash-peserta-sidebar--open {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .dash-peserta-sidebar--closed {
+    opacity: 0;
+    transform: translateX(-100%);
+    pointer-events: none;
+  }
+
+  /* Overlay gelap aktif di tablet/HP */
+  .dash-peserta-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 199;
+  }
+
+  .dash-peserta-main {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .dash-peserta-topbar {
+    padding: 0.875rem 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+  }
+
+  .dash-peserta-topbar__title {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dash-peserta-content {
+    padding: 1.25rem;
+  }
+
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .dash-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .dash-welcome-banner {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .dash-welcome-banner__text h2 {
+    font-size: 1.1rem;
+  }
+}
+
+/* ── HP (≤ 480px) ───────────────────────────── */
+@media (max-width: 480px) {
+  .dash-peserta-topbar {
+    padding: 0.75rem 1rem;
+    flex-wrap: nowrap;
+  }
+
+  .dash-peserta-topbar__left {
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dash-peserta-topbar__title {
+    font-size: 0.9rem;
+  }
+
+  .dash-peserta-topbar__greeting {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+  }
+
+  .dash-peserta-topbar__avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .dash-peserta-content {
+    padding: 1rem 0.875rem;
+  }
+
+  /* Banner */
+  .dash-welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem;
+    gap: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .dash-welcome-banner__text h2 {
+    font-size: 1rem;
+  }
+
+  .dash-welcome-banner__badge {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Stat cards — 2 kolom di HP */
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+  }
+
+  .dash-stat-card {
+    padding: 0.875rem;
+    gap: 0.625rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-stat-card__icon {
+    font-size: 1.4rem;
+  }
+
+  .dash-stat-card__label {
+    font-size: 0.7rem;
+  }
+
+  .dash-stat-card__value {
+    font-size: 0.9rem;
+  }
+
+  /* Quick actions — 1 kolom di HP */
+  .dash-quick-grid {
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+
+  .dash-quick-card {
+    padding: 1rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .dash-quick-card__icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .dash-quick-card__desc {
+    font-size: 0.75rem;
+  }
+
+  /* Pengumuman */
+  .dash-quick-title {
+    font-size: 0.9rem;
+  }
+}
+
+/* ── HP sangat kecil (≤ 340px) ──────────────── */
+@media (max-width: 340px) {
+  .dash-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-stat-card {
+    flex-direction: row;
+    align-items: center;
+  }
 }

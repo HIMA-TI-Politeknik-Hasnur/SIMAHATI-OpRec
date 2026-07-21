@@ -45,6 +45,7 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
   const [localPesertaId, setLocalPesertaId] = useState(pesertaId);
   const [pengumumanList, setPengumumanList] = useState<Pengumuman[]>([]);
   const [pengumumanLoading, setPengumumanLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch pengumuman publik
   useEffect(() => {
@@ -86,6 +87,7 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
 
   const handleNav = (key: string) => {
     setActiveNav(key);
+    if (window.innerWidth <= 768) setSidebarOpen(false);
   };
 
   const handleFormSuccess = (id: number) => {
@@ -269,11 +271,29 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
 
   return (
     <div className="dash-peserta-layout">
+
+      {/* ─── Overlay gelap saat sidebar terbuka di mobile ─── */}
+      {sidebarOpen && (
+        <div
+          className="dash-peserta-sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* ─── Sidebar ─────────────────────────────────────────── */}
-      <aside className="dash-peserta-sidebar">
+      <aside className={`dash-peserta-sidebar ${sidebarOpen ? 'dash-peserta-sidebar--open' : 'dash-peserta-sidebar--closed'}`}>
         <div className="dash-peserta-sidebar-header">
-          <h2 className="dash-peserta-sidebar-title">SIMAHATI OpRec</h2>
-          <p className="dash-peserta-sidebar-subtitle">Portal Pendaftaran</p>
+          <div className="dash-peserta-sidebar-header-row">
+            <div>
+              <h2 className="dash-peserta-sidebar-title">SIMAHATI OpRec</h2>
+              <p className="dash-peserta-sidebar-subtitle">Portal Pendaftaran</p>
+            </div>
+            <button
+              className="dash-peserta-sidebar-close"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Tutup sidebar"
+            >✕</button>
+          </div>
         </div>
         <nav className="dash-peserta-sidebar-nav">
           {navItems.map(item => (
@@ -298,7 +318,14 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
       {/* ─── Main ────────────────────────────────────────────── */}
       <main className="dash-peserta-main">
         <div className="dash-peserta-topbar">
-          <h1 className="dash-peserta-topbar__title">{pageTitles[activeNav]}</h1>
+          <div className="dash-peserta-topbar__left">
+            <button
+              className="dash-peserta-sidebar-toggle"
+              onClick={() => setSidebarOpen(v => !v)}
+              aria-label="Toggle sidebar"
+            >☰</button>
+            <h1 className="dash-peserta-topbar__title">{pageTitles[activeNav]}</h1>
+          </div>
           <div className="dash-peserta-topbar__right">
             <span className="dash-peserta-topbar__greeting">
               Halo, {peserta?.nama_lengkap?.split(' ')[0] ?? 'Peserta'}!
