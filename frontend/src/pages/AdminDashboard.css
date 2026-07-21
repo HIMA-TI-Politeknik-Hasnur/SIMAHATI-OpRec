@@ -857,3 +857,284 @@
 .ap-btn--info:hover:not(:disabled) {
   background: #1d4ed8;
 }
+
+/* =============================================
+   SIDEBAR TOGGLE & RESPONSIVE — AdminDashboard
+   ============================================= */
+
+/* Tombol toggle di navbar */
+.admin-db-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-db-sidebar-toggle {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.admin-db-sidebar-toggle:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+/* Tombol ✕ di dalam sidebar */
+.admin-db-sidebar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.admin-db-sidebar-toggle-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.admin-db-sidebar-toggle-close:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Sidebar closed state */
+.admin-db-sidebar--closed {
+  width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-db-sidebar--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Smooth transition */
+.admin-db-sidebar {
+  transition: width 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+}
+
+/* Overlay gelap untuk mobile */
+.admin-db-sidebar-overlay {
+  display: none;
+}
+
+/* ── Laptop (≤ 1024px) ──────────────────────── */
+@media screen and (max-width: 1024px) {
+  .admin-db-sidebar {
+    width: 210px;
+  }
+
+  .admin-db-content-area {
+    padding: 1.5rem;
+  }
+
+  .admin-db-cards {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+}
+
+/* ── Tablet (≤ 768px) ───────────────────────── */
+@media screen and (max-width: 768px) {
+  .admin-db-layout {
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Sidebar jadi overlay di atas konten */
+  .admin-db-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px !important;
+    z-index: 200;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    padding: 1.5rem 0;
+    overflow-y: auto;
+  }
+
+  .admin-db-sidebar--closed {
+    width: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Overlay gelap muncul di tablet/HP */
+  .admin-db-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 199;
+  }
+
+  .admin-db-main {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .admin-db-navbar {
+    padding: 0.875rem 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+  }
+
+  .admin-db-page-title {
+    font-size: 1rem;
+  }
+
+  .admin-db-content-area {
+    padding: 1.25rem;
+  }
+
+  .admin-db-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .admin-db-card {
+    padding: 1rem;
+  }
+
+  .admin-db-card-icon {
+    font-size: 1.5rem;
+  }
+
+  .admin-db-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Tabel scroll horizontal */
+  .admin-rm-table,
+  .ap-table {
+    min-width: 600px;
+  }
+
+  .admin-rm,
+  .admin-pm {
+    overflow-x: auto;
+  }
+}
+
+/* ── HP (≤ 480px) ───────────────────────────── */
+@media screen and (max-width: 480px) {
+  .admin-db-navbar {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .admin-db-navbar-left {
+    gap: 0.5rem;
+  }
+
+  .admin-db-page-title {
+    font-size: 0.95rem;
+  }
+
+  .admin-db-greeting {
+    font-size: 0.78rem;
+    width: 100%;
+    order: 2;
+  }
+
+  .admin-db-content-area {
+    padding: 1rem 0.875rem;
+  }
+
+  .admin-db-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .admin-db-card {
+    padding: 0.875rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .admin-db-card-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+
+  .admin-db-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-db-action-btn {
+    padding: 1rem;
+  }
+
+  /* Modal fullscreen di HP */
+  .admin-rm-modal,
+  .ap-modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    max-height: 90vh;
+  }
+
+  .admin-rm-overlay,
+  .ap-overlay {
+    align-items: flex-end;
+  }
+
+  .admin-rm-perm-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ap-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ap-search {
+    max-width: 100%;
+  }
+}
+
+/* ── HP kecil (≤ 340px) ─────────────────────── */
+@media screen and (max-width: 340px) {
+  .admin-db-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-db-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .admin-db-actions {
+    grid-template-columns: 1fr;
+  }
+}
