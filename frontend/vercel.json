@@ -5,15 +5,15 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://NAMAPROJECT.infinityfreeapp.com/api/$1"
+      "destination": "https://simahati-oprec.infinityfreeapp.com/api/$1"
     },
     {
       "source": "/sanctum/(.*)",
-      "destination": "https://NAMAPROJECT.infinityfreeapp.com/sanctum/$1"
+      "destination": "https://simahati-oprec.infinityfreeapp.com/sanctum/$1"
     },
     {
       "source": "/storage/(.*)",
-      "destination": "https://NAMAPROJECT.infinityfreeapp.com/storage/$1"
+      "destination": "https://simahati-oprec.infinityfreeapp.com/storage/$1"
     },
     {
       "source": "/(.*)",

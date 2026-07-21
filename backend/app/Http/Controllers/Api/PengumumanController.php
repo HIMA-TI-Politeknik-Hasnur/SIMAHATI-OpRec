@@ -41,7 +41,7 @@ class PengumumanController extends Controller
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
             'tipe' => 'in:info,warning,success,danger',
-            'published_at' => 'nullable|date'
+            'published_at' => 'nullable|date|after:2000-01-01'
         ]);
 
         $validated['created_by'] = Auth::id() ?? 1;
@@ -69,7 +69,7 @@ class PengumumanController extends Controller
             'judul' => 'sometimes|required|string|max:255',
             'isi' => 'sometimes|required|string',
             'tipe' => 'in:info,warning,success,danger',
-            'published_at' => 'nullable|date'
+            'published_at' => 'nullable|date|after:2000-01-01'
         ]);
 
         $pengumuman->update($validated);
