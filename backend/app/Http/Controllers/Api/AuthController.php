@@ -257,10 +257,11 @@ class AuthController extends Controller
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
-'roles' => $user->roles->pluck('slug'),
+                        'roles' => $user->roles->pluck('slug'),
                         'peserta_id' => $user->peserta?->id,
                     ],
-                ]);
+                ],
+            ]);
         }
 
         return response()->json([
