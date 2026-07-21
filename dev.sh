@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 PID_FILE="/tmp/simahati-dev.pids"
@@ -228,7 +228,30 @@ setup_env_interactive() {
 
   php artisan key:generate --force
 
-  ok ".env siap digunakan"
+  ok ".env backend siap digunakan"
+
+  sub "Konfigurasi .env frontend"
+
+  cd "$DIR/frontend"
+
+  if [ ! -f .env.example ]; then
+    warn ".env.example tidak ditemukan di frontend/"
+  else
+    if [ -f .env ]; then
+      if ask_yes_no ".env frontend sudah ada. Buat ulang?" "n"; then
+        cp .env.example .env
+        sed -i 's|^VITE_API_BASE_URL=.*|VITE_API_BASE_URL=""|' .env
+        ok ".env frontend dibuat ulang (API proxy ke localhost:8000)"
+      else
+        info "Menggunakan .env frontend yang sudah ada"
+      fi
+    else
+      cp .env.example .env
+      sed -i 's|^VITE_API_BASE_URL=.*|VITE_API_BASE_URL=""|' .env
+      ok ".env frontend siap — VITE_API_BASE_URL dikosongkan (proxy dev)"
+    fi
+  fi
+
   echo ""
 
   if ! db_ping; then
@@ -333,15 +356,20 @@ start() {
   sub "Memeriksa koneksi database"
   if ! db_ping; then
     warn "Database tidak bisa diakses!"
-    if ask_yes_no "  Tetap jalankan backend?" "n"; then
-      info "Backend akan tetap dijalankan."
-    else
-      db_offer_sqlite
-      if db_ping; then
-        ok "Database siap, melanjutkan..."
+    if ask_yes_no "  Coba hidupkan database?" "y"; then
+      db_start || true
+    fi
+    if ! db_ping; then
+      if ask_yes_no "  Tetap jalankan backend?" "n"; then
+        info "Backend akan tetap dijalankan."
       else
-        fail "Gagal. Setup database dulu: ./dev.sh setup"
-        return 1
+        db_offer_sqlite
+        if db_ping; then
+          ok "Database siap, melanjutkan..."
+        else
+          fail "Gagal. Setup database dulu: ./dev.sh setup"
+          return 1
+        fi
       fi
     fi
   else
@@ -613,10 +641,16 @@ check() {
 
 git_sync_branch() {
   local target="${1:-feature/deploy-localhost}"
-  local branch
-  branch=$(cd "$DIR" && git branch --show-current 2>/dev/null)
 
   sub "Memeriksa branch git"
+
+  if ! command -v git &>/dev/null; then
+    warn "Git tidak terinstall — lewati pengecekan branch"
+    return 0
+  fi
+
+  local branch
+  branch=$(cd "$DIR" && git branch --show-current 2>/dev/null)
 
   if [ "$branch" != "$target" ]; then
     warn "Sekarang di branch '$branch', bukan '$target'"
@@ -682,11 +716,14 @@ menu() {
     echo -e "    ${GREEN}6${NC})  Logs          Lihat log server"
     echo -e "    ${GREEN}7${NC})  Fresh         Reset database"
     echo -e "    ${GREEN}8${NC})  Check         Periksa prerequisites"
-    echo -e "    ${GREEN}9${NC})  DB: Check     Uji koneksi & buat database jika belum ada"
+    echo -e "    ${GREEN}9${NC})  DB Check      Uji koneksi & buat database jika belum ada"
+    echo -e "    ${GREEN}d${NC})  DB Start      Jalankan database (MySQL)"
+    echo -e "    ${GREEN}s${NC})  DB Stop       Hentikan database"
+    echo -e "    ${GREEN}e${NC})  Env           Lihat konfigurasi .env"
     echo ""
     echo -e "    ${GREEN}0${NC})  Keluar"
     echo ""
-    read -r -p "  Pilihan [0-8]: " choice
+    read -r -p "  Pilihan [0-9]: " choice
     echo ""
 
     case "$choice" in
@@ -715,8 +752,20 @@ menu() {
       8) check
          echo ""
          read -r -p "  Tekan Enter..." ;;
-      9|db)
+      9|db-check)
          db_check
+         echo ""
+         read -r -p "  Tekan Enter..." ;;
+      d|db-start)
+         db_start
+         echo ""
+         read -r -p "  Tekan Enter..." ;;
+      s|db-stop)
+         db_stop
+         echo ""
+         read -r -p "  Tekan Enter..." ;;
+      e|env)
+         show_env
          echo ""
          read -r -p "  Tekan Enter..." ;;
       0|q|exit)
@@ -857,6 +906,128 @@ db_offer_sqlite() {
   return 1
 }
 
+# ─── Database service management ───────────────────────────────
+
+db_service_name() {
+  if systemctl list-units --type=service 2>/dev/null | grep -q 'mariadb'; then
+    echo "mariadb"
+  elif systemctl list-units --type=service 2>/dev/null | grep -q 'mysqld'; then
+    echo "mysqld"
+  elif systemctl list-units --type=service 2>/dev/null | grep -q 'mysql'; then
+    echo "mysql"
+  else
+    echo ""
+  fi
+}
+
+db_start() {
+  header "MENJALANKAN DATABASE"
+  echo ""
+
+  if db_ping; then
+    ok "Database sudah berjalan"
+    return 0
+  fi
+
+  local svc
+  svc=$(db_service_name)
+
+  if [ -n "$svc" ]; then
+    info "Menjalankan $svc via systemctl..."
+    if sudo systemctl start "$svc" 2>/dev/null; then
+      ok "$svc berjalan"
+      return 0
+    else
+      warn "systemctl gagal, coba langsung..."
+    fi
+  fi
+
+  if command -v mysqld &>/dev/null; then
+    info "Menjalankan mysqld langsung..."
+    mysqld --user=mysql --datadir=/var/lib/mysql \
+      > /tmp/simahati-mysqld.log 2>&1 &
+    disown
+    sleep 3
+    if db_ping; then
+      ok "mysqld berjalan (PID $(port_pid 3306))"
+      return 0
+    fi
+    warn "Gagal menjalankan mysqld — cek: tail -f /tmp/simahati-mysqld.log"
+  fi
+
+  fail "Tidak bisa menjalankan database."
+  echo "  Install/konfigurasi MySQL manual, lalu jalankan ./dev.sh start"
+  return 1
+}
+
+db_stop() {
+  header "MENGHENTIKAN DATABASE"
+  echo ""
+
+  local svc
+  svc=$(db_service_name)
+
+  if [ -n "$svc" ]; then
+    info "Menghentikan $svc via systemctl..."
+    sudo systemctl stop "$svc" 2>/dev/null && { ok "$svc dihentikan"; return 0; }
+  fi
+
+  local pid
+  pid=$(port_pid 3306)
+  if [ -n "$pid" ]; then
+    kill "$pid" 2>/dev/null || true
+    sleep 1
+    kill -9 "$(port_pid 3306)" 2>/dev/null || true
+    ok "MySQL dihentikan (PID $pid)"
+  else
+    info "Tidak ada database yang berjalan"
+  fi
+}
+
+# ─── Env ──────────────────────────────────────────────────────────
+
+show_env() {
+  header "KONFIGURASI .env"
+  echo ""
+
+  sub "Backend (backend/.env)"
+  if [ -f "$DIR/backend/.env" ]; then
+    echo ""
+    while IFS= read -r line; do
+      case "$line" in
+        DB_PASSWORD=*) echo -e "  ${CYAN}DB_PASSWORD${NC}=****" ;;
+        APP_KEY=*)     echo -e "  ${CYAN}APP_KEY${NC}=${line#APP_KEY=}" ;;
+        *=*)
+          key="${line%%=*}"
+          val="${line#*=}"
+          echo -e "  ${CYAN}$key${NC}=$val"
+          ;;
+      esac
+    done < "$DIR/backend/.env"
+  else
+    warn "File backend/.env belum ada"
+  fi
+  echo ""
+
+  sub "Frontend (frontend/.env)"
+  if [ -f "$DIR/frontend/.env" ]; then
+    echo ""
+    while IFS= read -r line; do
+      case "$line" in
+        *=*)
+          key="${line%%=*}"
+          val="${line#*=}"
+          [ -z "$val" ] && val="${YELLOW}(kosong — proxy ke localhost:8000)${NC}"
+          echo -e "  ${CYAN}$key${NC}=$val"
+          ;;
+      esac
+    done < "$DIR/frontend/.env"
+  else
+    warn "File frontend/.env belum ada"
+  fi
+  echo ""
+}
+
 # ─── Help ────────────────────────────────────────────────────────
 
 help() {
@@ -872,6 +1043,10 @@ help() {
   echo "    ${GREEN}logs${NC}       [be|fe]  Tampilkan log"
   echo "    ${GREEN}fresh${NC}      Reset database (migrate:fresh --seed)"
   echo "    ${GREEN}check${NC}      Periksa prerequisites"
+  echo "    ${GREEN}env${NC}        Lihat konfigurasi .env backend & frontend"
+  echo "    ${GREEN}db-check${NC}   Uji koneksi database"
+  echo "    ${GREEN}db-start${NC}   Jalankan database (MySQL)"
+  echo "    ${GREEN}db-stop${NC}    Hentikan database"
   echo ""
   echo -e "  ${YELLOW}Contoh:${NC}"
   echo "    $0           # Menu interaktif"
@@ -893,6 +1068,9 @@ case "${1:-menu}" in
   fresh)   fresh ;;
   check)   check ;;
   db-check|db)   db_check ;;
+  db-start)      db_start ;;
+  db-stop)       db_stop ;;
+  env|show-env)  show_env ;;
   help|--help|-h) help ;;
   *)
     echo -e "${RED}Perintah tidak dikenal:${NC} $1"
