@@ -1,18 +1,52 @@
+import { useState, useEffect } from 'react';
 import './Dashboard.css';
 import { AnnouncementCard } from '../components/AnnouncementCard';
 import { NotificationCard } from '../components/NotificationCard';
 
-export const Dashboard = () => {
-  // Dummy data
-  const announcements = [
-    { id: 1, judul: 'Jadwal Interview Berubah', isi: 'Halo, jadwal interview diubah menjadi tanggal 20 Agustus.', tipe: 'warning' as const, published_at: '2026-08-10T10:00:00Z' },
-    { id: 2, judul: 'Selamat Datang!', isi: 'Silakan lengkapi berkas pendaftaran Anda di menu pengaturan.', tipe: 'info' as const, published_at: '2026-08-01T08:00:00Z' },
-  ];
+interface Pengumuman {
+  id: number;
+  judul: string;
+  isi: string;
+  tipe: 'info' | 'warning' | 'success' | 'danger';
+  published_at: string;
+}
 
-  const notifications = [
-    { id: '1', type: 'App\\Notifications\\BerkasDiterima', data: { message: 'Berkas Anda telah diverifikasi oleh admin.', link: '#' }, read_at: null, created_at: '2026-08-11T09:30:00Z' },
-    { id: '2', type: 'App\\Notifications\\Pengingat', data: { message: 'Jangan lupa kumpulkan KTM besok.' }, read_at: '2026-08-10T09:30:00Z', created_at: '2026-08-09T09:30:00Z' },
-  ];
+interface Notification {
+  id: string;
+  type: string;
+  data: { message: string; link?: string };
+  read_at: string | null;
+  created_at: string;
+}
+
+export const Dashboard = () => {
+  const [announcements, setAnnouncements] = useState<Pengumuman[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    // Fetch pengumuman publik — tidak perlu login
+    fetch('/api/pengumuman/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success) setAnnouncements(json.data ?? []); })
+      .catch(() => {
+        // Fallback ke dummy jika backend belum jalan
+        setAnnouncements([
+          { id: 1, judul: 'Jadwal Interview Berubah', isi: 'Halo, jadwal interview diubah menjadi tanggal 20 Agustus.', tipe: 'warning', published_at: '2026-08-10T10:00:00Z' },
+          { id: 2, judul: 'Selamat Datang!', isi: 'Silakan lengkapi berkas pendaftaran Anda di menu pengaturan.', tipe: 'info', published_at: '2026-08-01T08:00:00Z' },
+        ]);
+      });
+
+    // Fetch notifikasi — perlu auth, abaikan jika gagal
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      fetch('/api/notifications', {
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(json => { if (json.success) setNotifications(json.data ?? []); })
+        .catch(() => {});
+    }
+  }, []);
 
   return (
     <div className="dashboard-layout">

@@ -236,3 +236,20 @@
     font-size: 1.5rem;
   }
 }
+
+/* ─── Pengumuman section (Landing) ─────────────────────────────── */
+.pengumuman-section {
+  padding: 5rem 5%;
+  background: #fff7ed;
+}
+
+.pengumuman-container-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .pengumuman-section {
+    padding: 3rem 5%;
+  }
+}

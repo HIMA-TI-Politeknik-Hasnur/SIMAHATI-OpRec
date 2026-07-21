@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './DashboardPeserta.css';
 import { StatusBadge } from '../components/StatusBadge';
 import { Alert } from '../components/Alert';
+import { AnnouncementCard } from '../components/AnnouncementCard';
 import { type PesertaRecord } from '../types/pendaftaran';
 import { apiGet } from '../api';
 import { FormPendaftaran } from './FormPendaftaran';
@@ -11,6 +12,14 @@ import { StatusPendaftaran } from './StatusPendaftaran';
 
 interface DashboardPesertaProps {
   pesertaId: number;
+}
+
+interface Pengumuman {
+  id: number;
+  judul: string;
+  isi: string;
+  tipe: 'info' | 'warning' | 'success' | 'danger';
+  published_at: string;
 }
 
 // ─── Demo peserta fallback (saat backend belum berjalan) ───────
@@ -34,6 +43,18 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
   const [error, setError]     = useState<string | null>(null);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [localPesertaId, setLocalPesertaId] = useState(pesertaId);
+  const [pengumumanList, setPengumumanList] = useState<Pengumuman[]>([]);
+  const [pengumumanLoading, setPengumumanLoading] = useState(false);
+
+  // Fetch pengumuman publik
+  useEffect(() => {
+    setPengumumanLoading(true);
+    fetch('/api/pengumuman/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success) setPengumumanList(json.data ?? []); })
+      .catch(() => {/* abaikan error — pengumuman tidak wajib */})
+      .finally(() => setPengumumanLoading(false));
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -206,6 +227,33 @@ export const DashboardPeserta = ({ pesertaId }: DashboardPesertaProps) => {
                 <p className="dash-quick-card__desc">Pantau perkembangan seleksimu secara real-time.</p>
               </button>
             </div>
+
+            {/* ─── Pengumuman ─────────────────────────────────── */}
+            <h2 className="dash-quick-title" style={{ marginTop: '1.5rem' }}>
+              📢 Pengumuman
+            </h2>
+            {pengumumanLoading ? (
+              <p className="dash-peserta-loading" style={{ padding: '1rem 0', textAlign: 'left' }}>
+                Memuat pengumuman...
+              </p>
+            ) : pengumumanList.length === 0 ? (
+              <div className="dash-empty-pengumuman">
+                Belum ada pengumuman dari panitia.
+              </div>
+            ) : (
+              <div className="dash-pengumuman-list">
+                {pengumumanList.map(p => (
+                  <AnnouncementCard
+                    key={p.id}
+                    id={p.id}
+                    judul={p.judul}
+                    isi={p.isi}
+                    tipe={p.tipe}
+                    published_at={p.published_at}
+                  />
+                ))}
+              </div>
+            )}
           </>
         );
     }

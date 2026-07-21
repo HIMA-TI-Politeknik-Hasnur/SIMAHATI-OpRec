@@ -305,3 +305,19 @@
   .dash-peserta-content { padding: 1rem; }
   .dash-stats-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ─── Pengumuman section ─────────────────────────────────────── */
+.dash-pengumuman-list {
+  margin-bottom: 1.5rem;
+}
+
+.dash-empty-pengumuman {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
