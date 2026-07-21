@@ -45,7 +45,8 @@ type Page =
   | 'forgot-password'
   | 'reset-password'
   | 'verifikasi-email'
-  | 'email-verified';
+  | 'email-verified'
+  | 'form-pendaftaran';
 
 interface NavLink {
   label: string;
@@ -168,7 +169,7 @@ function App() {
       if (isSessionAuth()) {
         await sessionPost('/api/session/logout');
       } else {
-        await apiPost('/api/logout');
+        await apiPost('/api/logout', undefined);
       }
     } catch {
     }
@@ -300,7 +301,7 @@ function App() {
       )}
       {currentPage === 'interview'   && <InterviewPage />}
       {currentPage === 'penilaian'   && <PenilaianPage />}
-      {currentPage === 'dashboard-peserta' && (
+      {currentPage === 'dashboard-peserta' && pesertaId !== null && (
         <DashboardPeserta
           pesertaId={pesertaId}
         />

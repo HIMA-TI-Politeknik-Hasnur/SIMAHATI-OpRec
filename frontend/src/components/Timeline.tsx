@@ -16,7 +16,7 @@ interface TimelineProps {
 export const Timeline = ({ events }: TimelineProps) => {
   return (
     <div className="timeline-container">
-      {events.map((event, index) => (
+      {events.map((event, _index) => (
         <div key={event.id} className={`timeline-item ${event.is_active ? 'active' : ''}`}>
           <div className="timeline-dot"></div>
           <div className="timeline-content">

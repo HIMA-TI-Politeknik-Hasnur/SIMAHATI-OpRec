@@ -54,8 +54,9 @@ export function LoginPage({ onLoginSuccess, onSwitchToRegister, onForgotPassword
 
     if (data) {
       setAuthToken(data.data.token);
-      setStoredUser(data.data.user);
-      onLoginSuccess(data.data.user);
+      const userData = { ...data.data.user, roles: data.data.user.roles ?? [] };
+      setStoredUser(userData);
+      onLoginSuccess(userData);
     }
     setLoading(false);
   };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiFetch, getAuthToken, isSessionAuth, sessionFetch, clearAuth, apiPost, sessionPost } from '../api';
+import { apiFetch, getAuthToken, isSessionAuth, sessionFetch } from '../api';
 import { AdminRoleManagement } from './AdminDashboardRoleManagement';
 import { AdminPengumuman } from './AdminDashboardPengumuman';
 import { DivisiPage } from './DivisiPage';
@@ -146,16 +146,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     fetchData();
   }, []);
 
-  const handleLogout = async () => {
-    if (isSessionAuth()) {
-      await sessionPost('/api/session/logout');
-    } else if (getAuthToken()) {
-      await apiPost('/api/logout');
-    }
-    clearAuth();
-    onNavigate('landing');
-  };
-
   const handleSidebarClick = (key: string) => {
     setAdminPage(key);
     // Tutup sidebar otomatis di mobile setelah klik menu
@@ -171,7 +161,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       case 'pengumuman':
         return <AdminPengumuman />;
       case 'divisi':
-        return <DivisiPage inline onViewDetail={(id) => onNavigate('divisi-detail')} />;
+        return <DivisiPage inline onViewDetail={(_id) => onNavigate('divisi-detail')} />;
       case 'interview':
         return <InterviewPage inline />;
       case 'settings':
