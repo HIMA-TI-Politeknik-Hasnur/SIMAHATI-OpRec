@@ -94,8 +94,7 @@ function App() {
       const role = stored.roles?.[0] ?? '';
       if (currentPage === 'login' || currentPage === 'register') {
         const dest = role === 'peserta' ? 'dashboard-peserta'
-          : ['super_admin', 'admin', 'panitia'].includes(role) ? 'admin-dashboard'
-          : 'interview';
+          : 'admin-dashboard';
         setCurrentPage(dest);
       }
       if (stored.peserta_id) setPesertaId(stored.peserta_id);
@@ -116,13 +115,10 @@ function App() {
         const adminRoles = ['super_admin', 'admin', 'panitia'];
         if (currentPage === 'login' || currentPage === 'register') {
           const dest = role === 'peserta' ? 'dashboard-peserta'
-            : adminRoles.includes(role) ? 'admin-dashboard'
-            : 'interview';
+            : 'admin-dashboard';
           setCurrentPage(dest);
         } else if (role === 'peserta' && currentPage === 'admin-dashboard') {
           setCurrentPage('dashboard-peserta');
-        } else if (![...adminRoles, 'peserta'].includes(role) && currentPage === 'admin-dashboard') {
-          setCurrentPage('interview');
         }
       } else if (apiError) {
         clearAuth();
@@ -136,11 +132,10 @@ function App() {
 
   const userRole = user?.roles?.[0] ?? '';
   const isPeserta = userRole === 'peserta';
-  const canViewDashboard = ['super_admin', 'admin', 'panitia'].includes(userRole);
 
   const buildStaffLinks = (): NavLink[] => {
     const links: NavLink[] = [];
-    if (canViewDashboard) links.push({ label: 'Dashboard', action: 'admin-dashboard' });
+    links.push({ label: 'Dashboard', action: 'admin-dashboard' });
     return links;
   };
 
@@ -315,10 +310,8 @@ function App() {
             setStoredUser(userData);
             if (userData.peserta_id) setPesertaId(userData.peserta_id);
             const role = userData.roles?.[0] ?? '';
-            const adminRoles = ['super_admin', 'admin', 'panitia'];
             const dest = role === 'peserta' ? 'dashboard-peserta'
-              : adminRoles.includes(role) ? 'admin-dashboard'
-              : 'interview';
+              : 'admin-dashboard';
             setCurrentPage(dest);
           }}
           onSwitchToRegister={() => setCurrentPage('register')}
