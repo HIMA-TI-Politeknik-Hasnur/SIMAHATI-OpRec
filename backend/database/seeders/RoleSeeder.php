@@ -46,6 +46,9 @@ class RoleSeeder extends Seeder
             ['name' => 'Hapus Role', 'slug' => 'delete_role', 'description' => 'Menghapus data role'],
             ['name' => 'Atur Permission', 'slug' => 'assign_permission', 'description' => 'Mengatur permission role'],
 
+            // Penilaian
+            ['name' => 'Lihat Penilaian', 'slug' => 'view_penilaian', 'description' => 'Melihat halaman penilaian interview'],
+
             // Profile
             ['name' => 'Edit Profil', 'slug' => 'edit_profile', 'description' => 'Mengubah profil sendiri'],
         ];
@@ -81,7 +84,7 @@ class RoleSeeder extends Seeder
                 'description' => 'Melakukan proses interview serta memberikan hasil penilaian.',
                 'permissions' => Permission::whereIn('slug', [
                     'view_interview', 'grade_interview', 'view_peserta',
-                    'edit_profile',
+                    'view_penilaian', 'edit_profile',
                 ])->pluck('id')->toArray(),
             ],
             'Peserta' => [

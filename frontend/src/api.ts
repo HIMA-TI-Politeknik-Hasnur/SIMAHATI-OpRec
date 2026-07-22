@@ -9,6 +9,7 @@ export interface UserData {
   name: string;
   email: string;
   roles: string[];
+  permissions?: string[];
   peserta_id?: number | null;
 }
 

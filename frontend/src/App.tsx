@@ -66,7 +66,6 @@ const guestLinks: NavLink[] = [
 
 const pesertaLinks: NavLink[] = [
   { label: 'Dashboard', action: 'dashboard-peserta' },
-  { label: 'Pendaftaran', action: 'form-pendaftaran' },
   { label: 'Logout', action: 'logout' },
 ];
 
@@ -137,17 +136,11 @@ function App() {
 
   const userRole = user?.roles?.[0] ?? '';
   const isPeserta = userRole === 'peserta';
-  const isStaff = ['super_admin', 'admin', 'panitia', 'interviewer'].includes(userRole);
   const canViewDashboard = ['super_admin', 'admin', 'panitia'].includes(userRole);
-  const canViewDivisi = ['super_admin', 'admin', 'panitia'].includes(userRole);
-  const canViewPenilaian = ['super_admin', 'admin', 'interviewer'].includes(userRole);
 
   const buildStaffLinks = (): NavLink[] => {
     const links: NavLink[] = [];
     if (canViewDashboard) links.push({ label: 'Dashboard', action: 'admin-dashboard' });
-    if (canViewDivisi) links.push({ label: 'Divisi', action: 'divisi', match: ['divisi-detail'] });
-    if (isStaff) links.push({ label: 'Interview', action: 'interview' });
-    if (canViewPenilaian) links.push({ label: 'Penilaian', action: 'penilaian' });
     return links;
   };
 

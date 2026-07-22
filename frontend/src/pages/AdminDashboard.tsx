@@ -5,6 +5,7 @@ import { AdminPengumuman } from './AdminDashboardPengumuman';
 import { DivisiPage } from './DivisiPage';
 import { InterviewPage } from './InterviewPage';
 import { CmsPanel } from './CmsPanel';
+import { PenilaianPage } from './PenilaianPage';
 import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
 import { DivisiDetailModal } from './DivisiDetailModal';
@@ -53,6 +54,7 @@ const navItems = [
   { key: 'divisi', label: 'Divisi', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'pengumuman', label: 'Pengumuman', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'penilaian', label: 'Penilaian', roles: ['super_admin', 'interviewer'] },
   { key: 'settings', label: 'Settings', roles: ['super_admin', 'admin'] },
 ];
 
@@ -85,6 +87,7 @@ const pageTitles: Record<string, string> = {
   pengumuman: 'Pengumuman',
   divisi: 'Kelola Divisi',
   interview: 'Penjadwalan Interview',
+  penilaian: 'Penilaian Interview',
   settings: 'Content Management',
 };
 
@@ -182,6 +185,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         );
       case 'interview':
         return <InterviewPage inline />;
+      case 'penilaian':
+        return <PenilaianPage />;
       case 'settings':
         return <CmsPanel inline />;
       default:

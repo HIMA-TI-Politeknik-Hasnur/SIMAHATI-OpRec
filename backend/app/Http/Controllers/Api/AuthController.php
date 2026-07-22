@@ -150,7 +150,7 @@ class AuthController extends Controller
         RateLimiter::clear($key);
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $user->load('roles', 'peserta');
+        $user->load('roles.permissions', 'peserta');
 
         return response()->json([
             'success' => true,
@@ -161,6 +161,10 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'roles' => $user->roles->pluck('slug'),
+                    'permissions' => $user->roles
+                        ->flatMap(fn ($role) => $role->permissions->pluck('name'))
+                        ->unique()
+                        ->values(),
                     'peserta_id' => $user->peserta?->id,
                 ],
                 'token' => $token,
