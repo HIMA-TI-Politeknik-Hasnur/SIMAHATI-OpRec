@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
+import { FormPendaftaran } from './pages/FormPendaftaran';
 import { CmsPanel } from './pages/CmsPanel';
 import { DivisiPage } from './pages/DivisiPage';
 import { DivisiDetailPage } from './pages/DivisiDetailPage';
@@ -301,6 +302,13 @@ function App() {
       )}
       {currentPage === 'interview'   && <InterviewPage />}
       {currentPage === 'penilaian'   && <PenilaianPage />}
+      {currentPage === 'form-pendaftaran' && (
+        <FormPendaftaran
+          pesertaId={pesertaId}
+          onBack={() => setCurrentPage('dashboard-peserta')}
+          onSuccess={(id) => { setPesertaId(id); setCurrentPage('dashboard-peserta'); }}
+        />
+      )}
       {currentPage === 'dashboard-peserta' && pesertaId !== null && (
         <DashboardPeserta
           pesertaId={pesertaId}
