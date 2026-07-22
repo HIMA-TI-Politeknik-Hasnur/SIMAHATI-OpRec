@@ -6,6 +6,12 @@ import { AnnouncementCard } from '../components/AnnouncementCard';
 import {
   BACKUP_HERO_TITLE,
   BACKUP_HERO_SUBTITLE,
+  BACKUP_HERO_CTA,
+  BACKUP_SECTION_TITLE_BENEFIT,
+  BACKUP_SECTION_TITLE_TIMELINE,
+  BACKUP_SECTION_TITLE_PENGUMUMAN,
+  BACKUP_SECTION_TITLE_FAQ,
+  BACKUP_FOOTER_COPYRIGHT,
   BACKUP_BENEFITS,
   BACKUP_FOOTER_NAME,
 } from '../data/_backupLandingData';
@@ -40,6 +46,13 @@ interface FaqItem {
 
 interface AppSettings {
   hero_subtitle?: string;
+  hero_title?: string;
+  hero_cta_text?: string;
+  section_title_benefit?: string;
+  section_title_timeline?: string;
+  section_title_pengumuman?: string;
+  section_title_faq?: string;
+  footer_copyright?: string;
   benefit_text?: string;
   app_name?: string;
 }
@@ -48,6 +61,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   const [pengumumanList, setPengumumanList] = useState<Pengumuman[]>([]);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+  const [benefits, setBenefits] = useState<{ icon: string; title: string; desc: string }[]>([]);
   const [settings, setSettings] = useState<AppSettings>({});
   const [appName, setAppName] = useState(BACKUP_FOOTER_NAME);
 
@@ -67,6 +81,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       .then(json => { if (json.success) setFaqItems(json.data ?? []); })
       .catch(() => {});
 
+    fetch('/api/benefit/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success && json.data?.length) setBenefits(json.data); })
+      .catch(() => {});
+
     fetch('/api/settings/publik', { headers: { Accept: 'application/json' } })
       .then(r => r.json())
       .then(json => {
@@ -78,9 +97,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       .catch(() => {});
   }, []);
 
-  const heroTitle = BACKUP_HERO_TITLE;
+  const heroTitle = settings.hero_title || BACKUP_HERO_TITLE;
   const heroSubtitle = settings.hero_subtitle || BACKUP_HERO_SUBTITLE;
+  const heroCta = settings.hero_cta_text || BACKUP_HERO_CTA;
+  const benefitList = benefits.length > 0 ? benefits : BACKUP_BENEFITS;
   const benefitText = settings.benefit_text || BACKUP_BENEFITS.map(b => b.desc).join(' ');
+  const sectionTitleBenefit = settings.section_title_benefit || BACKUP_SECTION_TITLE_BENEFIT;
+  const sectionTitleTimeline = settings.section_title_timeline || BACKUP_SECTION_TITLE_TIMELINE;
+  const sectionTitlePengumuman = settings.section_title_pengumuman || BACKUP_SECTION_TITLE_PENGUMUMAN;
+  const sectionTitleFaq = settings.section_title_faq || BACKUP_SECTION_TITLE_FAQ;
+  const footerCopyright = settings.footer_copyright || BACKUP_FOOTER_COPYRIGHT;
 
   return (
     <div className="landing-wrapper">
@@ -88,18 +114,18 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         <div className="hero-content">
           <h1 className="hero-title">{heroTitle}</h1>
           <p className="hero-subtitle">{heroSubtitle}</p>
-          <button className="hero-cta" onClick={() => onNavigate('register')}>Daftar Sekarang</button>
+          <button className="hero-cta" onClick={() => onNavigate('register')}>{heroCta}</button>
         </div>
         <div className="hero-glowing-blob"></div>
       </section>
 
       <section id="about" className="benefit-section">
-        <h2 className="section-title">Kenapa Harus Bergabung?</h2>
+        <h2 className="section-title">{sectionTitleBenefit}</h2>
         {benefitText && benefitText !== BACKUP_BENEFITS.map(b => b.desc).join(' ') && (
           <p className="benefit-description" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 2rem', color: '#94a3b8' }}>{benefitText}</p>
         )}
         <div className="benefit-grid">
-          {BACKUP_BENEFITS.map((b, i) => (
+          {benefitList.map((b, i) => (
             <div className="benefit-card" key={i}>
               <h3>{b.icon} {b.title}</h3>
               <p>{b.desc}</p>
@@ -109,7 +135,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       <section id="timeline" className="timeline-section">
-        <h2 className="section-title">Timeline Kegiatan</h2>
+        <h2 className="section-title">{sectionTitleTimeline}</h2>
         <div className="timeline-container-wrapper">
           <Timeline events={timelineEvents} />
         </div>
@@ -117,7 +143,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       {pengumumanList.length > 0 && (
         <section id="pengumuman" className="pengumuman-section">
-          <h2 className="section-title">📢 Pengumuman</h2>
+          <h2 className="section-title">{sectionTitlePengumuman}</h2>
           <div className="pengumuman-container-wrapper">
             {pengumumanList.map(p => (
               <AnnouncementCard
@@ -134,7 +160,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       )}
 
       <section id="faq" className="faq-section">
-        <h2 className="section-title">Pertanyaan Sering Ditanyakan</h2>
+        <h2 className="section-title">{sectionTitleFaq}</h2>
         <div className="faq-container-wrapper">
           <Accordion items={faqItems} />
         </div>
@@ -143,7 +169,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <footer className="footer">
         <div className="footer-content">
           <h2>{appName}</h2>
-          <p>© 2026 Himpunan Mahasiswa Teknik Informatika. All rights reserved.</p>
+          <p>{footerCopyright}</p>
         </div>
       </footer>
     </div>

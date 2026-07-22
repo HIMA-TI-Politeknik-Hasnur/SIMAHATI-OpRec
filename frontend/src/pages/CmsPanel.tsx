@@ -298,34 +298,39 @@ export const CmsPanel = ({ inline }: CmsPanelProps) => {
 
         {tlModal && (
           <div className="ap-overlay" onClick={() => setTlModal(false)}>
-            <div className="ap-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
-              <h3 className="ap-modal-title">{tlEdit ? 'Edit Event' : 'Tambah Event'} Timeline</h3>
+            <div className="ap-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="ap-modal-header">
+                <h3>{tlEdit ? 'Edit Event' : 'Tambah Event'} Timeline</h3>
+                <button className="ap-modal-close" onClick={() => setTlModal(false)}>×</button>
+              </div>
               <form onSubmit={saveTimeline}>
-                <div className="form-group">
-                  <label>Judul Event</label>
-                  <input type="text" value={tlForm.judul} onChange={e => setTlForm(p => ({ ...p, judul: e.target.value }))} required />
-                </div>
-                <div className="form-group">
-                  <label>Deskripsi</label>
-                  <textarea rows={2} value={tlForm.deskripsi} onChange={e => setTlForm(p => ({ ...p, deskripsi: e.target.value }))} />
-                </div>
-                <div className="form-grid-2">
+                <div className="ap-modal-body">
                   <div className="form-group">
-                    <label>Tanggal Mulai</label>
-                    <input type="date" value={tlForm.tanggal_mulai} onChange={e => setTlForm(p => ({ ...p, tanggal_mulai: e.target.value }))} required />
+                    <label>Judul Event</label>
+                    <input type="text" value={tlForm.judul} onChange={e => setTlForm(p => ({ ...p, judul: e.target.value }))} required />
                   </div>
                   <div className="form-group">
-                    <label>Tanggal Selesai</label>
-                    <input type="date" value={tlForm.tanggal_selesai} onChange={e => setTlForm(p => ({ ...p, tanggal_selesai: e.target.value }))} />
+                    <label>Deskripsi</label>
+                    <textarea rows={2} value={tlForm.deskripsi} onChange={e => setTlForm(p => ({ ...p, deskripsi: e.target.value }))} />
+                  </div>
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label>Tanggal Mulai</label>
+                      <input type="date" value={tlForm.tanggal_mulai} onChange={e => setTlForm(p => ({ ...p, tanggal_mulai: e.target.value }))} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Tanggal Selesai</label>
+                      <input type="date" value={tlForm.tanggal_selesai} onChange={e => setTlForm(p => ({ ...p, tanggal_selesai: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="ap-checkbox-label">
+                      <input type="checkbox" checked={tlForm.is_active} onChange={e => setTlForm(p => ({ ...p, is_active: e.target.checked }))} />
+                      Aktif (tampil di publik)
+                    </label>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={tlForm.is_active} onChange={e => setTlForm(p => ({ ...p, is_active: e.target.checked }))} />
-                    Aktif (tampil di publik)
-                  </label>
-                </div>
-                <div className="ap-modal-actions">
+                <div className="ap-modal-footer">
                   <button type="button" className="ap-btn" onClick={() => setTlModal(false)}>Batal</button>
                   <button type="submit" className="ap-btn ap-btn--terima" disabled={tlSubmitting}>
                     {tlSubmitting ? 'Menyimpan...' : tlEdit ? 'Simpan' : 'Buat'}
@@ -382,24 +387,29 @@ export const CmsPanel = ({ inline }: CmsPanelProps) => {
 
         {faqModal && (
           <div className="ap-overlay" onClick={() => setFaqModal(false)}>
-            <div className="ap-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
-              <h3 className="ap-modal-title">{faqEdit ? 'Edit FAQ' : 'Tambah FAQ'}</h3>
+            <div className="ap-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="ap-modal-header">
+                <h3>{faqEdit ? 'Edit FAQ' : 'Tambah FAQ'}</h3>
+                <button className="ap-modal-close" onClick={() => setFaqModal(false)}>×</button>
+              </div>
               <form onSubmit={saveFaq}>
-                <div className="form-group">
-                  <label>Pertanyaan</label>
-                  <input type="text" value={faqForm.pertanyaan} onChange={e => setFaqForm(p => ({ ...p, pertanyaan: e.target.value }))} required />
+                <div className="ap-modal-body">
+                  <div className="form-group">
+                    <label>Pertanyaan</label>
+                    <input type="text" value={faqForm.pertanyaan} onChange={e => setFaqForm(p => ({ ...p, pertanyaan: e.target.value }))} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Jawaban</label>
+                    <textarea rows={4} value={faqForm.jawaban} onChange={e => setFaqForm(p => ({ ...p, jawaban: e.target.value }))} required />
+                  </div>
+                  <div className="form-group">
+                    <label className="ap-checkbox-label">
+                      <input type="checkbox" checked={faqForm.is_active} onChange={e => setFaqForm(p => ({ ...p, is_active: e.target.checked }))} />
+                      Aktif (tampil di publik)
+                    </label>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Jawaban</label>
-                  <textarea rows={4} value={faqForm.jawaban} onChange={e => setFaqForm(p => ({ ...p, jawaban: e.target.value }))} required />
-                </div>
-                <div className="form-group">
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={faqForm.is_active} onChange={e => setFaqForm(p => ({ ...p, is_active: e.target.checked }))} />
-                    Aktif (tampil di publik)
-                  </label>
-                </div>
-                <div className="ap-modal-actions">
+                <div className="ap-modal-footer">
                   <button type="button" className="ap-btn" onClick={() => setFaqModal(false)}>Batal</button>
                   <button type="submit" className="ap-btn ap-btn--terima" disabled={faqSubmitting}>
                     {faqSubmitting ? 'Menyimpan...' : faqEdit ? 'Simpan' : 'Buat'}
@@ -418,6 +428,13 @@ export const CmsPanel = ({ inline }: CmsPanelProps) => {
 
     const settingFields = [
       { key: 'hero_subtitle', label: 'Subtitle Hero Banner', type: 'text' as const, desc: 'Teks di bawah judul utama landing page' },
+      { key: 'hero_title', label: 'Judul Hero Banner', type: 'text' as const, desc: 'Judul utama di hero section landing page' },
+      { key: 'hero_cta_text', label: 'Teks Tombol CTA', type: 'text' as const, desc: 'Teks pada tombol ajakan di hero section' },
+      { key: 'section_title_benefit', label: 'Judul Section Benefit', type: 'text' as const, desc: 'Judul untuk section benefit / kenapa harus bergabung' },
+      { key: 'section_title_timeline', label: 'Judul Section Timeline', type: 'text' as const, desc: 'Judul untuk section timeline kegiatan' },
+      { key: 'section_title_pengumuman', label: 'Judul Section Pengumuman', type: 'text' as const, desc: 'Judul untuk section pengumuman di landing page' },
+      { key: 'section_title_faq', label: 'Judul Section FAQ', type: 'text' as const, desc: 'Judul untuk section FAQ / pertanyaan' },
+      { key: 'footer_copyright', label: 'Teks Footer Copyright', type: 'text' as const, desc: 'Teks hak cipta di bagian footer landing page' },
       { key: 'benefit_text', label: 'Teks Benefit Section', type: 'text' as const, desc: 'Deskripsi singkat di section benefit' },
       { key: 'app_name', label: 'Nama Aplikasi', type: 'text' as const, desc: 'Nama aplikasi yang tampil di navbar & footer' },
     ];

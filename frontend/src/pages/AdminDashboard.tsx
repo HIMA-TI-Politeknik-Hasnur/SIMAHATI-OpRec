@@ -5,6 +5,7 @@ import { AdminPengumuman } from './AdminDashboardPengumuman';
 import { DivisiPage } from './DivisiPage';
 import { InterviewPage } from './InterviewPage';
 import { CmsPanel } from './CmsPanel';
+import { AdminDashboardBenefit } from './AdminDashboardBenefit';
 import { PenilaianPage } from './PenilaianPage';
 import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
@@ -57,6 +58,7 @@ const navItems = [
   { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
   { key: 'pengumuman', label: 'Pengumuman', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'penilaian', label: 'Penilaian', roles: ['super_admin', 'interviewer'] },
+  { key: 'benefit', label: 'Benefit', roles: ['super_admin', 'admin'] },
   { key: 'settings', label: 'Settings', roles: ['super_admin', 'admin'] },
 ];
 
@@ -89,6 +91,7 @@ const pageTitles: Record<string, string> = {
   'verifikasi-email': 'Verifikasi Email',
   'tambah-staff': 'Tambah Staff',
   pengumuman: 'Pengumuman',
+  benefit: 'Kelola Benefit',
   divisi: 'Kelola Divisi',
   interview: 'Penjadwalan Interview',
   penilaian: 'Penilaian Interview',
@@ -185,6 +188,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return <InterviewPage inline currentUser={user ?? undefined} />;
       case 'penilaian':
         return <PenilaianPage currentUser={user ?? undefined} />;
+      case 'benefit':
+        return <AdminDashboardBenefit />;
       case 'settings':
         return <CmsPanel inline />;
       default:
