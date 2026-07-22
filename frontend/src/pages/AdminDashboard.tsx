@@ -178,7 +178,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       case 'interview':
         return <InterviewPage inline currentUser={user ?? undefined} />;
       case 'penilaian':
-        return <PenilaianPage />;
+        return <PenilaianPage currentUser={user ?? undefined} />;
       case 'settings':
         return <CmsPanel inline />;
       default:

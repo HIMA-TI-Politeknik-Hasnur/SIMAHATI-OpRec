@@ -112,7 +112,6 @@ function App() {
         setStoredUser(u);
         if (u.peserta_id) setPesertaId(u.peserta_id);
         const role = u.roles?.[0] ?? '';
-        const adminRoles = ['super_admin', 'admin', 'panitia'];
         if (currentPage === 'login' || currentPage === 'register') {
           const dest = role === 'peserta' ? 'dashboard-peserta'
             : 'admin-dashboard';

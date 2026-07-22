@@ -84,7 +84,7 @@ export const InterviewPage = ({ inline, currentUser }: InterviewPageProps) => {
   useEffect(() => { fetchInterviews(); fetchOptions(); }, []);
 
   const displayedInterviews = isInterviewer
-    ? interviews.filter(iv => iv.interviewer_id === currentUser.id)
+    ? interviews.filter(iv => iv.interviewer_id === currentUser?.id)
     : interviews;
 
   const handleSubmit = async (e: React.FormEvent) => {

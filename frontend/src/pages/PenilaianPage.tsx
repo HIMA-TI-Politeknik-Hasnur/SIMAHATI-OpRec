@@ -14,11 +14,14 @@ interface Penilaian {
 interface Interview {
   id: number;
   peserta_id: number;
+  interviewer_id: number;
   tanggal: string;
   waktu: string;
   status: string;
   penilaian: Penilaian | null;
 }
+
+interface PesertaOption { id: number; nama_lengkap: string; nim: string; }
 
 interface ModalState {
   interviewId: number;
@@ -27,14 +30,22 @@ interface ModalState {
   existingCatatan: string | null;
 }
 
-export const PenilaianPage = () => {
+interface PenilaianPageProps {
+  currentUser?: { id: number; roles: string[] };
+}
+
+export const PenilaianPage = ({ currentUser }: PenilaianPageProps) => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [pesertaList, setPesertaList] = useState<PesertaOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [modal, setModal] = useState<ModalState | null>(null);
   const [formNilai, setFormNilai] = useState(0);
   const [formCatatan, setFormCatatan] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  const isInterviewer = currentUser?.roles.includes('interviewer');
 
   const authHeaders = (): Record<string, string> => {
     const token = getAuthToken();
@@ -56,7 +67,25 @@ export const PenilaianPage = () => {
     }
   };
 
-  useEffect(() => { fetchInterviews(); }, []);
+  const fetchPeserta = async () => {
+    try {
+      const res = await fetch('/api/peserta', { headers: authHeaders() });
+      const json = await res.json();
+      setPesertaList(json.data ?? []);
+    } catch {
+      /* abaikan */
+    }
+  };
+
+  useEffect(() => { fetchInterviews(); fetchPeserta(); }, []);
+
+  const filteredByUser = isInterviewer
+    ? interviews.filter(iv => iv.interviewer_id === currentUser!.id)
+    : interviews;
+
+  const displayed = filterStatus === 'all'
+    ? filteredByUser
+    : filteredByUser.filter(iv => iv.status === filterStatus);
 
   const openModal = (interview: Interview) => {
     setModal({
@@ -108,6 +137,11 @@ export const PenilaianPage = () => {
     cancelled: 'Dibatalkan',
   };
 
+  const pesertaName = (id: number) => {
+    const p = pesertaList.find(x => x.id === id);
+    return p ? `${p.nama_lengkap} (${p.nim ? `#${p.nim}` : `#${p.id}`})` : `#${id}`;
+  };
+
   return (
     <div className="page-layout">
       <h1 className="page-title">Penilaian Interview</h1>
@@ -116,10 +150,22 @@ export const PenilaianPage = () => {
       {success && <div className="alert alert-success">{success}</div>}
 
       <div className="table-card">
-        <h3>Daftar Interview — Kelola Penilaian</h3>
+        <div className="penilaian-header">
+          <h3>Daftar Interview — Kelola Penilaian</h3>
+          <select
+            className="penilaian-filter"
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+          >
+            <option value="all">Semua Status</option>
+            <option value="scheduled">Terjadwal</option>
+            <option value="completed">Selesai</option>
+            <option value="cancelled">Dibatalkan</option>
+          </select>
+        </div>
         {loading ? (
           <p className="loading-text">Memuat data...</p>
-        ) : interviews.length === 0 ? (
+        ) : displayed.length === 0 ? (
           <p className="empty-text">Belum ada data interview.</p>
         ) : (
           <table className="data-table">
@@ -134,29 +180,36 @@ export const PenilaianPage = () => {
               </tr>
             </thead>
             <tbody>
-              {interviews.map(iv => (
-                <tr key={iv.id}>
-                  <td>#{iv.id}</td>
-                  <td>#{iv.peserta_id}</td>
-                  <td>
-                    {iv.tanggal}<br />
-                    <small>{iv.waktu.slice(0, 5)} WIB</small>
-                  </td>
-                  <td>{statusLabel[iv.status] ?? iv.status}</td>
-                  <td>
-                    {iv.penilaian ? (
-                      <Rating value={iv.penilaian.nilai} readonly showBar={false} />
-                    ) : (
-                      <span className="badge-belum">Belum dinilai</span>
-                    )}
-                  </td>
-                  <td>
-                    <button className="btn-nilai" onClick={() => openModal(iv)}>
-                      {iv.penilaian ? 'Ubah Nilai' : 'Beri Nilai'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {displayed.map(iv => {
+                const isMyInterview = !isInterviewer || iv.interviewer_id === currentUser!.id;
+                return (
+                  <tr key={iv.id}>
+                    <td>#{iv.id}</td>
+                    <td>{pesertaName(iv.peserta_id)}</td>
+                    <td>
+                      {iv.tanggal}<br />
+                      <small>{iv.waktu.slice(0, 5)} WIB</small>
+                    </td>
+                    <td>{statusLabel[iv.status] ?? iv.status}</td>
+                    <td>
+                      {iv.penilaian ? (
+                        <Rating value={iv.penilaian.nilai} readonly showBar={false} />
+                      ) : (
+                        <span className="badge-belum">Belum dinilai</span>
+                      )}
+                    </td>
+                    <td>
+                      {isMyInterview ? (
+                        <button className="btn-nilai" onClick={() => openModal(iv)}>
+                          {iv.penilaian ? 'Ubah Nilai' : 'Beri Nilai'}
+                        </button>
+                      ) : (
+                        <span className="badge-status" style={{ fontSize: '0.85rem' }}>Akses terbatas</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -168,10 +221,9 @@ export const PenilaianPage = () => {
           <div className="modal-card" onClick={e => e.stopPropagation()}>
             <h3>{modal.existingNilai !== null ? 'Ubah Penilaian' : 'Beri Penilaian'}</h3>
             <p className="modal-subtitle">
-              Interview #{modal.interviewId} — Peserta #{modal.pesertaId}
+              Interview #{modal.interviewId} — {pesertaName(modal.pesertaId)}
             </p>
             <form onSubmit={handleSubmitPenilaian}>
-              {/* Rating component */}
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                 <Rating
                   value={formNilai}
