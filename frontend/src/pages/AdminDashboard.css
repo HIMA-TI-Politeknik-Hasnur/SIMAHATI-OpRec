@@ -1235,3 +1235,184 @@
     padding: 0.6rem 0.75rem;
   }
 }
+
+/* ── Divisi Detail Modal ── */
+.ap-modal--detail {
+  max-width: 800px;
+}
+
+.ap-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.ap-modal-close:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.detail-modal-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.detail-modal-grid .info-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.detail-modal-grid .info-card h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  color: #1f2937;
+  border-bottom: 2px solid #fff7ed;
+  padding-bottom: 0.6rem;
+}
+
+.detail-modal-grid .info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 1rem;
+}
+
+.detail-modal-grid .info-row .info-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-modal-grid .info-row .info-value {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.detail-modal-grid .info-row .info-value.deskripsi {
+  font-weight: 400;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.detail-modal-grid .peserta-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.detail-modal-grid .peserta-card h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table-scroll .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.825rem;
+}
+
+.table-scroll .data-table th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  background: #f9fafb;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.table-scroll .data-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table-scroll .data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.table-scroll .data-table tr:hover td {
+  background: #fff7ed;
+}
+
+.kuota-bar-wrap {
+  margin-top: 0.3rem;
+}
+
+.kuota-bar-bg {
+  background: #f3f4f6;
+  border-radius: 99px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.kuota-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ea580c, #f97316);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.kuota-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.3rem;
+}
+
+.badge-status {
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-status.pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-status.verified {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.badge-status.rejected {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.loading-text,
+.empty-text {
+  color: #9ca3af;
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+@media (max-width: 640px) {
+  .detail-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}

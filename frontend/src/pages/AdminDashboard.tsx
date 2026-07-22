@@ -7,6 +7,7 @@ import { InterviewPage } from './InterviewPage';
 import { CmsPanel } from './CmsPanel';
 import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
+import { DivisiDetailModal } from './DivisiDetailModal';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -94,6 +95,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [adminPage, setAdminPage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [detailDivisiId, setDetailDivisiId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,7 +169,17 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       case 'pengumuman':
         return <AdminPengumuman />;
       case 'divisi':
-        return <DivisiPage inline onViewDetail={(_id) => onNavigate('divisi-detail')} />;
+        return (
+          <>
+            <DivisiPage inline onViewDetail={(id) => setDetailDivisiId(id)} />
+            {detailDivisiId !== null && (
+              <DivisiDetailModal
+                divisiId={detailDivisiId}
+                onClose={() => setDetailDivisiId(null)}
+              />
+            )}
+          </>
+        );
       case 'interview':
         return <InterviewPage inline />;
       case 'settings':
