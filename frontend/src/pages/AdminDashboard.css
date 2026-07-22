@@ -652,6 +652,15 @@
   background-color: #dbeafe;
 }
 
+.ap-btn--edit {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+}
+
+.ap-btn--edit:hover:not(:disabled) {
+  background-color: #ede9fe;
+}
+
 .ap-btn--terima {
   background-color: #f0fdf4;
   color: #16a34a;
