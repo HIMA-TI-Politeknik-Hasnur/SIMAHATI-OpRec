@@ -8,7 +8,7 @@ interface CmsPanelProps {
 }
 
 export const CmsPanel = ({ inline }: CmsPanelProps) => {
-  const [activeTab, setActiveTab] = useState('pengumuman');
+  const [activeTab, setActiveTab] = useState('timeline');
   const [downloading, setDownloading] = useState<'excel' | 'pdf' | null>(null);
 
   const handleDownload = async (type: 'excel' | 'pdf') => {
@@ -39,7 +39,6 @@ export const CmsPanel = ({ inline }: CmsPanelProps) => {
   };
 
   const tabs = [
-    { key: 'pengumuman', label: 'Pengumuman' },
     { key: 'timeline', label: 'Timeline' },
     { key: 'faq', label: 'FAQ' },
     { key: 'laporan', label: 'Laporan' },
@@ -126,12 +125,6 @@ export const CmsPanel = ({ inline }: CmsPanelProps) => {
             </div>
           )}
 
-          {activeTab === 'pengumuman' && (
-            <div className="cms-form-card">
-              <h3>Target Modul Tersedia di Halaman Terpisah</h3>
-              <p>Form Pengumuman sudah dimasukan di flow dashboard umum.</p>
-            </div>
-          )}
         </div>
   );
 
