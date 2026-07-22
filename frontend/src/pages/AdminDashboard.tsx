@@ -114,12 +114,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         if (userRes.data) setUser(userRes.data.data);
         if (statsRes.data) setStats(statsRes.data.data);
 
-        if (userRes.error && statsRes.error) {
-          setError(userRes.error.message || statsRes.error.message);
-        } else if (userRes.error) {
+        if (userRes.error) {
           setError(userRes.error.message);
-        } else if (statsRes.error) {
-          setError(statsRes.error.message);
         }
 
         setLoading(false);
@@ -141,12 +137,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       if (userRes.data) setUser(userRes.data.data);
       if (statsRes.data) setStats(statsRes.data.data);
 
-      if (userRes.error && statsRes.error) {
-        setError(userRes.error.message || statsRes.error.message);
-      } else if (userRes.error) {
+      if (userRes.error) {
         setError(userRes.error.message);
-      } else if (statsRes.error) {
-        setError(statsRes.error.message);
       }
 
       setLoading(false);
