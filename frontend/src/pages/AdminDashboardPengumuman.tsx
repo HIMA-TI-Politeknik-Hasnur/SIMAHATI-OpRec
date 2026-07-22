@@ -70,6 +70,16 @@ export function AdminPengumuman() {
     setShowModal(true);
   };
 
+  const isFutureDate = (dateStr: string) => {
+    if (!dateStr) return false;
+    const picked = new Date(dateStr);
+    const now = new Date();
+    return picked.toDateString() !== now.toDateString();
+  };
+
+  const scheduledMsg = (dateStr: string) =>
+    `Pengumuman akan muncul pada ${new Date(dateStr).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+
   const handleSave = async () => {
     if (!formJudul.trim() || !formIsi.trim()) return;
     const body = {
@@ -85,7 +95,7 @@ export function AdminPengumuman() {
         body: JSON.stringify(body),
       });
       if (res.data) {
-        showSuccess('Pengumuman berhasil diupdate');
+        showSuccess(formPublishedAt && isFutureDate(formPublishedAt) ? scheduledMsg(formPublishedAt) : 'Pengumuman berhasil diupdate');
         setShowModal(false);
         fetchData();
       } else if (res.error) {
@@ -94,7 +104,7 @@ export function AdminPengumuman() {
     } else {
       const res = await apiPost<SinglePengumumanResponse>('/api/pengumuman', body);
       if (res.data) {
-        showSuccess('Pengumuman berhasil dibuat');
+        showSuccess(formPublishedAt && isFutureDate(formPublishedAt) ? scheduledMsg(formPublishedAt) : 'Pengumuman berhasil dibuat');
         setShowModal(false);
         fetchData();
       } else if (res.error) {
