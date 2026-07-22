@@ -57,7 +57,7 @@ export function AdminPengumuman() {
     setFormJudul('');
     setFormIsi('');
     setFormTipe('info');
-    setFormPublishedAt('');
+    setFormPublishedAt(new Date().toISOString().slice(0, 16));
     setShowModal(true);
   };
 

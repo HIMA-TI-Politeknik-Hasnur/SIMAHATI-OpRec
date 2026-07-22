@@ -45,6 +45,9 @@ class PengumumanController extends Controller
         ]);
 
         $validated['created_by'] = Auth::id() ?? 1;
+        if (!isset($validated['published_at'])) {
+            $validated['published_at'] = now();
+        }
 
         $pengumuman = Pengumuman::create($validated);
 
