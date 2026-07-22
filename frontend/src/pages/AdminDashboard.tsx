@@ -52,7 +52,7 @@ const navItems = [
   { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'verifikasi-email', label: 'Verifikasi Email', roles: ['super_admin'] },
   { key: 'divisi', label: 'Divisi', roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
   { key: 'pengumuman', label: 'Pengumuman', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'penilaian', label: 'Penilaian', roles: ['super_admin', 'interviewer'] },
   { key: 'settings', label: 'Settings', roles: ['super_admin', 'admin'] },
@@ -176,7 +176,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </>
         );
       case 'interview':
-        return <InterviewPage inline />;
+        return <InterviewPage inline currentUser={user ?? undefined} />;
       case 'penilaian':
         return <PenilaianPage />;
       case 'settings':
