@@ -57,18 +57,38 @@ interface AdminDashboardProps {
   onNavigate: (page: string) => void;
 }
 
-const navItems = [
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'role-management', label: 'Role Management', icon: Shield, roles: ['super_admin', 'admin'] },
-  { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'verifikasi-email', label: 'Verifikasi Email', icon: Mail, roles: ['super_admin'] },
-  { key: 'tambah-staff', label: 'Tambah Staff', icon: UserPlus, roles: ['super_admin'] },
-  { key: 'divisi', label: 'Divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'interview', label: 'Interview', icon: Calendar, roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
-  { key: 'pengumuman', label: 'Pengumuman', icon: VolumeX, roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'penilaian', label: 'Penilaian', icon: BarChart3, roles: ['super_admin', 'interviewer'] },
-  { key: 'benefit', label: 'Benefit', icon: LayoutList, roles: ['super_admin', 'admin'] },
-  { key: 'settings', label: 'Settings', icon: Settings, roles: ['super_admin', 'admin'] },
+const navGroups = [
+  {
+    label: 'Utama',
+    items: [
+      { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'panitia'] },
+    ],
+  },
+  {
+    label: 'Manajemen',
+    items: [
+      { key: 'role-management', label: 'Role Management', icon: Shield, roles: ['super_admin', 'admin'] },
+      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'verifikasi-email', label: 'Verifikasi Email', icon: Mail, roles: ['super_admin'] },
+      { key: 'tambah-staff', label: 'Tambah Staff', icon: UserPlus, roles: ['super_admin'] },
+    ],
+  },
+  {
+    label: 'Kegiatan',
+    items: [
+      { key: 'divisi', label: 'Divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'interview', label: 'Interview', icon: Calendar, roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
+      { key: 'pengumuman', label: 'Pengumuman', icon: VolumeX, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'penilaian', label: 'Penilaian', icon: BarChart3, roles: ['super_admin', 'interviewer'] },
+    ],
+  },
+  {
+    label: 'Pengaturan',
+    items: [
+      { key: 'benefit', label: 'Benefit', icon: LayoutList, roles: ['super_admin', 'admin'] },
+      { key: 'settings', label: 'Settings', icon: Settings, roles: ['super_admin', 'admin'] },
+    ],
+  },
 ];
 
 const quickActions = [
@@ -197,34 +217,42 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           { name: 'Terima', value: stats.lolos_seleksi },
         ] : [];
 
-        return (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <StatCard
-                icon={Users}
-                title="Total Pendaftar"
-                value={stats?.total_pendaftar ?? 0}
-                color="blue"
-              />
-              <StatCard
-                icon={Clock}
-                title="Pending Verifikasi"
-                value={stats?.pending_verifikasi ?? 0}
-                color="yellow"
-              />
-              <StatCard
-                icon={UserCheck}
-                title="Lolos Administrasi"
-                value={stats?.lolos_administrasi ?? 0}
-                color="green"
-              />
-              <StatCard
-                icon={XCircle}
-                title="Ditolak"
-                value={stats?.ditolak_administrasi ?? 0}
-                color="red"
-              />
-            </div>
+          return (
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50">
+                    <LayoutDashboard className="w-5 h-5 text-indigo-600" strokeWidth={2.5} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">Ringkasan Data</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <StatCard
+                    icon={Users}
+                    title="Total Pendaftar"
+                    value={stats?.total_pendaftar ?? 0}
+                    color="blue"
+                  />
+                  <StatCard
+                    icon={Clock}
+                    title="Pending Verifikasi"
+                    value={stats?.pending_verifikasi ?? 0}
+                    color="yellow"
+                  />
+                  <StatCard
+                    icon={UserCheck}
+                    title="Lolos Administrasi"
+                    value={stats?.lolos_administrasi ?? 0}
+                    color="green"
+                  />
+                  <StatCard
+                    icon={XCircle}
+                    title="Ditolak"
+                    value={stats?.ditolak_administrasi ?? 0}
+                    color="red"
+                  />
+                </div>
+              </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
@@ -426,17 +454,24 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
 
         <nav className="admin-db-sidebar-nav">
-          {navItems
-            .filter((item) => user && item.roles.includes(user.roles[0]))
-            .map((item) => (
-              <SidebarItem
-                key={item.key}
-                icon={item.icon}
-                label={item.label}
-                active={adminPage === item.key}
-                onClick={() => handleSidebarClick(item.key)}
-              />
-            ))}
+          {navGroups.map((group) => {
+            const visible = group.items.filter((item) => user && item.roles.includes(user.roles[0]));
+            if (visible.length === 0) return null;
+            return (
+              <div key={group.label} className="mb-5">
+                <p className="admin-db-nav-group-label">{group.label}</p>
+                {visible.map((item) => (
+                  <SidebarItem
+                    key={item.key}
+                    icon={item.icon}
+                    label={item.label}
+                    active={adminPage === item.key}
+                    onClick={() => handleSidebarClick(item.key)}
+                  />
+                ))}
+              </div>
+            );
+          })}
         </nav>
 
         <div className="admin-db-sidebar-footer">

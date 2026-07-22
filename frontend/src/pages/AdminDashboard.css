@@ -60,6 +60,15 @@
   margin: 0;
 }
 
+.admin-db-nav-group-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 1.5rem 0.25rem;
+}
+
 .admin-db-nav-item {
   display: flex;
   align-items: center;
