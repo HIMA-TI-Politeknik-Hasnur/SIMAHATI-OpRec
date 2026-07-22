@@ -39,7 +39,7 @@ class SettingController extends Controller
     {
         $validated = $request->validate([
             'key' => 'required|string|max:255|unique:settings,key',
-            'value' => 'required',
+            'value' => 'nullable|string',
             'type' => 'in:string,boolean,file'
         ]);
 
@@ -55,7 +55,7 @@ class SettingController extends Controller
     public function update(Request $request, $key)
     {
         $validated = $request->validate([
-            'value' => 'required',
+            'value' => 'nullable|string',
             'type' => 'in:string,boolean,file'
         ]);
 
