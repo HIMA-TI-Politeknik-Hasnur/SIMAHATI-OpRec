@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAuthToken, API_BASE_URL } from '../api';
+import { getAuthToken } from '../api';
 
 interface User {
   id: number;
@@ -33,7 +33,7 @@ export function AdminVerifikasiEmail() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users`, { headers });
+      const res = await fetch('/api/users', { headers });
       const json = await res.json();
       if (json.success) setUsers(json.data);
       else setError(json.message || 'Gagal memuat data');
@@ -50,7 +50,7 @@ export function AdminVerifikasiEmail() {
     if (!window.confirm(`Verifikasi email untuk ${user.name} (${user.email})?`)) return;
     setVerifying(user.id);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/users/${user.id}/verify-email`, {
+      const res = await fetch(`/api/users/${user.id}/verify-email`, {
         method: 'POST',
         headers: { ...headers, 'Content-Type': 'application/json' },
       });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAuthToken, API_BASE_URL } from '../api';
+import { getAuthToken } from '../api';
 
 interface RoleOption {
   id: number;
@@ -58,8 +58,8 @@ export function AdminTambahStaff() {
     const fetchData = async () => {
       try {
         const [rolesRes, usersRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/roles?per_page=50`, { headers: authHeaders() }),
-          fetch(`${API_BASE_URL}/api/users`, { headers: authHeaders() }),
+          fetch('/api/roles?per_page=50', { headers: authHeaders() }),
+          fetch('/api/users', { headers: authHeaders() }),
         ]);
         const rolesJson = await rolesRes.json();
         if (rolesJson.success) {
@@ -106,7 +106,7 @@ export function AdminTambahStaff() {
       const body: Record<string, unknown> = { name, email, role_id: roleId };
       if (!autoGenerate) body.password = password;
 
-      const res = await fetch(`${API_BASE_URL}/api/users/staff`, {
+      const res = await fetch('/api/users/staff', {
         method: 'POST',
         headers: { ...authHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -148,7 +148,7 @@ export function AdminTambahStaff() {
         .filter((id): id is number => id !== undefined);
       const allRoleIds = [...new Set([...currentRoleIds, assignRoleId])];
 
-      const res = await fetch(`${API_BASE_URL}/api/users/${selectedUser.id}/roles`, {
+      const res = await fetch(`/api/users/${selectedUser.id}/roles`, {
         method: 'POST',
         headers: { ...authHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify({ roles: allRoleIds }),
