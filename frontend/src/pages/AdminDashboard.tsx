@@ -227,32 +227,63 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">
-                  Statistik Pendaftar
-                </h3>
+              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50">
+                    <BarChart3 className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Statistik Pendaftar
+                  </h3>
+                </div>
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={chartData}>
+                    <defs>
+                      <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f97316" stopOpacity={0.8} />
+                        <stop offset="100%" stopColor="#fb923c" stopOpacity={0.6} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fontSize: 12, fontWeight: 600 }} 
+                      stroke="#9ca3af"
+                    />
+                    <YAxis 
+                      allowDecimals={false} 
+                      tick={{ fontSize: 12, fontWeight: 600 }} 
+                      stroke="#9ca3af"
+                    />
                     <Tooltip
                       contentStyle={{
-                        borderRadius: '8px',
-                        border: '1px solid #e5e7eb',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                        borderRadius: '12px',
+                        border: '1px solid #fed7aa',
+                        boxShadow: '0 8px 24px rgba(249, 115, 22, 0.15)',
+                        fontWeight: 600,
                       }}
+                      cursor={{ fill: 'rgba(249, 115, 22, 0.05)' }}
                     />
-                    <Bar dataKey="value" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                    <Bar 
+                      dataKey="value" 
+                      fill="url(#barGradient)" 
+                      radius={[8, 8, 0, 0]}
+                      animationDuration={800}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">
-                  Aktivitas Terkini
-                </h3>
-                <div className="space-y-1">
+              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50">
+                    <AlertTriangle className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Aktivitas Terkini
+                  </h3>
+                </div>
+                <div className="space-y-2">
                   <ActivityItem
                     icon={Users}
                     title="Total Pendaftar"
@@ -276,9 +307,14 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </div>
 
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-4">
-                Quick Actions
-              </h3>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50">
+                  <RefreshCw className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Quick Actions
+                </h3>
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 {quickActions
                   .filter((action) => user && action.roles.includes(user.roles[0]))
@@ -299,25 +335,40 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <div className="w-60 bg-gray-800 p-6 hidden lg:block">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+        <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 p-6 hidden lg:block">
           <div className="animate-pulse space-y-6">
-            <div className="h-6 bg-gray-700 rounded w-32" />
-            <div className="h-3 bg-gray-700 rounded w-20" />
+            <div className="space-y-2">
+              <div className="h-7 bg-gradient-to-r from-gray-700 to-gray-600 rounded-lg w-36" />
+              <div className="h-3 bg-gray-700 rounded w-20" />
+            </div>
             <div className="space-y-3 mt-10">
-              {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-gray-700 rounded" />)}
+              {[1,2,3,4,5,6,7].map(i => (
+                <div key={i} className="h-11 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl" />
+              ))}
             </div>
           </div>
         </div>
         <div className="flex-1 p-8">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-48" />
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-10 w-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl" />
+              <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-56" />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ChartSkeleton />
               <ChartSkeleton />
+            </div>
+            <div className="space-y-4">
+              <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-40" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {[1,2,3,4,5,6].map(i => (
+                  <div key={i} className="h-32 bg-white border border-gray-200 rounded-2xl" />
+                ))}
+              </div>
             </div>
           </div>
         </div>

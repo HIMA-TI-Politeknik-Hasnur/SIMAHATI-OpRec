@@ -9,6 +9,15 @@
   --color-primary-700: #0369a1;
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -19,6 +28,8 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: #f9fafb;
   color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
