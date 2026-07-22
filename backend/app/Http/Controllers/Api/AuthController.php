@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -42,6 +43,40 @@ class AuthController extends Controller
             'message' => 'Registrasi berhasil. Silakan cek email untuk verifikasi.',
             'data' => [
                 'email' => $user->email,
+            ],
+        ], 201);
+    }
+
+    public function registerStaff(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:8',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        $password = $request->password ?? Str::random(12);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($password),
+            'email_verified_at' => now(),
+        ]);
+
+        $role = Role::findOrFail($request->role_id);
+        $user->roles()->attach($role->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun staff berhasil dibuat.',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $role->slug,
+                'password' => $password,
             ],
         ], 201);
     }

@@ -103,6 +103,7 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
     Route::post('users/{user}/roles', [RoleController::class, 'assignRoleToUser']);
 
     Route::get('users', [\App\Http\Controllers\Api\UserController::class, 'index']);
+    Route::post('users/staff', [\App\Http\Controllers\Api\AuthController::class, 'registerStaff']);
     Route::get('users/unverified', [\App\Http\Controllers\Api\UserController::class, 'unverified']);
     Route::post('users/{user}/verify-email', [\App\Http\Controllers\Api\UserController::class, 'verifyEmail']);
 });

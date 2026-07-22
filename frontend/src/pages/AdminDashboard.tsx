@@ -8,6 +8,7 @@ import { CmsPanel } from './CmsPanel';
 import { PenilaianPage } from './PenilaianPage';
 import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
+import { AdminTambahStaff } from './AdminTambahStaff';
 import { DivisiDetailModal } from './DivisiDetailModal';
 import './AdminDashboard.css';
 
@@ -51,6 +52,7 @@ const navItems = [
   { key: 'role-management', label: 'Role Management', roles: ['super_admin', 'admin'] },
   { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'verifikasi-email', label: 'Verifikasi Email', roles: ['super_admin'] },
+  { key: 'tambah-staff', label: 'Tambah Staff', roles: ['super_admin'] },
   { key: 'divisi', label: 'Divisi', roles: ['super_admin', 'admin', 'panitia'] },
   { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
   { key: 'pengumuman', label: 'Pengumuman', roles: ['super_admin', 'admin', 'panitia'] },
@@ -75,6 +77,7 @@ const quickActions = [
   { label: 'Kelola Role', key: 'role-management', roles: ['super_admin', 'admin'] },
   { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
   { label: 'Verifikasi Email', key: 'verifikasi-email', roles: ['super_admin'] },
+  { label: 'Tambah Staff', key: 'tambah-staff', roles: ['super_admin'] },
   { label: 'Atur Divisi', key: 'divisi', roles: ['super_admin', 'admin', 'panitia'] },
   { label: 'Pengaturan', key: 'settings', roles: ['super_admin', 'admin'] },
 ];
@@ -84,6 +87,7 @@ const pageTitles: Record<string, string> = {
   'role-management': 'Role Management',
   'verifikasi-pendaftar': 'Verifikasi Pendaftar',
   'verifikasi-email': 'Verifikasi Email',
+  'tambah-staff': 'Tambah Staff',
   pengumuman: 'Pengumuman',
   divisi: 'Kelola Divisi',
   interview: 'Penjadwalan Interview',
@@ -161,6 +165,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return <AdminPeserta />;
       case 'verifikasi-email':
         return <AdminVerifikasiEmail />;
+      case 'tambah-staff':
+        return <AdminTambahStaff />;
       case 'pengumuman':
         return <AdminPengumuman />;
       case 'divisi':
