@@ -29,9 +29,11 @@ const emptyForm = {
 
 interface InterviewPageProps {
   inline?: boolean;
+  currentUser?: { id: number; roles: string[] };
 }
 
-export const InterviewPage = ({ inline }: InterviewPageProps) => {
+export const InterviewPage = ({ inline, currentUser }: InterviewPageProps) => {
+  const isInterviewer = currentUser?.roles.includes('interviewer');
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [pesertaList, setPesertaList] = useState<PesertaOption[]>([]);
   const [interviewerList, setInterviewerList] = useState<UserOption[]>([]);
@@ -80,6 +82,10 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
   };
 
   useEffect(() => { fetchInterviews(); fetchOptions(); }, []);
+
+  const displayedInterviews = isInterviewer
+    ? interviews.filter(iv => iv.interviewer_id === currentUser.id)
+    : interviews;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,6 +169,7 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
 
       <div className="page-grid">
         {/* Form */}
+        {!isInterviewer && (
         <div className="form-card">
           <h3>{editId ? 'Edit Jadwal' : 'Tambah Jadwal Baru'}</h3>
           <form onSubmit={handleSubmit}>
@@ -284,13 +291,14 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
             </div>
           </form>
         </div>
+        )}
 
         {/* Tabel */}
         <div className="table-card">
           <h3>Daftar Jadwal Interview</h3>
           {loading ? (
             <p className="loading-text">Memuat data...</p>
-          ) : interviews.length === 0 ? (
+          ) : displayedInterviews.length === 0 ? (
             <p className="empty-text">Belum ada jadwal interview.</p>
           ) : (
             <table className="data-table">
@@ -305,7 +313,7 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
                 </tr>
               </thead>
               <tbody>
-                  {interviews.map(iv => {
+                  {displayedInterviews.map(iv => {
                     const peserta = pesertaList.find(p => p.id === iv.peserta_id);
                     const interviewer = interviewerList.find(u => u.id === iv.interviewer_id);
                     return (
@@ -324,8 +332,15 @@ export const InterviewPage = ({ inline }: InterviewPageProps) => {
                         </td>
                         <td>
                           <div className="action-buttons">
-                            <button className="btn-edit" onClick={() => handleEdit(iv)}>Edit</button>
-                            <button className="btn-delete" onClick={() => handleDelete(iv.id)}>Hapus</button>
+                            {!isInterviewer && (
+                              <>
+                                <button className="btn-edit" onClick={() => handleEdit(iv)}>Edit</button>
+                                <button className="btn-delete" onClick={() => handleDelete(iv.id)}>Hapus</button>
+                              </>
+                            )}
+                            {isInterviewer && (
+                              <span className="badge-status" style={{ fontSize: '0.85rem' }}>Hanya lihat</span>
+                            )}
                           </div>
                         </td>
                       </tr>
