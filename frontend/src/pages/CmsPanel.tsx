@@ -197,7 +197,6 @@ export const CmsPanel = ({ inline }: CmsPanelProps) => {
 
   const saveSetting = async (key: string) => {
     const value = settingsForm[key] ?? '';
-    if (!value.trim()) return;
     setSettingsSaving(true);
     try {
       const res = await fetch(`/api/settings/${key}`, {
