@@ -92,7 +92,7 @@ function App() {
     const stored = getStoredUser();
     if (stored) {
       const role = stored.roles?.[0] ?? '';
-      if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
+      if (currentPage === 'login' || currentPage === 'register') {
         const dest = role === 'peserta' ? 'dashboard-peserta'
           : ['super_admin', 'admin', 'panitia'].includes(role) ? 'admin-dashboard'
           : 'interview';
@@ -114,7 +114,7 @@ function App() {
         if (u.peserta_id) setPesertaId(u.peserta_id);
         const role = u.roles?.[0] ?? '';
         const adminRoles = ['super_admin', 'admin', 'panitia'];
-        if (currentPage === 'landing' || currentPage === 'login' || currentPage === 'register') {
+        if (currentPage === 'login' || currentPage === 'register') {
           const dest = role === 'peserta' ? 'dashboard-peserta'
             : adminRoles.includes(role) ? 'admin-dashboard'
             : 'interview';
