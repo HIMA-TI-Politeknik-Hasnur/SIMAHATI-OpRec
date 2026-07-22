@@ -114,6 +114,7 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
 Route::get('pengumuman/publik', [PengumumanController::class, 'publik']);
 Route::get('timeline/publik', [TimelineController::class, 'publik']);
 Route::get('faq/publik', [FaqController::class, 'publik']);
+Route::get('settings/publik', [SettingController::class, 'publik']);
 Route::get('divisi/publik', [DivisiController::class, 'publik']);
 
 // Route interview khusus peserta (lihat jadwal sendiri)

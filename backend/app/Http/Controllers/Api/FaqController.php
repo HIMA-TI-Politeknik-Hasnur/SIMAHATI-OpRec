@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class FaqController extends Controller
 {
+    public function publik()
+    {
+        $faqs = Faq::where('is_active', true)->get();
+        return response()->json([
+            'success' => true,
+            'data' => $faqs
+        ]);
+    }
+
     public function index()
     {
         $faqs = Faq::where('is_active', true)->get();

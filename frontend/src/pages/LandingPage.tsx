@@ -3,6 +3,12 @@ import './LandingPage.css';
 import { Timeline } from '../components/Timeline';
 import { Accordion } from '../components/Accordion';
 import { AnnouncementCard } from '../components/AnnouncementCard';
+import {
+  BACKUP_HERO_TITLE,
+  BACKUP_HERO_SUBTITLE,
+  BACKUP_BENEFITS,
+  BACKUP_FOOTER_NAME,
+} from '../data/_backupLandingData';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -16,33 +22,72 @@ interface Pengumuman {
   published_at: string;
 }
 
+interface TimelineEvent {
+  id: number;
+  judul: string;
+  deskripsi?: string;
+  tanggal_mulai: string;
+  tanggal_selesai?: string;
+  is_active: boolean;
+}
+
+interface FaqItem {
+  id: number;
+  pertanyaan: string;
+  jawaban: string;
+  is_active: boolean;
+}
+
+interface AppSettings {
+  hero_subtitle?: string;
+  benefit_text?: string;
+  app_name?: string;
+}
+
 export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   const [pengumumanList, setPengumumanList] = useState<Pengumuman[]>([]);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+  const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+  const [settings, setSettings] = useState<AppSettings>({});
+  const [appName, setAppName] = useState(BACKUP_FOOTER_NAME);
 
   useEffect(() => {
     fetch('/api/pengumuman/publik', { headers: { Accept: 'application/json' } })
       .then(r => r.json())
       .then(json => { if (json.success) setPengumumanList(json.data ?? []); })
-      .catch(() => {/* abaikan error */});
-  }, []);
-  // Dummy data for preview
-  const timelineEvents = [
-    { id: 1, judul: 'Pendaftaran Buka', tanggal_mulai: '2026-08-01', is_active: true },
-    { id: 2, judul: 'Seleksi Berkas', tanggal_mulai: '2026-08-15', deskripsi: 'Pengumuman lolos administrasi', is_active: false },
-    { id: 3, judul: 'Wawancara', tanggal_mulai: '2026-08-20', is_active: false },
-  ];
+      .catch(() => {});
 
-  const faqItems = [
-    { id: 1, pertanyaan: 'Siapa saja yang bisa mendaftar?', jawaban: 'Seluruh mahasiswa aktif Teknik Informatika.', is_active: true },
-    { id: 2, pertanyaan: 'Apakah bayar?', jawaban: 'Gratis, tidak dipungut biaya apapun.', is_active: true },
-  ];
+    fetch('/api/timeline/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success) setTimelineEvents(json.data ?? []); })
+      .catch(() => {});
+
+    fetch('/api/faq/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success) setFaqItems(json.data ?? []); })
+      .catch(() => {});
+
+    fetch('/api/settings/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => {
+        if (json.success && json.data) {
+          setSettings(json.data);
+          if (json.data.app_name) setAppName(json.data.app_name);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const heroTitle = BACKUP_HERO_TITLE;
+  const heroSubtitle = settings.hero_subtitle || BACKUP_HERO_SUBTITLE;
+  const benefitText = settings.benefit_text || BACKUP_BENEFITS.map(b => b.desc).join(' ');
 
   return (
     <div className="landing-wrapper">
       <section id="landing" className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">Waktunya Berkontribusi untuk HIMATI</h1>
-          <p className="hero-subtitle">Open Recruitment Pengurus Himpunan Mahasiswa Teknik Informatika 2026</p>
+          <h1 className="hero-title">{heroTitle}</h1>
+          <p className="hero-subtitle">{heroSubtitle}</p>
           <button className="hero-cta" onClick={() => onNavigate('register')}>Daftar Sekarang</button>
         </div>
         <div className="hero-glowing-blob"></div>
@@ -50,19 +95,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       <section id="about" className="benefit-section">
         <h2 className="section-title">Kenapa Harus Bergabung?</h2>
+        {benefitText && benefitText !== BACKUP_BENEFITS.map(b => b.desc).join(' ') && (
+          <p className="benefit-description" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 2rem', color: '#94a3b8' }}>{benefitText}</p>
+        )}
         <div className="benefit-grid">
-          <div className="benefit-card">
-            <h3>🤝 Relasi Bertambah</h3>
-            <p>Perluas jaringan pertemananmu di lingkup mahasiswa hingga alumni.</p>
-          </div>
-          <div className="benefit-card">
-            <h3>📈 Upgrade Skill</h3>
-            <p>Latih kemampuan hardskill & softskill langsung di lapangan.</p>
-          </div>
-          <div className="benefit-card">
-            <h3>💡 Portofolio</h3>
-            <p>Pengalaman organisasi berharga untuk bekal karir masa depan.</p>
-          </div>
+          {BACKUP_BENEFITS.map((b, i) => (
+            <div className="benefit-card" key={i}>
+              <h3>{b.icon} {b.title}</h3>
+              <p>{b.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -100,7 +142,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       <footer className="footer">
         <div className="footer-content">
-          <h2>SIMAHATI</h2>
+          <h2>{appName}</h2>
           <p>© 2026 Himpunan Mahasiswa Teknik Informatika. All rights reserved.</p>
         </div>
       </footer>

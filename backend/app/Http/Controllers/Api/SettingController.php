@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
+    public function publik()
+    {
+        $settings = Setting::all()->pluck('value', 'key');
+        return response()->json([
+            'success' => true,
+            'data' => $settings
+        ]);
+    }
+
     public function index()
     {
         $settings = Setting::all();

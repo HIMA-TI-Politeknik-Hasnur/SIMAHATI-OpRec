@@ -77,6 +77,14 @@ function App() {
   const [user, setUser] = useState<UserData | null>(() => getStoredUser());
   const [authLoading, setAuthLoading] = useState(() => isAuthenticated() && !getStoredUser());
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [appName, setAppName] = useState('SIMAHATI OPREC');
+
+  useEffect(() => {
+    fetch('/api/settings/publik', { headers: { Accept: 'application/json' } })
+      .then(r => r.json())
+      .then(json => { if (json.success && json.data?.app_name) setAppName(json.data.app_name); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -230,7 +238,7 @@ function App() {
     <div>
       <nav className="navbar">
         <div className="nav-logo" onClick={() => setCurrentPage('landing')}>
-          SIMAHATI OPREC
+          {appName}
         </div>
         {navMode === 'guest' && (
           <ul className="nav-links">

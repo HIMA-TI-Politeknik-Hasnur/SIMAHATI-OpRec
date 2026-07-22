@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class TimelineController extends Controller
 {
+    public function publik()
+    {
+        $timelines = Timeline::where('is_active', true)->orderBy('tanggal_mulai', 'asc')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $timelines
+        ]);
+    }
+
     public function index()
     {
         $timelines = Timeline::orderBy('tanggal_mulai', 'asc')->get();
