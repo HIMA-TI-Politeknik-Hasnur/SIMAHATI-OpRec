@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   LayoutDashboard, Shield, UserCheck, Mail, UserPlus,
   Building2, Calendar, VolumeX, BarChart3, LayoutList, Settings,
   Users, Clock, XCircle, Star, AlertTriangle, RefreshCw,
-  LogOut
+  LogOut, Search, Bell, ChevronDown, Menu
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiFetch, getAuthToken, isSessionAuth, sessionFetch } from '../api';
@@ -18,8 +18,8 @@ import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
 import { AdminTambahStaff } from './AdminTambahStaff';
 import { DivisiDetailModal } from './DivisiDetailModal';
-import { StatCard, SidebarItem, QuickActionCard, ActivityItem } from '../components/ui';
-import { StatCardSkeleton, ChartSkeleton } from '../components/ui';
+import { StatCard, SidebarItem, QuickActionCard, ActivityItem, StatCardSkeleton, ChartSkeleton, ActivitySkeleton } from '../components/ui';
+import { useAuthStore } from '../stores/authStore';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -92,12 +92,12 @@ const navGroups = [
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management', icon: Shield, roles: ['super_admin', 'admin'] },
-  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
-  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: Mail, roles: ['super_admin'] },
-  { label: 'Tambah Staff', key: 'tambah-staff', icon: UserPlus, roles: ['super_admin'] },
-  { label: 'Atur Divisi', key: 'divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
-  { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'] },
+  { label: 'Kelola Role', key: 'role-management', icon: Shield, roles: ['super_admin', 'admin'], description: 'Manage akses pengguna' },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar' },
+  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: Mail, roles: ['super_admin'], description: 'Verifikasi alamat email' },
+  { label: 'Tambah Staff', key: 'tambah-staff', icon: UserPlus, roles: ['super_admin'], description: 'Tambahkan anggota baru' },
+  { label: 'Atur Divisi', key: 'divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'], description: 'Kelola divisi open recruitment' },
+  { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'], description: 'Konfigurasi konten' },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -122,6 +122,9 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [adminPage, setAdminPage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [detailDivisiId, setDetailDivisiId] = useState<number | null>(null);
+  const [topbarDropdownOpen, setTopbarDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { logout: storeLogout } = useAuthStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -170,10 +173,27 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setTopbarDropdownOpen(false);
+      }
+    };
+    if (topbarDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [topbarDropdownOpen]);
+
   const handleSidebarClick = (key: string) => {
     setAdminPage(key);
-    // Tutup sidebar otomatis di mobile setelah klik menu
+    setTopbarDropdownOpen(false);
     if (window.innerWidth <= 768) setSidebarOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    storeLogout();
+    onNavigate('logout');
   };
 
   const renderContent = () => {
@@ -218,15 +238,16 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         ] : [];
 
           return (
-            <div className="space-y-8">
+            <div className="space-y-7">
+
               <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50">
-                    <LayoutDashboard className="w-5 h-5 text-indigo-600" strokeWidth={2.5} />
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50">
+                    <LayoutDashboard className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">Ringkasan Data</h3>
+                  <h3 className="admin-db-section-title">Ringkasan Data</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="admin-db-cards">
                   <StatCard
                     icon={Users}
                     title="Total Pendaftar"
@@ -254,145 +275,159 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                 </div>
               </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50">
-                    <BarChart3 className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
+              <div className="admin-db-two-col">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50">
+                        <BarChart3 className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900">Statistik Pendaftar</h3>
+                        <p className="text-xs text-gray-400 mt-0.5">Data 30 Hari Terakhir</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-xs font-medium text-gray-500">
+                      <span>Bulanan</span>
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    Statistik Pendaftar
-                  </h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={chartData}>
+                      <defs>
+                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#f97316" stopOpacity={0.85} />
+                          <stop offset="100%" stopColor="#fb923c" stopOpacity={0.5} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 12, fontWeight: 600 }}
+                        stroke="#9ca3af"
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        tick={{ fontSize: 12, fontWeight: 600 }}
+                        stroke="#9ca3af"
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: '12px',
+                          border: '1px solid #fed7aa',
+                          boxShadow: '0 8px 24px rgba(249, 115, 22, 0.15)',
+                          fontWeight: 600,
+                        }}
+                        cursor={{ fill: 'rgba(249, 115, 22, 0.05)' }}
+                      />
+                      <Bar
+                        dataKey="value"
+                        fill="url(#barGradient)"
+                        radius={[6, 6, 0, 0]}
+                        animationDuration={800}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={chartData}>
-                    <defs>
-                      <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f97316" stopOpacity={0.8} />
-                        <stop offset="100%" stopColor="#fb923c" stopOpacity={0.6} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fontSize: 12, fontWeight: 600 }} 
-                      stroke="#9ca3af"
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50">
+                      <AlertTriangle className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+                    </div>
+                    <h3 className="text-base font-bold text-gray-900">Aktivitas Terkini</h3>
+                  </div>
+                  <div className="space-y-1">
+                    <ActivityItem
+                      icon={Users}
+                      title="Total Pendaftar"
+                      description={`${stats?.total_pendaftar ?? 0} pendaftar terdaftar`}
+                      time="Update real-time"
+                      color="blue"
                     />
-                    <YAxis 
-                      allowDecimals={false} 
-                      tick={{ fontSize: 12, fontWeight: 600 }} 
-                      stroke="#9ca3af"
+                    <ActivityItem
+                      icon={Calendar}
+                      title="Interview"
+                      description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
+                      time="Update real-time"
+                      color="yellow"
                     />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: '12px',
-                        border: '1px solid #fed7aa',
-                        boxShadow: '0 8px 24px rgba(249, 115, 22, 0.15)',
-                        fontWeight: 600,
-                      }}
-                      cursor={{ fill: 'rgba(249, 115, 22, 0.05)' }}
+                    <ActivityItem
+                      icon={Star}
+                      title="Lolos Seleksi"
+                      description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
+                      time="Update real-time"
+                      color="green"
                     />
-                    <Bar 
-                      dataKey="value" 
-                      fill="url(#barGradient)" 
-                      radius={[8, 8, 0, 0]}
-                      animationDuration={800}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50">
-                    <AlertTriangle className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50">
+                    <RefreshCw className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    Aktivitas Terkini
-                  </h3>
+                  <h3 className="admin-db-section-title">Quick Actions</h3>
                 </div>
-                <div className="space-y-2">
-                  <ActivityItem
-                    icon={Users}
-                    title="Total Pendaftar"
-                    description={`${stats?.total_pendaftar ?? 0} pendaftar terdaftar`}
-                    time="Update real-time"
-                  />
-                  <ActivityItem
-                    icon={Calendar}
-                    title="Interview"
-                    description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
-                    time="Update real-time"
-                  />
-                  <ActivityItem
-                    icon={Star}
-                    title="Lolos Seleksi"
-                    description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
-                    time="Update real-time"
-                  />
+                <div className="admin-db-actions">
+                  {quickActions
+                    .filter((action) => user && action.roles.includes(user.roles[0]))
+                    .map((action) => (
+                      <QuickActionCard
+                        key={action.key}
+                        icon={action.icon}
+                        label={action.label}
+                        description={action.description}
+                        onClick={() => handleSidebarClick(action.key)}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
-
-            <div>
-              <div className="flex items-center gap-3 mb-5">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50">
-                  <RefreshCw className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">
-                  Quick Actions
-                </h3>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {quickActions
-                  .filter((action) => user && action.roles.includes(user.roles[0]))
-                  .map((action) => (
-                    <QuickActionCard
-                      key={action.key}
-                      icon={action.icon}
-                      label={action.label}
-                      onClick={() => handleSidebarClick(action.key)}
-                    />
-                  ))}
-              </div>
-            </div>
-          </div>
-        );
+          );
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
-        <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 p-6 hidden lg:block">
+      <div className="min-h-screen bg-[#f8fafc] flex">
+        <div className="w-[260px] bg-white border-r border-gray-200 p-6 hidden lg:block">
           <div className="animate-pulse space-y-6">
             <div className="space-y-2">
-              <div className="h-7 bg-gradient-to-r from-gray-700 to-gray-600 rounded-lg w-36" />
-              <div className="h-3 bg-gray-700 rounded w-20" />
+              <div className="h-7 bg-gray-200 rounded-lg w-36" />
+              <div className="h-3 bg-gray-200 rounded w-20" />
             </div>
-            <div className="space-y-3 mt-10">
+            <div className="space-y-1 mt-10">
               {[1,2,3,4,5,6,7].map(i => (
-                <div key={i} className="h-11 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl" />
+                <div key={i} className="h-10 bg-gray-100 rounded-lg" />
               ))}
             </div>
           </div>
         </div>
         <div className="flex-1 p-8">
           <div className="animate-pulse space-y-6">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-10 w-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl" />
-              <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-56" />
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="h-9 w-9 bg-gray-200 rounded-lg" />
+                <div className="h-5 bg-gray-200 rounded w-24" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 bg-gray-200 rounded-lg" />
+                <div className="h-9 w-9 bg-gray-200 rounded-lg" />
+                <div className="h-8 w-8 bg-gray-200 rounded-full" />
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="admin-db-cards">
               {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="admin-db-two-col">
               <ChartSkeleton />
-              <ChartSkeleton />
+              <ActivitySkeleton />
             </div>
             <div className="space-y-4">
-              <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-40" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="h-5 bg-gray-200 rounded w-32" />
+              <div className="admin-db-actions">
                 {[1,2,3,4,5,6].map(i => (
                   <div key={i} className="h-32 bg-white border border-gray-200 rounded-2xl" />
                 ))}
@@ -428,7 +463,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   return (
     <div className="admin-db-layout">
-      {/* Overlay gelap saat sidebar terbuka di mobile */}
       {sidebarOpen && (
         <div
           className="admin-db-sidebar-overlay"
@@ -458,7 +492,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             const visible = group.items.filter((item) => user && item.roles.includes(user.roles[0]));
             if (visible.length === 0) return null;
             return (
-              <div key={group.label} className="mb-5">
+              <div key={group.label}>
                 <p className="admin-db-nav-group-label">{group.label}</p>
                 {visible.map((item) => (
                   <SidebarItem
@@ -479,24 +513,64 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             <>
               <div className="admin-db-sidebar-user">{user.name}</div>
               <div className="admin-db-sidebar-email">{user.email}</div>
+              <button className="admin-db-logout-btn" onClick={handleLogoutClick}>
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
             </>
           )}
         </div>
       </aside>
 
       <main className="admin-db-main">
-        <div className="admin-db-navbar">
-          <div className="admin-db-navbar-left">
+        <div className="admin-db-topbar">
+          <div className="admin-db-topbar-left">
             <button
               className="admin-db-sidebar-toggle"
               onClick={() => setSidebarOpen(v => !v)}
               title={sidebarOpen ? 'Sembunyikan sidebar' : 'Tampilkan sidebar'}
             >
-              {sidebarOpen ? '◀' : '☰'}
+              <Menu className="w-5 h-5" />
             </button>
-            <h1 className="admin-db-page-title">{pageTitles[adminPage] || 'Dashboard'}</h1>
+            <div className="admin-db-breadcrumb">
+              <span>Dashboard</span>
+              <span className="admin-db-breadcrumb-sep">/</span>
+              <span className="admin-db-breadcrumb-current">{pageTitles[adminPage] || 'Dashboard'}</span>
+            </div>
           </div>
-          {user && <span className="admin-db-greeting">Halo, {user.name}!</span>}
+
+          <div className="admin-db-topbar-right">
+            <button className="admin-db-topbar-icon-btn" title="Search">
+              <Search className="w-4.5 h-4.5" strokeWidth={2} />
+            </button>
+            <button className="admin-db-topbar-icon-btn" title="Notifications">
+              <Bell className="w-4.5 h-4.5" strokeWidth={2} />
+            </button>
+            <div className="relative" ref={dropdownRef}>
+              <div
+                className="admin-db-topbar-avatar"
+                onClick={() => setTopbarDropdownOpen(v => !v)}
+                title={user?.name}
+              >
+                {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+              </div>
+              {topbarDropdownOpen && (
+                <div className="admin-db-topbar-dropdown">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
+                  </div>
+                  <button
+                    className="admin-db-topbar-dropdown-item admin-db-topbar-dropdown-item--danger"
+                    onClick={handleLogoutClick}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="admin-db-content-area">

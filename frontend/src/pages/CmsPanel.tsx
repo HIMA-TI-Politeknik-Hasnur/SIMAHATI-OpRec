@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAuthToken, apiFetch } from '../api';
+import { getAuthToken } from '../api';
 import './CmsPanel.css';
 
 interface CmsPanelProps {

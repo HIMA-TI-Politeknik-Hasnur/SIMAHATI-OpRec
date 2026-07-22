@@ -5,24 +5,27 @@ interface ActivityItemProps {
   title: string;
   description: string;
   time: string;
+  color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
 }
 
-export function ActivityItem({ icon: Icon, title, description, time }: ActivityItemProps) {
+const iconBg: Record<string, string> = {
+  blue: 'bg-blue-50 text-blue-600',
+  green: 'bg-emerald-50 text-emerald-600',
+  red: 'bg-rose-50 text-rose-600',
+  yellow: 'bg-amber-50 text-amber-600',
+  purple: 'bg-violet-50 text-violet-600',
+};
+
+export function ActivityItem({ icon: Icon, title, description, time, color = 'blue' }: ActivityItemProps) {
   return (
-    <div className="group flex items-start gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 transition-all duration-300 border border-transparent hover:border-orange-200">
-      <div className="p-3 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 group-hover:from-orange-100 group-hover:to-amber-100 flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 relative">
-        <Icon className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+    <div className="group flex items-start gap-4 px-4 py-3.5 rounded-xl hover:bg-gray-50 transition-all duration-200">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 ${iconBg[color]}`}>
+        <Icon className="w-4.5 h-4.5" strokeWidth={2.5} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-gray-900 text-sm group-hover:text-orange-600 transition-colors duration-300">
-          {title}
-        </p>
-        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{description}</p>
-        <div className="flex items-center gap-2 mt-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">{time}</p>
-        </div>
+        <p className="font-semibold text-gray-900 text-sm">{title}</p>
+        <p className="text-sm text-gray-500 mt-0.5">{description}</p>
+        <p className="text-xs text-gray-400 mt-1.5 font-medium">{time}</p>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { apiFetch, getAuthToken, isSessionAuth, sessionFetch, UserData } from '../../api';
+import { apiFetch, getAuthToken, isSessionAuth, sessionFetch } from '../../api';
+import type { UserData } from '../../api';
 
 interface UserResponse {
   success: boolean;
