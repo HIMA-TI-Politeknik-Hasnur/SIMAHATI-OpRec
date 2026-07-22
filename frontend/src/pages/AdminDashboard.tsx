@@ -1,4 +1,11 @@
 import { useEffect, useState } from 'react';
+import {
+  LayoutDashboard, Shield, UserCheck, Mail, UserPlus,
+  Building2, Calendar, VolumeX, BarChart3, LayoutList, Settings,
+  Users, Clock, XCircle, Star, AlertTriangle, RefreshCw,
+  LogOut
+} from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiFetch, getAuthToken, isSessionAuth, sessionFetch } from '../api';
 import { AdminRoleManagement } from './AdminDashboardRoleManagement';
 import { AdminPengumuman } from './AdminDashboardPengumuman';
@@ -11,6 +18,8 @@ import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
 import { AdminTambahStaff } from './AdminTambahStaff';
 import { DivisiDetailModal } from './DivisiDetailModal';
+import { StatCard, SidebarItem, QuickActionCard, ActivityItem } from '../components/ui';
+import { StatCardSkeleton, ChartSkeleton } from '../components/ui';
 import './AdminDashboard.css';
 
 interface UserData {
@@ -49,39 +58,26 @@ interface AdminDashboardProps {
 }
 
 const navItems = [
-  { key: 'dashboard', label: 'Dashboard', roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'role-management', label: 'Role Management', roles: ['super_admin', 'admin'] },
-  { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'verifikasi-email', label: 'Verifikasi Email', roles: ['super_admin'] },
-  { key: 'tambah-staff', label: 'Tambah Staff', roles: ['super_admin'] },
-  { key: 'divisi', label: 'Divisi', roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'interview', label: 'Interview', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
-  { key: 'pengumuman', label: 'Pengumuman', roles: ['super_admin', 'admin', 'panitia'] },
-  { key: 'penilaian', label: 'Penilaian', roles: ['super_admin', 'interviewer'] },
-  { key: 'benefit', label: 'Benefit', roles: ['super_admin', 'admin'] },
-  { key: 'settings', label: 'Settings', roles: ['super_admin', 'admin'] },
-];
-
-const cardConfigs = [
-  { key: 'total_pendaftar', label: 'Total Pendaftar', icon: '👥' },
-  { key: 'pending_verifikasi', label: 'Pending Verifikasi', icon: '⏳' },
-  { key: 'lolos_administrasi', label: 'Lolos Administrasi', icon: '✅' },
-  { key: 'ditolak_administrasi', label: 'Ditolak Administrasi', icon: '❌' },
-  { key: 'dalam_interview', label: 'Dalam Interview', icon: '📅' },
-  { key: 'lolos_seleksi', label: 'Lolos Seleksi', icon: '⭐' },
-  { key: 'ditolak_seleksi', label: 'Ditolak Seleksi', icon: '🚫' },
-  { key: 'total_divisi', label: 'Total Divisi', icon: '🏢' },
-  { key: 'total_interview', label: 'Jadwal Interview', icon: '🗓️' },
-  { key: 'total_admin', label: 'Total Admin', icon: '🛡️' },
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'role-management', label: 'Role Management', icon: Shield, roles: ['super_admin', 'admin'] },
+  { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'verifikasi-email', label: 'Verifikasi Email', icon: Mail, roles: ['super_admin'] },
+  { key: 'tambah-staff', label: 'Tambah Staff', icon: UserPlus, roles: ['super_admin'] },
+  { key: 'divisi', label: 'Divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'interview', label: 'Interview', icon: Calendar, roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
+  { key: 'pengumuman', label: 'Pengumuman', icon: VolumeX, roles: ['super_admin', 'admin', 'panitia'] },
+  { key: 'penilaian', label: 'Penilaian', icon: BarChart3, roles: ['super_admin', 'interviewer'] },
+  { key: 'benefit', label: 'Benefit', icon: LayoutList, roles: ['super_admin', 'admin'] },
+  { key: 'settings', label: 'Settings', icon: Settings, roles: ['super_admin', 'admin'] },
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management', roles: ['super_admin', 'admin'] },
-  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', roles: ['super_admin', 'admin', 'panitia'] },
-  { label: 'Verifikasi Email', key: 'verifikasi-email', roles: ['super_admin'] },
-  { label: 'Tambah Staff', key: 'tambah-staff', roles: ['super_admin'] },
-  { label: 'Atur Divisi', key: 'divisi', roles: ['super_admin', 'admin', 'panitia'] },
-  { label: 'Pengaturan', key: 'settings', roles: ['super_admin', 'admin'] },
+  { label: 'Kelola Role', key: 'role-management', icon: Shield, roles: ['super_admin', 'admin'] },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
+  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: Mail, roles: ['super_admin'] },
+  { label: 'Tambah Staff', key: 'tambah-staff', icon: UserPlus, roles: ['super_admin'] },
+  { label: 'Atur Divisi', key: 'divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
+  { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'] },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -193,43 +189,140 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       case 'settings':
         return <CmsPanel inline />;
       default:
+        const chartData = stats ? [
+          { name: 'Lolos', value: stats.lolos_administrasi },
+          { name: 'Pending', value: stats.pending_verifikasi },
+          { name: 'Ditolak', value: stats.ditolak_administrasi },
+          { name: 'Interview', value: stats.dalam_interview },
+          { name: 'Terima', value: stats.lolos_seleksi },
+        ] : [];
+
         return (
-          <>
-            <div className="admin-db-cards">
-              {cardConfigs.map((card) => {
-                const value = stats ? stats[card.key as keyof StatsData] : 0;
-                return (
-                  <div key={card.key} className="admin-db-card">
-                    <span className="admin-db-card-icon">{card.icon}</span>
-                    <div>
-                      <p className="admin-db-card-label">{card.label}</p>
-                      <p className="admin-db-card-value">{value}</p>
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <StatCard
+                icon={Users}
+                title="Total Pendaftar"
+                value={stats?.total_pendaftar ?? 0}
+                color="blue"
+              />
+              <StatCard
+                icon={Clock}
+                title="Pending Verifikasi"
+                value={stats?.pending_verifikasi ?? 0}
+                color="yellow"
+              />
+              <StatCard
+                icon={UserCheck}
+                title="Lolos Administrasi"
+                value={stats?.lolos_administrasi ?? 0}
+                color="green"
+              />
+              <StatCard
+                icon={XCircle}
+                title="Ditolak"
+                value={stats?.ditolak_administrasi ?? 0}
+                color="red"
+              />
             </div>
-            <h3 className="admin-db-section-title">Quick Actions</h3>
-            <div className="admin-db-actions">
-              {quickActions
-                .filter((action) => user && action.roles.includes(user.roles[0]))
-                .map((action) => (
-                  <button
-                    key={action.key}
-                    className="admin-db-action-btn"
-                    onClick={() => handleSidebarClick(action.key)}
-                  >
-                    {action.label}
-                  </button>
-                ))}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
+                  Statistik Pendaftar
+                </h3>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      }}
+                    />
+                    <Bar dataKey="value" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
+                  Aktivitas Terkini
+                </h3>
+                <div className="space-y-1">
+                  <ActivityItem
+                    icon={Users}
+                    title="Total Pendaftar"
+                    description={`${stats?.total_pendaftar ?? 0} pendaftar terdaftar`}
+                    time="Update real-time"
+                  />
+                  <ActivityItem
+                    icon={Calendar}
+                    title="Interview"
+                    description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
+                    time="Update real-time"
+                  />
+                  <ActivityItem
+                    icon={Star}
+                    title="Lolos Seleksi"
+                    description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
+                    time="Update real-time"
+                  />
+                </div>
+              </div>
             </div>
-          </>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Quick Actions
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {quickActions
+                  .filter((action) => user && action.roles.includes(user.roles[0]))
+                  .map((action) => (
+                    <QuickActionCard
+                      key={action.key}
+                      icon={action.icon}
+                      label={action.label}
+                      onClick={() => handleSidebarClick(action.key)}
+                    />
+                  ))}
+              </div>
+            </div>
+          </div>
         );
     }
   };
 
   if (loading) {
-    return <div className="admin-db-loading">Memuat dashboard...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        <div className="w-60 bg-gray-800 p-6 hidden lg:block">
+          <div className="animate-pulse space-y-6">
+            <div className="h-6 bg-gray-700 rounded w-32" />
+            <div className="h-3 bg-gray-700 rounded w-20" />
+            <div className="space-y-3 mt-10">
+              {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-gray-700 rounded" />)}
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 p-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-48" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChartSkeleton />
+              <ChartSkeleton />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error === 'not-authenticated') {
@@ -285,13 +378,13 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           {navItems
             .filter((item) => user && item.roles.includes(user.roles[0]))
             .map((item) => (
-              <button
+              <SidebarItem
                 key={item.key}
-                className={`admin-db-nav-item ${adminPage === item.key ? 'admin-db-nav-item--active' : ''}`}
+                icon={item.icon}
+                label={item.label}
+                active={adminPage === item.key}
                 onClick={() => handleSidebarClick(item.key)}
-              >
-                {item.label}
-              </button>
+              />
             ))}
         </nav>
 
