@@ -167,7 +167,7 @@ export const InterviewPage = ({ inline, currentUser }: InterviewPageProps) => {
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      <div className="page-grid">
+      <div className={`page-grid${isInterviewer ? ' page-grid--single' : ''}`}>
         {/* Form */}
         {!isInterviewer && (
         <div className="form-card">

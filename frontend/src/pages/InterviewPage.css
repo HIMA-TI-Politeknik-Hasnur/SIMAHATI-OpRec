@@ -41,6 +41,10 @@
   align-items: start;
 }
 
+.page-grid--single {
+  grid-template-columns: 1fr;
+}
+
 .form-card,
 .table-card {
   background: white;
