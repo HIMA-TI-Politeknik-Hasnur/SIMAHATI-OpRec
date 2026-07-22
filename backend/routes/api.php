@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\PengumumanController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\BenefitController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\DivisiController;
 use App\Http\Controllers\Api\InterviewController;
@@ -114,6 +115,7 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
 Route::get('pengumuman/publik', [PengumumanController::class, 'publik']);
 Route::get('timeline/publik', [TimelineController::class, 'publik']);
 Route::get('faq/publik', [FaqController::class, 'publik']);
+Route::get('benefit/publik', [BenefitController::class, 'publik']);
 Route::get('settings/publik', [SettingController::class, 'publik']);
 Route::get('divisi/publik', [DivisiController::class, 'publik']);
 
@@ -126,6 +128,7 @@ Route::middleware(['auth:sanctum', 'role:super_admin,admin,panitia,interviewer']
     Route::apiResource('pengumuman', PengumumanController::class);
     Route::apiResource('timeline', TimelineController::class);
     Route::apiResource('faq', FaqController::class);
+    Route::apiResource('benefit', BenefitController::class);
     Route::apiResource('settings', SettingController::class);
 
     Route::get('notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
