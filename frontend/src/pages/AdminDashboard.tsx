@@ -18,7 +18,7 @@ import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
 import { AdminTambahStaff } from './AdminTambahStaff';
 import { DivisiDetailModal } from './DivisiDetailModal';
-import { StatCard, SidebarItem, QuickActionCard, ActivityItem, StatCardSkeleton, ChartSkeleton, ActivitySkeleton } from '../components/ui';
+import { StatCard, SidebarItem, QuickActionCard, ActivityItem, Skeleton, StatCardSkeleton, ChartSkeleton, ActivitySkeleton } from '../components/ui';
 import { useAuthStore } from '../stores/authStore';
 import './AdminDashboard.css';
 
@@ -92,12 +92,12 @@ const navGroups = [
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management', icon: Shield, roles: ['super_admin', 'admin'], description: 'Manage akses pengguna' },
-  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar' },
+  { label: 'Kelola Role', key: 'role-management', icon: Shield, roles: ['super_admin', 'admin'], description: 'Kelola hak akses pengguna' },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar baru' },
   { label: 'Verifikasi Email', key: 'verifikasi-email', icon: Mail, roles: ['super_admin'], description: 'Verifikasi alamat email' },
-  { label: 'Tambah Staff', key: 'tambah-staff', icon: UserPlus, roles: ['super_admin'], description: 'Tambahkan anggota baru' },
+  { label: 'Tambah Staff', key: 'tambah-staff', icon: UserPlus, roles: ['super_admin'], description: 'Tambahkan anggota staff baru' },
   { label: 'Atur Divisi', key: 'divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'], description: 'Kelola divisi open recruitment' },
-  { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'], description: 'Konfigurasi konten' },
+  { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'], description: 'Konfigurasi konten website' },
 ];
 
 const pageTitles: Record<string, string> = {
@@ -113,6 +113,20 @@ const pageTitles: Record<string, string> = {
   penilaian: 'Penilaian Interview',
   settings: 'Content Management',
 };
+
+const roleLabels: Record<string, string> = {
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  panitia: 'Panitia',
+  interviewer: 'Interviewer',
+};
+
+function getRoleLabel(roles: string[]): string {
+  for (const r of roles) {
+    if (roleLabels[r]) return roleLabels[r];
+  }
+  return roles[0] || 'User';
+}
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
@@ -230,52 +244,60 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return <CmsPanel inline />;
       default:
         const chartData = stats ? [
-          { name: 'Lolos', value: stats.lolos_administrasi },
-          { name: 'Pending', value: stats.pending_verifikasi },
-          { name: 'Ditolak', value: stats.ditolak_administrasi },
-          { name: 'Interview', value: stats.dalam_interview },
-          { name: 'Terima', value: stats.lolos_seleksi },
+          { name: 'Lolos', value: stats.lolos_administrasi, fill: '#22C55E' },
+          { name: 'Pending', value: stats.pending_verifikasi, fill: '#F59E0B' },
+          { name: 'Ditolak', value: stats.ditolak_administrasi, fill: '#EF4444' },
+          { name: 'Interview', value: stats.dalam_interview, fill: '#3B82F6' },
+          { name: 'Terima', value: stats.lolos_seleksi, fill: '#8B5CF6' },
         ] : [];
 
           return (
-            <div className="space-y-7">
+            <div className="max-w-[1440px] mx-auto">
 
-              <div>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50">
-                    <LayoutDashboard className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
-                  </div>
-                  <h3 className="admin-db-section-title">Ringkasan Data</h3>
-                </div>
+              <div className="mb-8">
+                <p className="text-sm font-semibold text-orange-500 uppercase tracking-wider mb-2">Dashboard</p>
+                <h1 className="text-[28px] font-extrabold text-gray-900 leading-tight">
+                  Selamat datang kembali, {user?.name?.split(' ')[0] || 'Admin'}
+                </h1>
+                <p className="text-base text-gray-500 mt-1.5">
+                  Pantau proses Open Recruitment secara real-time.
+                </p>
+              </div>
+
+              <div className="mb-8">
                 <div className="admin-db-cards">
                   <StatCard
                     icon={Users}
                     title="Total Pendaftar"
                     value={stats?.total_pendaftar ?? 0}
+                    description="Jumlah seluruh pendaftar"
                     color="blue"
                   />
                   <StatCard
                     icon={Clock}
                     title="Pending Verifikasi"
                     value={stats?.pending_verifikasi ?? 0}
+                    description="Menunggu review"
                     color="yellow"
                   />
                   <StatCard
                     icon={UserCheck}
                     title="Lolos Administrasi"
                     value={stats?.lolos_administrasi ?? 0}
+                    description="Tahap dokumen lolos"
                     color="green"
                   />
                   <StatCard
                     icon={XCircle}
                     title="Ditolak"
                     value={stats?.ditolak_administrasi ?? 0}
+                    description="Tidak memenuhi syarat"
                     color="red"
                   />
                 </div>
               </div>
 
-              <div className="admin-db-two-col">
+              <div className="admin-db-two-col mb-8">
                 <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
@@ -284,50 +306,69 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </div>
                       <div>
                         <h3 className="text-base font-bold text-gray-900">Statistik Pendaftar</h3>
-                        <p className="text-xs text-gray-400 mt-0.5">Data 30 Hari Terakhir</p>
+                        <p className="text-xs text-gray-400 mt-0.5">30 Hari Terakhir</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-xs font-medium text-gray-500">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-xs font-medium text-gray-500 cursor-pointer hover:bg-gray-100 transition-colors">
                       <span>Bulanan</span>
                       <ChevronDown className="w-3.5 h-3.5" />
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData}>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={chartData} barCategoryGap="20%">
                       <defs>
                         <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#f97316" stopOpacity={0.85} />
                           <stop offset="100%" stopColor="#fb923c" stopOpacity={0.5} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                       <XAxis
                         dataKey="name"
                         tick={{ fontSize: 12, fontWeight: 600 }}
                         stroke="#9ca3af"
+                        axisLine={false}
+                        tickLine={false}
                       />
                       <YAxis
                         allowDecimals={false}
                         tick={{ fontSize: 12, fontWeight: 600 }}
                         stroke="#9ca3af"
+                        axisLine={false}
+                        tickLine={false}
                       />
                       <Tooltip
                         contentStyle={{
                           borderRadius: '12px',
                           border: '1px solid #fed7aa',
-                          boxShadow: '0 8px 24px rgba(249, 115, 22, 0.15)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
                           fontWeight: 600,
+                          fontSize: '13px',
                         }}
                         cursor={{ fill: 'rgba(249, 115, 22, 0.05)' }}
                       />
                       <Bar
                         dataKey="value"
                         fill="url(#barGradient)"
-                        radius={[6, 6, 0, 0]}
+                        radius={[4, 4, 0, 0]}
                         animationDuration={800}
                       />
                     </BarChart>
                   </ResponsiveContainer>
+                  <div className="flex items-center gap-4 mt-5 pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-orange-500 to-orange-300" />
+                      <span>Data Pendaftar</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-green-500" />
+                      <span>Lolos</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
+                      <span>Pending</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
@@ -337,7 +378,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                     </div>
                     <h3 className="text-base font-bold text-gray-900">Aktivitas Terkini</h3>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-0">
                     <ActivityItem
                       icon={Users}
                       title="Total Pendaftar"
@@ -347,7 +388,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                     />
                     <ActivityItem
                       icon={Calendar}
-                      title="Interview"
+                      title="Interview Berjalan"
                       description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
                       time="Update real-time"
                       color="yellow"
@@ -358,17 +399,18 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
                       time="Update real-time"
                       color="green"
+                      isLast
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-5">
                   <div className="p-2 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50">
                     <RefreshCw className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
                   </div>
-                  <h3 className="admin-db-section-title">Quick Actions</h3>
+                  <h3 className="text-base font-bold text-gray-900">Quick Actions</h3>
                 </div>
                 <div className="admin-db-actions">
                   {quickActions
@@ -392,45 +434,56 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex">
-        <div className="w-[260px] bg-white border-r border-gray-200 p-6 hidden lg:block">
+        <div className="w-[240px] bg-white border-r border-gray-200 p-5 hidden lg:block">
           <div className="animate-pulse space-y-6">
             <div className="space-y-2">
-              <div className="h-7 bg-gray-200 rounded-lg w-36" />
-              <div className="h-3 bg-gray-200 rounded w-20" />
+              <div className="h-6 bg-gray-200 rounded-lg w-32" />
+              <div className="h-3 bg-gray-200 rounded w-16" />
             </div>
-            <div className="space-y-1 mt-10">
+            <div className="space-y-1 mt-8">
               {[1,2,3,4,5,6,7].map(i => (
-                <div key={i} className="h-10 bg-gray-100 rounded-lg" />
+                <div key={i} className="h-9 bg-gray-100 rounded-lg" />
               ))}
             </div>
           </div>
         </div>
-        <div className="flex-1 p-8">
-          <div className="animate-pulse space-y-6">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <div className="h-9 w-9 bg-gray-200 rounded-lg" />
-                <div className="h-5 bg-gray-200 rounded w-24" />
+        <div className="flex-1">
+          <div className="animate-pulse">
+            <div className="border-b border-gray-200 px-8 py-3">
+              <div className="flex items-center justify-between max-w-[1440px] mx-auto">
+                <div className="flex items-center gap-4">
+                  <div className="h-8 w-8 bg-gray-200 rounded-lg" />
+                  <div className="h-4 bg-gray-200 rounded w-32" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 bg-gray-200 rounded-lg" />
+                  <div className="h-8 w-8 bg-gray-200 rounded-lg" />
+                  <div className="h-8 w-8 bg-gray-200 rounded-full" />
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 bg-gray-200 rounded-lg" />
-                <div className="h-9 w-9 bg-gray-200 rounded-lg" />
-                <div className="h-8 w-8 bg-gray-200 rounded-full" />
-              </div>
             </div>
-            <div className="admin-db-cards">
-              {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
-            </div>
-            <div className="admin-db-two-col">
-              <ChartSkeleton />
-              <ActivitySkeleton />
-            </div>
-            <div className="space-y-4">
-              <div className="h-5 bg-gray-200 rounded w-32" />
-              <div className="admin-db-actions">
-                {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="h-32 bg-white border border-gray-200 rounded-2xl" />
-                ))}
+            <div className="px-8 py-8">
+              <div className="max-w-[1440px] mx-auto space-y-8">
+                <div>
+                  <Skeleton className="h-4 w-20 mb-3" />
+                  <Skeleton className="h-8 w-96 mb-2" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+                <div className="admin-db-cards">
+                  {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
+                </div>
+                <div className="admin-db-two-col">
+                  <ChartSkeleton />
+                  <ActivitySkeleton />
+                </div>
+                <div className="space-y-4">
+                  <Skeleton className="h-5 w-32" />
+                  <div className="admin-db-actions">
+                    {[1,2,3,4,5,6].map(i => (
+                      <div key={i} className="h-36 bg-white border border-gray-200 rounded-2xl" />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -480,7 +533,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             <button
               className="admin-db-sidebar-toggle-close"
               onClick={() => setSidebarOpen(false)}
-              title="Sembunyikan sidebar"
+              aria-label="Sembunyikan sidebar"
             >
               ✕
             </button>
@@ -511,8 +564,15 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         <div className="admin-db-sidebar-footer">
           {user && (
             <>
-              <div className="admin-db-sidebar-user">{user.name}</div>
-              <div className="admin-db-sidebar-email">{user.email}</div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {user.name?.charAt(0)?.toUpperCase() || 'A'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="admin-db-sidebar-user">{user.name}</div>
+                  <div className="admin-db-sidebar-role">{getRoleLabel(user.roles)}</div>
+                </div>
+              </div>
               <button className="admin-db-logout-btn" onClick={handleLogoutClick}>
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -528,32 +588,36 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             <button
               className="admin-db-sidebar-toggle"
               onClick={() => setSidebarOpen(v => !v)}
-              title={sidebarOpen ? 'Sembunyikan sidebar' : 'Tampilkan sidebar'}
+              aria-label={sidebarOpen ? 'Sembunyikan sidebar' : 'Tampilkan sidebar'}
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="admin-db-breadcrumb">
-              <span>Dashboard</span>
-              <span className="admin-db-breadcrumb-sep">/</span>
-              <span className="admin-db-breadcrumb-current">{pageTitles[adminPage] || 'Dashboard'}</span>
+              <span className="text-gray-400">Dashboard</span>
+              {adminPage !== 'dashboard' && (
+                <>
+                  <span className="admin-db-breadcrumb-sep">/</span>
+                  <span className="admin-db-breadcrumb-current">{pageTitles[adminPage]}</span>
+                </>
+              )}
             </div>
           </div>
 
           <div className="admin-db-topbar-right">
-            <button className="admin-db-topbar-icon-btn" title="Search">
-              <Search className="w-4.5 h-4.5" strokeWidth={2} />
+            <button className="admin-db-topbar-icon-btn" aria-label="Search">
+              <Search className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
-            <button className="admin-db-topbar-icon-btn" title="Notifications">
-              <Bell className="w-4.5 h-4.5" strokeWidth={2} />
+            <button className="admin-db-topbar-icon-btn" aria-label="Notifications">
+              <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
             <div className="relative" ref={dropdownRef}>
-              <div
+              <button
                 className="admin-db-topbar-avatar"
                 onClick={() => setTopbarDropdownOpen(v => !v)}
-                title={user?.name}
+                aria-label="User menu"
               >
                 {user?.name?.charAt(0)?.toUpperCase() || 'A'}
-              </div>
+              </button>
               {topbarDropdownOpen && (
                 <div className="admin-db-topbar-dropdown">
                   <div className="px-4 py-3 border-b border-gray-100">

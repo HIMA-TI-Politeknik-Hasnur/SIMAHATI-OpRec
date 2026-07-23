@@ -12,14 +12,18 @@ export function Skeleton({ className = '' }: SkeletonProps) {
 
 export function StatCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <Skeleton className="h-3 w-24 mb-3" />
-          <Skeleton className="h-10 w-16 mb-3" />
-          <Skeleton className="h-5 w-14 rounded-full" />
-        </div>
-        <Skeleton className="h-14 w-14 rounded-2xl ml-4" />
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm min-h-[130px] flex flex-col">
+      <div className="flex items-start justify-between mb-auto">
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-10 w-10 rounded-xl ml-3" />
+      </div>
+      <div className="mt-2">
+        <Skeleton className="h-8 w-16 mb-2" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+      <div className="flex items-center gap-1.5 mt-3">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-20" />
       </div>
     </div>
   );
@@ -36,9 +40,14 @@ export function ChartSkeleton() {
             <Skeleton className="h-3 w-28" />
           </div>
         </div>
-        <Skeleton className="h-8 w-28 rounded-lg" />
+        <Skeleton className="h-8 w-24 rounded-lg" />
       </div>
       <Skeleton className="h-[280px] w-full rounded-xl" />
+      <div className="flex gap-4 mt-4">
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-16" />
+      </div>
     </div>
   );
 }
@@ -50,14 +59,17 @@ export function ActivitySkeleton() {
         <Skeleton className="h-10 w-10 rounded-xl" />
         <Skeleton className="h-5 w-36" />
       </div>
-      <div className="space-y-4">
+      <div className="space-y-1">
         {[1, 2, 3].map(i => (
-          <div key={i} className="flex items-start gap-3">
-            <Skeleton className="h-9 w-9 rounded-xl flex-shrink-0" />
+          <div key={i} className="flex items-start gap-4 px-4 py-3">
+            <div className="flex flex-col items-center">
+              <Skeleton className="w-3 h-3 rounded-full" />
+              {i < 3 && <Skeleton className="w-px h-8 mt-0.5" />}
+            </div>
             <div className="flex-1">
               <Skeleton className="h-4 w-32 mb-1" />
               <Skeleton className="h-3 w-48 mb-1" />
-              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-16" />
             </div>
           </div>
         ))}
