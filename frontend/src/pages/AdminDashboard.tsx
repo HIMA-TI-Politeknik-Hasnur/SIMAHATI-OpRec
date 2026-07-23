@@ -17,7 +17,7 @@ import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
 import { AdminTambahStaff } from './AdminTambahStaff';
 import { DivisiDetailModal } from './DivisiDetailModal';
-import { StatCard, SidebarItem, QuickActionCard, ActivityItem, Skeleton, StatCardSkeleton, ChartSkeleton, ActivitySkeleton } from '../components/ui';
+import { StatCard, SidebarItem, QuickActionCard, ActivityItem, Skeleton, SidebarSkeleton, StatCardSkeleton, ChartSkeleton, ActivitySkeleton, QuickActionSkeleton } from '../components/ui';
 import { useAuthStore } from '../stores/authStore';
 import './AdminDashboard.css';
 
@@ -423,18 +423,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex">
-        <div className="w-[240px] bg-white border-r border-gray-200 p-5 hidden lg:block">
-          <div className="animate-pulse space-y-6">
-            <div className="space-y-2">
-              <div className="h-6 bg-gray-200 rounded-lg w-32" />
-              <div className="h-3 bg-gray-200 rounded w-16" />
-            </div>
-            <div className="space-y-1 mt-8">
-              {[1,2,3,4,5,6,7].map(i => (
-                <div key={i} className="h-9 bg-gray-100 rounded-lg" />
-              ))}
-            </div>
-          </div>
+        <div className="w-[240px] bg-white border-r border-gray-200 hidden lg:block">
+          <SidebarSkeleton />
         </div>
         <div className="flex-1">
           <div className="animate-pulse">
@@ -469,7 +459,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   <Skeleton className="h-5 w-32" />
                   <div className="admin-db-actions">
                     {[1,2,3,4,5,6].map(i => (
-                      <div key={i} className="h-36 bg-white border border-gray-200 rounded-2xl" />
+                      <QuickActionSkeleton key={i} />
                     ))}
                   </div>
                 </div>
