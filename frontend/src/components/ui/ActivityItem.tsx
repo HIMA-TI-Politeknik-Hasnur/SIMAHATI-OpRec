@@ -11,45 +11,37 @@ interface ActivityItemProps {
 
 const dotColors: Record<string, string> = {
   blue: 'bg-blue-500',
-  green: 'bg-emerald-500',
-  red: 'bg-rose-500',
-  yellow: 'bg-amber-500',
-  purple: 'bg-violet-500',
+  green: 'bg-green-500',
+  red: 'bg-red-500',
+  yellow: 'bg-yellow-500',
+  purple: 'bg-purple-500',
 };
 
-const dotRings: Record<string, string> = {
-  blue: 'ring-blue-200',
-  green: 'ring-emerald-200',
-  red: 'ring-rose-200',
-  yellow: 'ring-amber-200',
-  purple: 'ring-violet-200',
+const iconColors: Record<string, string> = {
+  blue: 'text-blue-600 bg-blue-50',
+  green: 'text-green-600 bg-green-50',
+  red: 'text-red-600 bg-red-50',
+  yellow: 'text-yellow-600 bg-yellow-50',
+  purple: 'text-purple-600 bg-purple-50',
 };
 
-const iconBg: Record<string, string> = {
-  blue: 'bg-blue-50 text-blue-600',
-  green: 'bg-emerald-50 text-emerald-600',
-  red: 'bg-rose-50 text-rose-600',
-  yellow: 'bg-amber-50 text-amber-600',
-  purple: 'bg-violet-50 text-violet-600',
-};
-
-export function ActivityItem({ icon: Icon, title, description, time, color = 'blue', isLast = false }: ActivityItemProps) {
+export function ActivityItem({ icon: Icon, title, description, time, color = 'blue', isLast }: ActivityItemProps) {
   return (
-    <div className="group flex items-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 relative">
-      <div className="relative flex flex-col items-center flex-shrink-0">
-        <div className={`w-3.5 h-3.5 rounded-full ring-4 ${dotColors[color]} ${dotRings[color]} z-10`} />
-        {!isLast && (
-          <div className="w-0.5 h-full bg-gray-200 absolute top-3.5" />
-        )}
+    <div className="flex gap-4">
+      <div className="flex flex-col items-center">
+        <div className={`w-[6px] h-[6px] rounded-full mt-1.5 ${dotColors[color]}`} />
+        {!isLast && <div className="w-[2px] flex-1 bg-gray-200 mt-1" />}
       </div>
-      <div className="flex items-start gap-3 flex-1 min-w-0 pt-0.5">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg[color]}`}>
-          <Icon className="w-4 h-4" strokeWidth={2.5} />
+      <div className="flex items-start gap-3 flex-1 pb-4">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconColors[color]}`}>
+          <Icon size={16} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-900 text-sm">{title}</p>
-          <p className="text-sm text-gray-500 mt-0.5">{description}</p>
-          <p className="text-xs text-gray-400 mt-1 font-medium">{time}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">{time}</span>
+          </div>
+          <p className="text-sm font-medium text-gray-900">{title}</p>
+          <p className="text-xs text-gray-500">{description}</p>
         </div>
       </div>
     </div>
