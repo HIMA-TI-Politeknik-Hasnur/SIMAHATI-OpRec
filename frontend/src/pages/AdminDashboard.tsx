@@ -1,9 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  BarChart3, AlertTriangle, RefreshCw,
-  LogOut, Search, Bell, ChevronDown, Menu,
-  PanelLeftClose, Sun, Filter
-} from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiFetch, getAuthToken, isSessionAuth, sessionFetch } from '../api';
 import { AdminRoleManagement } from './AdminDashboardRoleManagement';
@@ -17,7 +12,7 @@ import { AdminPeserta } from './AdminPeserta';
 import { AdminVerifikasiEmail } from './AdminVerifikasiEmail';
 import { AdminTambahStaff } from './AdminTambahStaff';
 import { DivisiDetailModal } from './DivisiDetailModal';
-import { StatCard, SidebarItem, QuickActionCard, ActivityItem, Skeleton, SidebarSkeleton, StatCardSkeleton, ChartSkeleton, ActivitySkeleton, QuickActionSkeleton } from '../components/ui';
+import { StatCard, SidebarItem, QuickActionCard, ActivityItem, Skeleton, StatCardSkeleton, ChartSkeleton, ActivitySkeleton, MaterialSymbol } from '../components/ui';
 import { useAuthStore } from '../stores/authStore';
 import './AdminDashboard.css';
 
@@ -66,8 +61,8 @@ const navGroups = [
   {
     label: 'Manajemen',
     items: [
-      { key: 'role-management', label: 'Role Management', emoji: '👥', icon: 'shield', roles: ['super_admin', 'admin'] },
-      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', emoji: '📋', icon: 'verified_user', roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'role-management', label: 'Role Management', emoji: '👥', icon: 'admin_panel_settings', roles: ['super_admin', 'admin'] },
+      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', emoji: '📋', icon: 'how_to_reg', roles: ['super_admin', 'admin', 'panitia'] },
       { key: 'verifikasi-email', label: 'Verifikasi Email', emoji: '📧', icon: 'mail', roles: ['super_admin'] },
       { key: 'tambah-staff', label: 'Tambah Staff', emoji: '👤', icon: 'person_add', roles: ['super_admin'] },
     ],
@@ -75,31 +70,43 @@ const navGroups = [
   {
     label: 'Kegiatan',
     items: [
-      { key: 'divisi', label: 'Divisi', emoji: '🏢', icon: 'business', roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'interview', label: 'Interview', emoji: '📅', icon: 'calendar_month', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
+      { key: 'divisi', label: 'Divisi', emoji: '🏢', icon: 'group_work', roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'interview', label: 'Interview', emoji: '📅', icon: 'calendar_today', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
       { key: 'pengumuman', label: 'Pengumuman', emoji: '📢', icon: 'campaign', roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'penilaian', label: 'Penilaian', emoji: '⭐', icon: 'bar_chart', roles: ['super_admin', 'interviewer'] },
+      { key: 'penilaian', label: 'Penilaian', emoji: '⭐', icon: 'star', roles: ['super_admin', 'interviewer'] },
     ],
   },
   {
     label: 'Pengaturan',
     items: [
-      { key: 'benefit', label: 'Benefit', emoji: '🎁', icon: 'list', roles: ['super_admin', 'admin'] },
+      { key: 'benefit', label: 'Benefit', emoji: '🎁', icon: 'featured_play_list', roles: ['super_admin', 'admin'] },
       { key: 'settings', label: 'Settings', emoji: '⚙️', icon: 'settings', roles: ['super_admin', 'admin'] },
     ],
   },
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management', icon: 'shield', roles: ['super_admin', 'admin'], description: 'Kelola hak akses pengguna' },
-  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: 'verified_user', roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar baru' },
-  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: 'mail', roles: ['super_admin'], description: 'Verifikasi alamat email' },
-  { label: 'Tambah Staff', key: 'tambah-staff', icon: 'person_add', roles: ['super_admin'], description: 'Tambahkan anggota staff baru' },
-  { label: 'Atur Divisi', key: 'divisi', icon: 'business', roles: ['super_admin', 'admin', 'panitia'], description: 'Kelola divisi open recruitment' },
-  { label: 'Pengaturan', key: 'settings', icon: 'settings', roles: ['super_admin', 'admin'], description: 'Konfigurasi konten website' },
+  { label: 'Kelola Role', key: 'role-management', icon: 'admin_panel_settings', roles: ['super_admin', 'admin'], description: 'Kelola hak akses pengguna' },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: 'person_search', roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar baru' },
+  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: 'mark_email_read', roles: ['super_admin'], description: 'Verifikasi alamat email' },
+  { label: 'Tambah Staff', key: 'tambah-staff', icon: 'person_add_alt_1', roles: ['super_admin'], description: 'Tambahkan anggota staff baru' },
+  { label: 'Atur Divisi', key: 'divisi', icon: 'account_tree', roles: ['super_admin', 'admin', 'panitia'], description: 'Kelola divisi open recruitment' },
+  { label: 'Pengaturan', key: 'settings', icon: 'settings_suggest', roles: ['super_admin', 'admin'], description: 'Konfigurasi konten website' },
 ];
 
+const roleLabels: Record<string, string> = {
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  panitia: 'Panitia',
+  interviewer: 'Interviewer',
+};
 
+function getRoleLabel(roles: string[]): string {
+  for (const r of roles) {
+    if (roleLabels[r]) return roleLabels[r];
+  }
+  return roles[0] || 'User';
+}
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
@@ -217,252 +224,140 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return <CmsPanel inline />;
       default:
         const chartData = stats ? [
-          { name: 'Lolos', value: stats.lolos_administrasi, fill: '#22C55E' },
-          { name: 'Pending', value: stats.pending_verifikasi, fill: '#F59E0B' },
-          { name: 'Ditolak', value: stats.ditolak_administrasi, fill: '#EF4444' },
-          { name: 'Interview', value: stats.dalam_interview, fill: '#3B82F6' },
-          { name: 'Terima', value: stats.lolos_seleksi, fill: '#8B5CF6' },
+          { name: 'Lolos', value: stats.lolos_administrasi },
+          { name: 'Pending', value: stats.pending_verifikasi },
+          { name: 'Ditolak', value: stats.ditolak_administrasi },
+          { name: 'Interview', value: stats.dalam_interview },
+          { name: 'Terima', value: stats.lolos_seleksi },
         ] : [];
 
-          return (
-            <div className="max-w-[1440px] mx-auto">
+        return (
+          <>
+            <section className="flex flex-col md:flex-row justify-between items-end gap-4">
+              <div className="space-y-1">
+                <h2 className="font-bold text-2xl text-gray-900">
+                  Selamat datang, {user?.name?.split(' ')[0] || 'Admin'}
+                </h2>
+                <p className="text-gray-500 text-lg">Pantau proses Open Recruitment secara real-time.</p>
+              </div>
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
+                <MaterialSymbol icon="filter_list" className="text-xl" />
+                <span>Filter Data</span>
+              </button>
+            </section>
 
-              <div className="flex items-start justify-between mb-8">
-                <div>
-                  <h1 className="text-[28px] font-extrabold text-gray-900 leading-tight">
-                    Selamat datang, {user?.name?.split(' ')[0] || 'Admin'}
-                  </h1>
-                  <p className="text-base text-gray-500 mt-1.5">
-                    Pantau proses Open Recruitment secara real-time.
-                  </p>
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard icon="person" title="Total Pendaftar" value={stats?.total_pendaftar ?? 0} color="blue" trend={{ direction: 'up', value: '+100%' }} />
+              <StatCard icon="schedule" title="Pending Verifikasi" value={stats?.pending_verifikasi ?? 0} color="yellow" trend={{ direction: 'neutral', value: 'No change' }} />
+              <StatCard icon="verified_user" title="Lolos Administrasi" value={stats?.lolos_administrasi ?? 0} color="green" trend={{ direction: 'up', value: 'Valid' }} />
+              <StatCard icon="cancel" title="Ditolak" value={stats?.ditolak_administrasi ?? 0} color="red" trend={{ direction: 'neutral', value: 'Cleared' }} />
+            </section>
+
+            <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h4 className="font-bold text-2xl text-gray-900">Statistik Pendaftar</h4>
+                    <p className="text-sm text-gray-500">Data pendaftar periode 2027</p>
+                  </div>
+                  <select className="bg-gray-50 border border-gray-200 rounded-lg text-sm px-3 py-2 outline-none text-gray-600">
+                    <option>Bulanan</option>
+                    <option>Mingguan</option>
+                  </select>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow-md transition-all duration-200 flex-shrink-0">
-                  <Filter className="w-4 h-4" />
-                  Filter
+
+                <div className="flex gap-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-amber-600" />
+                    <span className="text-sm text-gray-400">Lolos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-orange-600" />
+                    <span className="text-sm text-gray-400">Interview</span>
+                  </div>
+                </div>
+
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0c0b1" strokeWidth={0.5} vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#8c7164" axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8c7164" axisLine={false} tickLine={false} width={30} />
+                    <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #9d4300', fontSize: 13 }} />
+                    <Bar dataKey="value" fill="#9d4300" radius={[8, 8, 0, 0]} animationDuration={500} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+                <h4 className="font-bold text-2xl text-gray-900 mb-6">Aktivitas Terkini</h4>
+                <div className="relative timeline-line space-y-0">
+                  <ActivityItem icon="person_add" title="Total Pendaftar" description="1 pendaftar terdaftar baru." time="10 menit lalu" color="blue" />
+                  <ActivityItem icon="event" title="Interview Berjalan" description="1 dalam tahap interview akhir." time="1 jam lalu" color="yellow" />
+                  <ActivityItem icon="verified" title="Lolos Seleksi" description="Hasil verifikasi dokumen selesai." time="Kemarin, 14:30" color="green" />
+                </div>
+                <button className="w-full mt-6 py-3 rounded-lg border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50 transition-all">
+                  Lihat Semua Aktivitas
                 </button>
               </div>
+            </section>
 
-              <div className="mb-8">
-                <div className="admin-db-cards">
-                  <StatCard
-                    icon="group"
-                    title="Total Pendaftar"
-                    value={stats?.total_pendaftar ?? 0}
-                    description="Jumlah seluruh pendaftar"
-                    color="blue"
-                  />
-                  <StatCard
-                    icon="schedule"
-                    title="Pending Verifikasi"
-                    value={stats?.pending_verifikasi ?? 0}
-                    description="Menunggu review"
-                    color="yellow"
-                  />
-                  <StatCard
-                    icon="verified_user"
-                    title="Lolos Administrasi"
-                    value={stats?.lolos_administrasi ?? 0}
-                    description="Tahap dokumen lolos"
-                    color="green"
-                  />
-                  <StatCard
-                    icon="cancel"
-                    title="Ditolak"
-                    value={stats?.ditolak_administrasi ?? 0}
-                    description="Tidak memenuhi syarat"
-                    color="red"
-                  />
+            <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <MaterialSymbol icon="bolt" />
                 </div>
+                <h4 className="font-bold text-2xl text-gray-900">Quick Actions</h4>
               </div>
-
-              <div className="admin-db-two-col mb-8">
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50">
-                        <BarChart3 className="w-5 h-5 text-orange-600" strokeWidth={2.5} />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-bold text-gray-900">Statistik Pendaftar</h3>
-                        <p className="text-xs text-gray-400 mt-0.5">30 Hari Terakhir</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-xs font-medium text-gray-500 cursor-pointer hover:bg-gray-100 transition-colors">
-                      <span>Bulanan</span>
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-orange-500 to-orange-300" />
-                      <span>Data Pendaftar</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-green-500" />
-                      <span>Lolos</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
-                      <span>Pending</span>
-                    </div>
-                  </div>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={chartData} barCategoryGap="20%">
-                      <defs>
-                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#f97316" stopOpacity={0.85} />
-                          <stop offset="100%" stopColor="#fb923c" stopOpacity={0.5} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="2 3" stroke="#f0f0f0" vertical={false} strokeWidth={0.5} />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fontSize: 12, fontWeight: 600 }}
-                        stroke="#9ca3af"
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        allowDecimals={false}
-                        tick={{ fontSize: 12, fontWeight: 600 }}
-                        stroke="#9ca3af"
-                        axisLine={false}
-                        tickLine={false}
-                        width={30}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          borderRadius: '12px',
-                          border: '1px solid #fed7aa',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                          fontWeight: 600,
-                          fontSize: '13px',
-                        }}
-                        cursor={{ fill: 'rgba(249, 115, 22, 0.05)' }}
-                      />
-                      <Bar
-                        dataKey="value"
-                        fill="url(#barGradient)"
-                        radius={[4, 4, 0, 0]}
-                        animationDuration={800}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50">
-                      <AlertTriangle className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
-                    </div>
-                    <h3 className="text-base font-bold text-gray-900">Aktivitas Terkini</h3>
-                  </div>
-                  <div className="space-y-0">
-                    <div className="mb-3 mt-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400 px-1">
-                        Hari Ini
-                      </p>
-                    </div>
-                    <ActivityItem
-                      icon="group"
-                      title="Total Pendaftar"
-                      description={`${stats?.total_pendaftar ?? 0} pendaftar terdaftar`}
-                      time="10 menit lalu"
-                      color="blue"
-                    />
-                    <ActivityItem
-                      icon="calendar_month"
-                      title="Interview Berjalan"
-                      description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
-                      time="1 jam lalu"
-                      color="yellow"
-                    />
-                    <div className="my-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400 px-1">
-                        Kemarin
-                      </p>
-                    </div>
-                    <ActivityItem
-                      icon="star"
-                      title="Lolos Seleksi"
-                      description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
-                      time="Kemarin, 14:30"
-                      color="green"
-                      isLast
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {quickActions.filter(a => user && a.roles.includes(user.roles[0])).map(action => (
+                  <QuickActionCard key={action.key} icon={action.icon} label={action.label} description={action.description} onClick={() => handleSidebarClick(action.key)} />
+                ))}
               </div>
-
-              <div>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50">
-                    <RefreshCw className="w-5 h-5 text-purple-600" strokeWidth={2.5} />
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900">Quick Actions</h3>
-                </div>
-                <div className="admin-db-actions">
-                  {quickActions
-                    .filter((action) => user && action.roles.includes(user.roles[0]))
-                    .map((action) => (
-                      <QuickActionCard
-                        key={action.key}
-                        icon={action.icon}
-                        label={action.label}
-                        description={action.description}
-                        onClick={() => handleSidebarClick(action.key)}
-                      />
-                    ))}
-                </div>
-              </div>
-            </div>
-          );
+            </section>
+          </>
+        );
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex">
-        <div className="w-[240px] bg-white border-r border-gray-200 hidden lg:block">
-          <SidebarSkeleton />
+      <div className="min-h-screen bg-gray-50 flex">
+        <div className="w-[260px] hidden lg:block bg-white border-r border-gray-200">
+          <div className="p-6 space-y-6">
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-36" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+            <div className="space-y-1">
+              {[1, 2, 3, 4, 5, 6, 7].map(i => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          </div>
         </div>
         <div className="flex-1">
-          <div className="animate-pulse">
-            <div className="border-b border-gray-200 px-8 py-3">
-              <div className="flex items-center justify-between max-w-[1440px] mx-auto">
-                <div className="flex items-center gap-4">
-                  <div className="h-8 w-8 bg-gray-200 rounded-lg" />
-                  <div className="h-4 bg-gray-200 rounded w-32" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 bg-gray-200 rounded-lg" />
-                  <div className="h-8 w-8 bg-gray-200 rounded-lg" />
-                  <div className="h-8 w-8 bg-gray-200 rounded-full" />
-                </div>
-              </div>
+          <div className="h-16 border-b border-gray-200 px-8 flex items-center">
+            <Skeleton className="h-9 w-full max-w-md rounded-full" />
+          </div>
+          <div className="p-8 space-y-8">
+            <div>
+              <Skeleton className="h-4 w-20 mb-3" />
+              <Skeleton className="h-8 w-96 mb-2" />
+              <Skeleton className="h-4 w-64" />
             </div>
-            <div className="px-8 py-8">
-              <div className="max-w-[1440px] mx-auto space-y-8">
-                <div>
-                  <Skeleton className="h-4 w-20 mb-3" />
-                  <Skeleton className="h-8 w-96 mb-2" />
-                  <Skeleton className="h-4 w-64" />
-                </div>
-                <div className="admin-db-cards">
-                  {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
-                </div>
-                <div className="admin-db-two-col">
-                  <ChartSkeleton />
-                  <ActivitySkeleton />
-                </div>
-                <div className="space-y-4">
-                  <Skeleton className="h-5 w-32" />
-                  <div className="admin-db-actions">
-                    {[1,2,3,4,5,6].map(i => (
-                      <QuickActionSkeleton key={i} />
-                    ))}
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <ChartSkeleton />
+              <ActivitySkeleton />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-32" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map(i => (
+                  <Skeleton key={i} className="h-36 bg-white border border-gray-200 rounded-xl" />
+                ))}
               </div>
             </div>
           </div>
@@ -473,9 +368,9 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   if (error === 'not-authenticated') {
     return (
-      <div className="admin-db-error">
+      <div className="flex flex-col items-center justify-center min-h-screen text-red-500 gap-4">
         <p>Silakan login terlebih dahulu</p>
-        <button className="admin-db-error-btn" onClick={() => onNavigate('login')}>
+        <button className="px-5 py-2.5 rounded-lg border-none bg-gradient-to-r from-orange-600 to-orange-500 text-white cursor-pointer" onClick={() => onNavigate('login')}>
           Pergi ke Login
         </button>
       </div>
@@ -484,9 +379,9 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   if (error) {
     return (
-      <div className="admin-db-error">
+      <div className="flex flex-col items-center justify-center min-h-screen text-red-500 gap-4">
         <p>Error: {error}</p>
-        <button className="admin-db-error-btn" onClick={() => window.location.reload()}>
+        <button className="px-5 py-2.5 rounded-lg border-none bg-gradient-to-r from-orange-600 to-orange-500 text-white cursor-pointer" onClick={() => window.location.reload()}>
           Coba Lagi
         </button>
       </div>
@@ -494,32 +389,24 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   }
 
   return (
-    <div className="admin-db-layout">
+    <div className="min-h-screen bg-gray-50 flex">
       {sidebarOpen && (
         <div
-          className="admin-db-sidebar-overlay"
+          className="fixed inset-0 bg-black/45 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <aside className={`admin-db-sidebar ${sidebarOpen ? 'admin-db-sidebar--open' : 'admin-db-sidebar--closed'}`}>
-        <div className="admin-db-sidebar-header">
-          <div className="admin-db-sidebar-header-row">
-            <div>
-              <h2 className="admin-db-sidebar-title">SIMAHATI OpRec</h2>
-              <p className="admin-db-sidebar-subtitle">Panel Admin</p>
-            </div>
-            <button
-              className="admin-db-sidebar-toggle-close"
-              onClick={() => setSidebarOpen(false)}
-              aria-label="Sembunyikan sidebar"
-            >
-              ✕
-            </button>
-          </div>
+      <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 flex flex-col z-50 transition-all duration-300 ${sidebarOpen ? 'w-[260px]' : 'w-0 overflow-hidden'}`}>
+        <div className="px-6 py-8 flex flex-col gap-1">
+          <h1 className="font-bold text-2xl text-primary tracking-tight">
+            SIMAHATI OpRec
+          </h1>
+          <p className="text-xs text-gray-400 font-mono tracking-wider uppercase">
+            PANEL ADMIN
+          </p>
         </div>
-
-        <nav className="admin-db-sidebar-nav">
+        <nav className="flex-1 overflow-y-auto px-2 custom-scrollbar">
           {navGroups.map((group) => {
             const visible = group.items.filter((item) => user && item.roles.includes(user.roles[0]));
             if (visible.length === 0) return null;
@@ -540,81 +427,99 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             );
           })}
         </nav>
-
-        <div className="admin-db-sidebar-collapse">
+        <div className="p-4 border-t border-gray-200">
           <button
             onClick={() => setSidebarOpen(false)}
-            className="admin-db-collapse-btn"
-            aria-label="Persempit sidebar"
+            className="w-full flex items-center gap-3 py-3 px-4 text-gray-500 hover:bg-gray-50 rounded-lg transition-all"
           >
-            <PanelLeftClose className="w-5 h-5" />
-            <span>Persempit</span>
+            <MaterialSymbol icon="vertical_align_center" className="text-xl" />
+            <span className="text-sm font-medium">Persempit</span>
           </button>
         </div>
       </aside>
 
-      <main className="admin-db-main">
-        <div className="admin-db-topbar">
-          <div className="admin-db-topbar-left">
-            <button
-              className="admin-db-sidebar-toggle"
-              onClick={() => setSidebarOpen(v => !v)}
-              aria-label={sidebarOpen ? 'Sembunyikan sidebar' : 'Tampilkan sidebar'}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="admin-db-topbar-search">
-              <Search className="w-[18px] h-[18px] text-gray-400 flex-shrink-0" strokeWidth={2} />
+      <main className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ${sidebarOpen ? 'lg:ml-[260px]' : ''}`}>
+        <header className="h-16 px-8 flex justify-between items-center bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="relative w-full max-w-md">
+              <MaterialSymbol icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Cari menu..."
-                className="admin-db-topbar-search-input"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-700 placeholder-gray-400"
               />
             </div>
           </div>
-
-          <div className="admin-db-topbar-right">
-            <button className="admin-db-topbar-icon-btn" aria-label="Toggle theme">
-              <Sun className="w-[18px] h-[18px]" strokeWidth={2} />
-            </button>
-            <button className="admin-db-topbar-icon-btn relative" aria-label="Notifications">
-              <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-            </button>
-            <div className="relative" ref={dropdownRef}>
-              <button
-                className="admin-db-topbar-user-btn"
-                onClick={() => setTopbarDropdownOpen(v => !v)}
-                aria-label="User menu"
-              >
-                <div className="admin-db-topbar-avatar">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'A'}
-                </div>
-                <span className="admin-db-topbar-user-name">{user?.name?.split(' ')[0] || 'Admin'}</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${topbarDropdownOpen ? 'rotate-180' : ''}`} />
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors" aria-label="Toggle theme">
+                <MaterialSymbol icon="light_mode" />
               </button>
-              {topbarDropdownOpen && (
-                <div className="admin-db-topbar-dropdown">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
+              <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors relative" aria-label="Notifications">
+                <MaterialSymbol icon="notifications" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+              </button>
+            </div>
+            <div className="h-8 w-px bg-gray-200" />
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => handleSidebarClick('dashboard')}
+                className="px-4 py-1.5 rounded-lg border-2 border-primary text-primary font-bold text-sm hover:bg-primary/10 transition-colors"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={handleLogoutClick}
+                className="px-4 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                Logout
+              </button>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setTopbarDropdownOpen(v => !v)}
+                  className="flex items-center gap-3 pl-2 cursor-pointer group"
+                >
+                  <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+                    {user?.name?.charAt(0)?.toUpperCase() || 'A'}
                   </div>
-                  <button
-                    className="admin-db-topbar-dropdown-item admin-db-topbar-dropdown-item--danger"
-                    onClick={handleLogoutClick}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              )}
+                  <div className="hidden lg:block text-left">
+                    <p className="text-sm font-medium text-gray-900 leading-none">{user?.name?.split(' ')[0] || 'Admin'}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{getRoleLabel(user?.roles || [])}</p>
+                  </div>
+                  <MaterialSymbol icon="expand_more" className="text-gray-400 group-hover:text-primary transition-colors" />
+                </button>
+                {topbarDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[180px] z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={handleLogoutClick}
+                      className="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                    >
+                      <MaterialSymbol icon="logout" className="text-lg" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </header>
 
-        <div className="admin-db-content-area">
+        <div className="p-8 space-y-8">
           {renderContent()}
         </div>
+
+        <footer className="mt-auto px-8 py-6 border-t border-gray-200 bg-white flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-gray-400">© 2027 SIMAHATI Open Recruitment System. All Rights Reserved.</p>
+          <div className="flex gap-6">
+            <a className="text-xs text-gray-500 hover:text-primary transition-colors" href="#">Privacy Policy</a>
+            <a className="text-xs text-gray-500 hover:text-primary transition-colors" href="#">Terms of Service</a>
+            <a className="text-xs text-gray-500 hover:text-primary transition-colors" href="#">Contact Support</a>
+          </div>
+        </footer>
       </main>
     </div>
   );
