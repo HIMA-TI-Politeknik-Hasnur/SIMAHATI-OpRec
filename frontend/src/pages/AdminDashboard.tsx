@@ -233,84 +233,105 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
         return (
           <>
-            <section className="flex flex-col md:flex-row justify-between items-end gap-4">
+            {/* Welcome */}
+            <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="space-y-1">
-                <h2 className="font-bold text-2xl text-gray-900">
-                  Selamat datang, {user?.name?.split(' ')[0] || 'Admin'}
+                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+                  Panel Admin
+                </p>
+                <h2 className="text-2xl font-black text-on-background leading-tight">
+                  Selamat datang, {user?.name?.split(' ')[0] || 'Admin'} 👋
                 </h2>
-                <p className="text-gray-500 text-lg">Pantau proses Open Recruitment secara real-time.</p>
+                <p className="text-sm text-on-surface-variant">
+                  Pantau proses Open Recruitment secara real-time.
+                </p>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
-                <MaterialSymbol icon="filter_list" className="text-xl" />
-                <span>Filter Data</span>
+              <button className="shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-all shadow-sm">
+                <MaterialSymbol icon="filter_list" className="text-[20px]" />
+                Filter Data
               </button>
             </section>
 
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard icon="person" title="Total Pendaftar" value={stats?.total_pendaftar ?? 0} color="blue" trend={{ direction: 'up', value: '+100%' }} />
-              <StatCard icon="schedule" title="Pending Verifikasi" value={stats?.pending_verifikasi ?? 0} color="yellow" trend={{ direction: 'neutral', value: 'No change' }} />
-              <StatCard icon="verified_user" title="Lolos Administrasi" value={stats?.lolos_administrasi ?? 0} color="green" trend={{ direction: 'up', value: 'Valid' }} />
-              <StatCard icon="cancel" title="Ditolak" value={stats?.ditolak_administrasi ?? 0} color="red" trend={{ direction: 'neutral', value: 'Cleared' }} />
+            {/* Stat cards */}
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <StatCard icon="group" title="Total Pendaftar" value={stats?.total_pendaftar ?? 0} color="blue" trend={{ direction: 'up', value: 'Real-time' }} />
+              <StatCard icon="schedule" title="Pending" value={stats?.pending_verifikasi ?? 0} color="yellow" trend={{ direction: 'neutral', value: 'Menunggu' }} />
+              <StatCard icon="verified_user" title="Lolos Administrasi" value={stats?.lolos_administrasi ?? 0} color="green" trend={{ direction: 'up', value: 'Terverifikasi' }} />
+              <StatCard icon="cancel" title="Ditolak" value={stats?.ditolak_administrasi ?? 0} color="red" trend={{ direction: 'neutral', value: 'Ditolak' }} />
             </section>
 
+            {/* Chart + Activity */}
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                <div className="flex justify-between items-center mb-6">
+              {/* Chart */}
+              <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-outline-variant/60 shadow-sm">
+                <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h4 className="font-bold text-2xl text-gray-900">Statistik Pendaftar</h4>
-                    <p className="text-sm text-gray-500">Data pendaftar periode 2027</p>
+                    <h4 className="text-lg font-bold text-on-background">Statistik Pendaftar</h4>
+                    <p className="text-sm text-on-surface-variant mt-0.5">Ringkasan status seleksi terkini</p>
                   </div>
-                  <select className="bg-gray-50 border border-gray-200 rounded-lg text-sm px-3 py-2 outline-none text-gray-600">
-                    <option>Bulanan</option>
-                    <option>Mingguan</option>
+                  <select className="bg-surface-container border-0 rounded-xl text-sm px-3 py-2 outline-none text-on-surface-variant focus:ring-2 focus:ring-primary/20">
+                    <option>Periode ini</option>
+                    <option>Bulan lalu</option>
                   </select>
                 </div>
 
                 <div className="flex gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-amber-600" />
-                    <span className="text-sm text-gray-400">Lolos</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-orange-600" />
-                    <span className="text-sm text-gray-400">Interview</span>
-                  </div>
+                  {[{ label: 'Lolos', color: 'bg-primary' }, { label: 'Ditolak', color: 'bg-error' }].map(l => (
+                    <div key={l.label} className="flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full ${l.color}`} />
+                      <span className="text-xs text-on-surface-variant font-medium">{l.label}</span>
+                    </div>
+                  ))}
                 </div>
 
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0c0b1" strokeWidth={0.5} vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#8c7164" axisLine={false} tickLine={false} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#8c7164" axisLine={false} tickLine={false} width={30} />
-                    <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #9d4300', fontSize: 13 }} />
-                    <Bar dataKey="value" fill="#9d4300" radius={[8, 8, 0, 0]} animationDuration={500} />
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={chartData} barSize={36}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0ebe8" strokeWidth={0.8} vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 600 }} stroke="#9d8c84" axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#9d8c84" axisLine={false} tickLine={false} width={28} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 14, border: '1px solid #e8ddd8', fontSize: 13, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                      cursor={{ fill: 'rgba(157,67,0,0.05)', radius: 8 }}
+                    />
+                    <Bar dataKey="value" fill="#9d4300" radius={[8, 8, 2, 2]} animationDuration={600} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                <h4 className="font-bold text-2xl text-gray-900 mb-6">Aktivitas Terkini</h4>
-                <div className="relative timeline-line space-y-0">
-                  <ActivityItem icon="person_add" title="Total Pendaftar" description="1 pendaftar terdaftar baru." time="10 menit lalu" color="blue" />
-                  <ActivityItem icon="event" title="Interview Berjalan" description="1 dalam tahap interview akhir." time="1 jam lalu" color="yellow" />
-                  <ActivityItem icon="verified" title="Lolos Seleksi" description="Hasil verifikasi dokumen selesai." time="Kemarin, 14:30" color="green" />
+              {/* Activity feed */}
+              <div className="bg-white rounded-2xl p-6 border border-outline-variant/60 shadow-sm flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <h4 className="text-lg font-bold text-on-background">Aktivitas Terkini</h4>
+                  <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full">Live</span>
                 </div>
-                <button className="w-full mt-6 py-3 rounded-lg border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50 transition-all">
+                <div className="flex-1 relative timeline-line space-y-0">
+                  <ActivityItem icon="person_add" title="Pendaftar baru" description={`${stats?.total_pendaftar ?? 0} total pendaftar terdaftar.`} time="Real-time" color="blue" />
+                  <ActivityItem icon="event" title="Interview aktif" description={`${stats?.dalam_interview ?? 0} dalam tahap interview.`} time="Diperbarui" color="yellow" />
+                  <ActivityItem icon="verified" title="Lolos seleksi" description={`${stats?.lolos_seleksi ?? 0} peserta diterima.`} time="Kumulatif" color="green" />
+                </div>
+                <button className="mt-6 w-full py-2.5 rounded-xl border border-outline-variant text-sm font-semibold text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-all">
                   Lihat Semua Aktivitas
                 </button>
               </div>
             </section>
 
-            <section className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <MaterialSymbol icon="bolt" />
+            {/* Quick Actions */}
+            <section>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <MaterialSymbol icon="bolt" className="text-[20px]" />
                 </div>
-                <h4 className="font-bold text-2xl text-gray-900">Quick Actions</h4>
+                <h4 className="text-lg font-bold text-on-background">Quick Actions</h4>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {quickActions.filter(a => user && a.roles.includes(user.roles[0])).map(action => (
-                  <QuickActionCard key={action.key} icon={action.icon} label={action.label} description={action.description} onClick={() => handleSidebarClick(action.key)} />
+                  <QuickActionCard
+                    key={action.key}
+                    icon={action.icon}
+                    label={action.label}
+                    description={action.description}
+                    onClick={() => handleSidebarClick(action.key)}
+                  />
                 ))}
               </div>
             </section>
@@ -389,30 +410,74 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-surface flex">
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/45 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 flex flex-col z-50 transition-all duration-300 ${sidebarOpen ? 'w-[260px]' : 'w-0 overflow-hidden'}`}>
-        <div className="px-6 py-8 flex flex-col gap-1">
-          <h1 className="font-bold text-2xl text-primary tracking-tight">
-            SIMAHATI OpRec
-          </h1>
-          <p className="text-xs text-gray-400 font-mono tracking-wider uppercase">
-            PANEL ADMIN
-          </p>
+      {/* ── Sidebar ── */}
+      <aside className={`
+        fixed left-0 top-0 h-full bg-white border-r border-outline-variant flex flex-col z-50
+        transition-[width] duration-300 ease-in-out overflow-hidden
+        ${sidebarOpen ? 'w-[264px]' : 'w-0'}
+      `}>
+        {/* Logo header */}
+        <div className="px-5 pt-6 pb-4 flex items-center justify-between shrink-0">
+          <div>
+            <h1 className="font-black text-xl text-primary tracking-tight leading-none">
+              SIMAHATI
+            </h1>
+            <p className="text-[10px] text-on-surface-variant font-mono tracking-widest uppercase mt-0.5">
+              OpRec Admin
+            </p>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors lg:hidden"
+            aria-label="Tutup sidebar"
+          >
+            <MaterialSymbol icon="close" className="text-[20px]" />
+          </button>
         </div>
-        <nav className="flex-1 overflow-y-auto px-2 custom-scrollbar">
+
+        <div className="mx-5 my-1 h-px bg-outline-variant/50" />
+
+        {/* User avatar section */}
+        <div className="mx-3 my-3 p-3 rounded-xl bg-surface-container flex items-center gap-3 shrink-0">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-base shrink-0">
+            {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-on-background truncate leading-none">
+              {user?.name?.split(' ')[0] || 'Admin'}
+            </p>
+            <p className="text-[11px] text-on-surface-variant mt-0.5 truncate">
+              {getRoleLabel(user?.roles || [])}
+            </p>
+          </div>
+          <button
+            onClick={handleLogoutClick}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors shrink-0"
+            title="Logout"
+          >
+            <MaterialSymbol icon="logout" className="text-[18px]" />
+          </button>
+        </div>
+
+        {/* Nav items */}
+        <nav className="flex-1 overflow-y-auto px-3 pb-4 custom-scrollbar space-y-4">
           {navGroups.map((group) => {
             const visible = group.items.filter((item) => user && item.roles.includes(user.roles[0]));
             if (visible.length === 0) return null;
             return (
               <div key={group.label}>
-                <SidebarItem.Section label={group.label} />
+                <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest px-3 mb-1">
+                  {group.label}
+                </p>
                 {visible.map((item) => (
                   <SidebarItem
                     key={item.key}
@@ -427,97 +492,124 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="w-full flex items-center gap-3 py-3 px-4 text-gray-500 hover:bg-gray-50 rounded-lg transition-all"
-          >
-            <MaterialSymbol icon="vertical_align_center" className="text-xl" />
-            <span className="text-sm font-medium">Persempit</span>
-          </button>
-        </div>
       </aside>
 
-      <main className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ${sidebarOpen ? 'lg:ml-[260px]' : ''}`}>
-        <header className="h-16 px-8 flex justify-between items-center bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative w-full max-w-md">
-              <MaterialSymbol icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+      {/* ── Main ── */}
+      <main className={`flex-1 min-h-screen flex flex-col transition-[margin] duration-300 ease-in-out ${sidebarOpen ? 'lg:ml-[264px]' : ''}`}>
+
+        {/* ── Topbar ── */}
+        <header className="h-16 px-4 md:px-6 flex items-center gap-3 bg-white sticky top-0 z-40 border-b border-outline-variant/60">
+          {/* Hamburger */}
+          <button
+            onClick={() => setSidebarOpen(v => !v)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors shrink-0"
+            aria-label="Toggle sidebar"
+          >
+            <MaterialSymbol icon={sidebarOpen ? 'menu_open' : 'menu'} className="text-[22px]" />
+          </button>
+
+          {/* Breadcrumb */}
+          <div className="hidden sm:flex items-center gap-1 text-sm text-on-surface-variant">
+            <span
+              className="hover:text-primary cursor-pointer transition-colors"
+              onClick={() => handleSidebarClick('dashboard')}
+            >
+              Dashboard
+            </span>
+            {adminPage !== 'dashboard' && (
+              <>
+                <MaterialSymbol icon="chevron_right" className="text-[16px] text-outline" />
+                <span className="font-semibold text-on-background capitalize">
+                  {adminPage.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Search — flex-1 di tengah */}
+          <div className="flex-1 max-w-xs mx-auto hidden md:block">
+            <div className="relative">
+              <MaterialSymbol icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/60" />
               <input
                 type="text"
                 placeholder="Cari menu..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-700 placeholder-gray-400"
+                className="w-full pl-9 pr-4 py-2 bg-surface-container rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all text-on-background placeholder:text-on-surface-variant/50"
               />
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors" aria-label="Toggle theme">
-                <MaterialSymbol icon="light_mode" />
-              </button>
-              <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors relative" aria-label="Notifications">
-                <MaterialSymbol icon="notifications" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-              </button>
-            </div>
-            <div className="h-8 w-px bg-gray-200" />
-            <div className="flex items-center gap-4">
+
+          {/* Right actions */}
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              className="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors relative"
+              aria-label="Notifikasi"
+            >
+              <MaterialSymbol icon="notifications" className="text-[22px]" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white" />
+            </button>
+
+            <div className="h-6 w-px bg-outline-variant mx-1 hidden sm:block" />
+
+            {/* User pill */}
+            <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => handleSidebarClick('dashboard')}
-                className="px-4 py-1.5 rounded-lg border-2 border-primary text-primary font-bold text-sm hover:bg-primary/10 transition-colors"
+                onClick={() => setTopbarDropdownOpen(v => !v)}
+                className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-surface-container-high transition-colors group"
               >
-                Dashboard
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                </div>
+                <div className="hidden lg:block text-left">
+                  <p className="text-sm font-semibold text-on-background leading-none">
+                    {user?.name?.split(' ')[0] || 'Admin'}
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant mt-0.5">
+                    {getRoleLabel(user?.roles || [])}
+                  </p>
+                </div>
+                <MaterialSymbol
+                  icon="expand_more"
+                  className={`text-[18px] text-on-surface-variant transition-transform ${topbarDropdownOpen ? 'rotate-180' : ''}`}
+                />
               </button>
-              <button
-                onClick={handleLogoutClick}
-                className="px-4 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-sm font-medium hover:bg-gray-200 transition-colors"
-              >
-                Logout
-              </button>
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setTopbarDropdownOpen(v => !v)}
-                  className="flex items-center gap-3 pl-2 cursor-pointer group"
-                >
-                  <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+
+              {topbarDropdownOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-white border border-outline-variant rounded-2xl shadow-xl min-w-[200px] z-50 overflow-hidden animate-fade-in">
+                  <div className="px-4 py-3 bg-surface-container/60">
+                    <p className="text-sm font-bold text-on-background">{user?.name}</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5 truncate">{user?.email}</p>
                   </div>
-                  <div className="hidden lg:block text-left">
-                    <p className="text-sm font-medium text-gray-900 leading-none">{user?.name?.split(' ')[0] || 'Admin'}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{getRoleLabel(user?.roles || [])}</p>
-                  </div>
-                  <MaterialSymbol icon="expand_more" className="text-gray-400 group-hover:text-primary transition-colors" />
-                </button>
-                {topbarDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[180px] z-50 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
-                    </div>
+                  <div className="p-1">
                     <button
                       onClick={handleLogoutClick}
-                      className="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                      className="w-full px-3 py-2.5 text-left text-sm text-error hover:bg-error/10 rounded-xl flex items-center gap-2.5 transition-colors font-medium"
                     >
-                      <MaterialSymbol icon="logout" className="text-lg" />
-                      Logout
+                      <MaterialSymbol icon="logout" className="text-[18px]" />
+                      Keluar
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
+        {/* ── Page content ── */}
+        <div className="flex-1 p-5 md:p-8 space-y-8 animate-fade-in">
           {renderContent()}
         </div>
 
-        <footer className="mt-auto px-8 py-6 border-t border-gray-200 bg-white flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-400">© 2027 SIMAHATI Open Recruitment System. All Rights Reserved.</p>
-          <div className="flex gap-6">
-            <a className="text-xs text-gray-500 hover:text-primary transition-colors" href="#">Privacy Policy</a>
-            <a className="text-xs text-gray-500 hover:text-primary transition-colors" href="#">Terms of Service</a>
-            <a className="text-xs text-gray-500 hover:text-primary transition-colors" href="#">Contact Support</a>
+        {/* ── Footer ── */}
+        <footer className="px-6 md:px-8 py-5 border-t border-outline-variant/60 bg-white flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-on-surface-variant">
+            © 2027 SIMAHATI Open Recruitment System.
+          </p>
+          <div className="flex gap-5">
+            {['Privacy Policy', 'Terms of Service', 'Contact'].map(link => (
+              <a key={link} className="text-xs text-on-surface-variant hover:text-primary transition-colors" href="#">
+                {link}
+              </a>
+            ))}
           </div>
         </footer>
       </main>

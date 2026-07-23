@@ -1,22 +1,76 @@
-.soft-glow {
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.05), 0px 4px 6px rgba(0,0,0,0.02);
-}
+/* ============================================================
+   AdminDashboard.css — Material 3 polish
+   ============================================================ */
 
-.timeline-line::before {
-  content: '';
-  position: absolute;
-  left: 11px;
-  top: 24px;
-  bottom: 0;
-  width: 2px;
-  background: #e2e8f0;
-}
-
+/* ── Custom scrollbar ──────────────────────────────────────── */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
 
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+  background: #d6cfc8;
+  border-radius: 99px;
+  transition: background 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #b5a89d;
+}
+
+/* ── Timeline line helper ──────────────────────────────────── */
+/* Garis vertikal di ActivityItem ditangani via Tailwind (last:hidden),
+   class ini jadi fallback jika butuh override */
+.timeline-line > *:not(:last-child) .absolute.left-\[10px\] {
+  display: block;
+}
+
+/* ── Page enter animation ──────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeSlideIn 0.25s ease-out both;
+}
+
+/* ── Sidebar transition ────────────────────────────────────── */
+/* Pastikan sidebar tidak tampil konten saat width = 0 */
+aside[class*="w-0"] * {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+aside[class*="w-\[264px\]"] * {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ── Soft elevation (card default shadow) ──────────────────── */
+.soft-glow {
+  box-shadow:
+    0px 1px 2px rgba(0, 0, 0, 0.04),
+    0px 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Focus ring (aksesibilitas) ────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(var(--color-primary), 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Mobile topbar spacing ─────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Search bar hanya tampil di md+ (sudah via hidden md:block di JSX) */
 }

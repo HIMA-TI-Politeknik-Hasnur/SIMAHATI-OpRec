@@ -9,33 +9,49 @@ interface StatCardProps {
   trend?: { direction: 'up' | 'down' | 'neutral'; value: string };
 }
 
-const colorMap: Record<string, { border: string; bg: string; text: string; hoverBg: string }> = {
-  blue:    { border: 'hover:border-primary/20',     bg: 'bg-primary/10',   text: 'text-primary',   hoverBg: 'group-hover:bg-primary' },
-  green:   { border: 'hover:border-primary/20',     bg: 'bg-primary/10',   text: 'text-primary',   hoverBg: 'group-hover:bg-primary' },
-  yellow:  { border: 'hover:border-tertiary/20',    bg: 'bg-tertiary-fixed/40', text: 'text-tertiary', hoverBg: 'group-hover:bg-tertiary' },
-  red:     { border: 'hover:border-error/20',       bg: 'bg-error-container/40', text: 'text-error', hoverBg: 'group-hover:bg-error' },
+const colorMap = {
+  blue:   { border: 'hover:border-primary/30',       bg: 'bg-primary/10',           text: 'text-primary',   iconHover: 'group-hover:bg-primary',    trendText: 'text-primary'   },
+  green:  { border: 'hover:border-tertiary/30',       bg: 'bg-tertiary-fixed/30',    text: 'text-tertiary',  iconHover: 'group-hover:bg-tertiary',   trendText: 'text-tertiary'  },
+  yellow: { border: 'hover:border-tertiary/30',       bg: 'bg-tertiary-fixed/30',    text: 'text-tertiary',  iconHover: 'group-hover:bg-tertiary',   trendText: 'text-tertiary'  },
+  red:    { border: 'hover:border-error/30',          bg: 'bg-error-container/30',   text: 'text-error',     iconHover: 'group-hover:bg-error',      trendText: 'text-error'     },
 };
 
 export function StatCard({ icon, title, value, description, color = 'blue', trend }: StatCardProps) {
   const c = colorMap[color];
+
   return (
-    <div className={`bg-white p-6 rounded-xl border border-white ${c.border} transition-all group cursor-default`}>
-      <div className="flex items-start justify-between">
-        <div className="space-y-3">
-          <p className="font-label-md text-on-surface-variant">{title}</p>
-          <h3 className="text-headline-lg font-bold text-on-background">{value}</h3>
+    <div className={`group bg-white p-5 rounded-2xl border border-outline-variant/40 ${c.border} transition-all duration-200 cursor-default hover:shadow-lg hover:-translate-y-0.5`}>
+      <div className="flex items-start justify-between gap-3">
+        {/* Text */}
+        <div className="flex-1 min-w-0 space-y-2">
+          <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider leading-none truncate">
+            {title}
+          </p>
+          <p className="text-3xl font-black text-on-background tabular-nums leading-none">
+            {value}
+          </p>
           {trend ? (
-            <div className="flex items-center gap-1 font-bold text-[11px]">
-              <MaterialSymbol icon={trend.direction === 'up' ? 'trending_up' : trend.direction === 'down' ? 'trending_down' : 'remove'} className={`text-[14px] ${trend.direction === 'neutral' ? 'text-outline' : c.text}`} />
-              <span className={trend.direction === 'neutral' ? 'text-outline' : c.text}>{trend.value}</span>
+            <div className={`inline-flex items-center gap-1 text-[11px] font-bold ${trend.direction === 'neutral' ? 'text-on-surface-variant' : c.trendText}`}>
+              <MaterialSymbol
+                icon={trend.direction === 'up' ? 'trending_up' : trend.direction === 'down' ? 'trending_down' : 'remove'}
+                className="text-[14px]"
+              />
+              {trend.value}
             </div>
           ) : description ? (
-            <p className="text-body-sm text-outline">{description}</p>
+            <p className="text-xs text-on-surface-variant">{description}</p>
           ) : null}
         </div>
+
+        {/* Icon */}
         {icon && (
-          <div className={`w-12 h-12 rounded-lg ${c.bg} flex items-center justify-center ${c.text} ${c.hoverBg} group-hover:text-white transition-all`}>
-            <MaterialSymbol icon={icon} />
+          <div className={`
+            w-11 h-11 rounded-xl flex items-center justify-center shrink-0
+            ${c.bg} ${c.text}
+            ${c.iconHover} group-hover:text-white
+            transition-all duration-200 group-hover:scale-110
+          `}>
+            <MaterialSymbol icon={icon} className="text-[22px]" />
           </div>
         )}
       </div>
