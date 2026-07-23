@@ -1,23 +1,39 @@
 import type { LucideIcon } from 'lucide-react';
 
 interface SidebarItemProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  emoji?: string;
   label: string;
   active?: boolean;
-  onClick: () => void;
+  section?: boolean;
+  onClick?: () => void;
 }
 
-export function SidebarItem({ icon: Icon, label, active = false, onClick }: SidebarItemProps) {
+export function SidebarItem({ icon: Icon, emoji, label, active, section, onClick }: SidebarItemProps) {
+  if (section) {
+    return (
+      <div className="px-4 py-1.5">
+        <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-gray-400">
+          {label}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-medium transition-all duration-200
-        ${active
-          ? 'bg-orange-50 text-orange-600 border-l-[3px] border-orange-500 font-semibold'
-          : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 border-l-[3px] border-transparent'
-        }`}
+      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg transition-all duration-150 ${
+        active
+          ? 'bg-orange-50 text-orange-600 font-medium'
+          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+      }`}
     >
-      <Icon className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={active ? 2.5 : 2} />
+      {emoji ? (
+        <span className="text-lg leading-none">{emoji}</span>
+      ) : Icon ? (
+        <Icon size={18} className={active ? 'text-orange-500' : 'text-gray-400'} />
+      ) : null}
       <span>{label}</span>
     </button>
   );
