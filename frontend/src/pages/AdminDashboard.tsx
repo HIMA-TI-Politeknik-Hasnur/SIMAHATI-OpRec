@@ -304,7 +304,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   <h4 className="text-lg font-bold text-on-background">Aktivitas Terkini</h4>
                   <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full">Live</span>
                 </div>
-                <div className="flex-1 relative timeline-line space-y-0">
+                <div className="flex-1 space-y-0">
                   <ActivityItem icon="person_add" title="Pendaftar baru" description={`${stats?.total_pendaftar ?? 0} total pendaftar terdaftar.`} time="Real-time" color="blue" />
                   <ActivityItem icon="event" title="Interview aktif" description={`${stats?.dalam_interview ?? 0} dalam tahap interview.`} time="Diperbarui" color="yellow" />
                   <ActivityItem icon="verified" title="Lolos seleksi" description={`${stats?.lolos_seleksi ?? 0} peserta diterima.`} time="Kumulatif" color="green" />
@@ -421,9 +421,12 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       {/* ── Sidebar ── */}
       <aside className={`
-        fixed left-0 top-0 h-full bg-white border-r border-outline-variant flex flex-col z-40
+        shrink-0 bg-white border-r border-outline-variant flex flex-col z-40
         transition-[width] duration-300 ease-in-out overflow-hidden
+        sticky top-0 h-screen
+        lg:relative lg:translate-x-0
         ${sidebarOpen ? 'w-[264px]' : 'w-0'}
+        max-lg:fixed max-lg:left-0 max-lg:top-0 max-lg:h-full
       `}>
         {/* Logo header */}
         <div className="px-5 pt-6 pb-4 flex items-center justify-between shrink-0">
@@ -495,7 +498,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       </aside>
 
       {/* ── Main ── */}
-      <main className={`flex-1 min-h-screen flex flex-col transition-[margin] duration-300 ease-in-out ${sidebarOpen ? 'lg:ml-[264px]' : ''}`}>
+      <main className="flex-1 min-w-0 flex flex-col">
 
         {/* ── Topbar ── */}
         <header className="h-16 px-4 md:px-6 flex items-center gap-3 bg-white sticky top-0 z-50 border-b border-outline-variant/60">
