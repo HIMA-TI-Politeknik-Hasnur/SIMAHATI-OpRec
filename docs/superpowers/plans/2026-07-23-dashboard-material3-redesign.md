@@ -139,7 +139,7 @@ export function MaterialSymbol({ icon, className = '', fill, weight }: MaterialS
     <span
       className={`material-symbols-outlined leading-none ${className}`}
       style={{
-        fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'WGRT' ${weight ?? 400}`,
+        fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' ${weight ?? 400}`,
       }}
     >
       {icon}
