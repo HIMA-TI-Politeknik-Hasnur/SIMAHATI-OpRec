@@ -1,48 +1,30 @@
-import type { LucideIcon } from 'lucide-react';
+import { MaterialSymbol } from './MaterialSymbol';
 
 interface ActivityItemProps {
-  icon: LucideIcon;
+  icon: string;
   title: string;
   description: string;
   time: string;
-  color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
-  isLast?: boolean;
+  color?: string;
 }
 
 const dotColors: Record<string, string> = {
-  blue: 'bg-blue-500',
-  green: 'bg-green-500',
-  red: 'bg-red-500',
-  yellow: 'bg-yellow-500',
-  purple: 'bg-purple-500',
+  blue: 'bg-primary',
+  green: 'bg-primary',
+  yellow: 'bg-tertiary',
+  red: 'bg-error',
 };
 
-const iconColors: Record<string, string> = {
-  blue: 'text-blue-600 bg-blue-50',
-  green: 'text-green-600 bg-green-50',
-  red: 'text-red-600 bg-red-50',
-  yellow: 'text-yellow-600 bg-yellow-50',
-  purple: 'text-purple-600 bg-purple-50',
-};
-
-export function ActivityItem({ icon: Icon, title, description, time, color = 'blue', isLast }: ActivityItemProps) {
+export function ActivityItem({ icon, title, description, time, color = 'blue' }: ActivityItemProps) {
   return (
-    <div className="flex gap-4">
-      <div className="flex flex-col items-center">
-        <div className={`w-[6px] h-[6px] rounded-full mt-1.5 ${dotColors[color]}`} />
-        {!isLast && <div className="w-[2px] flex-1 bg-gray-200 mt-1" />}
+    <div className="relative pl-10 pb-8 last:pb-0">
+      <div className={`absolute left-0 top-0 w-6 h-6 rounded-full ${dotColors[color] || 'bg-primary'} flex items-center justify-center text-white ring-4 ring-white z-10`}>
+        <MaterialSymbol icon={icon} className="text-[14px]" />
       </div>
-      <div className="flex items-start gap-3 flex-1 pb-4">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconColors[color]}`}>
-          <Icon size={16} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">{time}</span>
-          </div>
-          <p className="text-sm font-medium text-gray-900">{title}</p>
-          <p className="text-xs text-gray-500">{description}</p>
-        </div>
+      <div className="space-y-0.5">
+        <p className="font-bold text-body-md text-on-background">{title}</p>
+        <p className="text-body-md text-on-surface-variant">{description}</p>
+        <p className="text-[10px] text-outline font-label-md uppercase tracking-wider">{time}</p>
       </div>
     </div>
   );
