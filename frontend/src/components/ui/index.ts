@@ -4,3 +4,4 @@ export { Skeleton, StatCardSkeleton, ChartSkeleton, ActivitySkeleton } from './S
 export { ActivityItem } from './ActivityItem';
 export { QuickActionCard } from './QuickActionCard';
 export { SidebarItem } from './SidebarItem';
+export { MaterialSymbol } from './MaterialSymbol';
