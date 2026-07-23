@@ -1,40 +1,34 @@
-import type { LucideIcon } from 'lucide-react';
+import { MaterialSymbol } from './MaterialSymbol';
 
 interface SidebarItemProps {
-  icon?: LucideIcon;
-  emoji?: string;
+  icon?: string;
   label: string;
   active?: boolean;
-  section?: boolean;
   onClick?: () => void;
 }
 
 function SidebarItemSection({ label }: { label: string }) {
   return (
-    <div className="px-4 py-1.5">
-      <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-gray-400">
+    <div className="mb-2">
+      <span className="font-label-md text-[10px] text-outline uppercase tracking-wider">
         {label}
       </span>
     </div>
   );
 }
 
-function SidebarItemComponent({ icon: Icon, emoji, label, active, onClick }: SidebarItemProps) {
+function SidebarItemComponent({ icon, label, active, onClick }: SidebarItemProps) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg transition-all duration-150 ${
+      className={`w-full flex items-center gap-3 py-3 px-4 text-sm transition-all duration-150 ${
         active
-          ? 'bg-orange-50 text-orange-600 font-medium'
-          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+          ? 'bg-primary/10 border-l-4 border-primary text-primary font-bold rounded-r-lg'
+          : 'text-on-surface-variant hover:bg-surface-container-high rounded-lg border-l-4 border-transparent'
       }`}
     >
-      {emoji ? (
-        <span className="text-lg leading-none">{emoji}</span>
-      ) : Icon ? (
-        <Icon size={18} className={active ? 'text-orange-500' : 'text-gray-400'} />
-      ) : null}
-      <span>{label}</span>
+      {icon && <MaterialSymbol icon={icon} className="text-[20px]" />}
+      <span className="font-label-md text-label-md">{label}</span>
     </button>
   );
 }
