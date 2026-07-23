@@ -94,49 +94,6 @@
   font-weight: 500;
 }
 
-.admin-db-sidebar-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.admin-db-sidebar-user {
-  font-size: 0.875rem;
-  color: #111827;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.admin-db-sidebar-email {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-bottom: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.admin-db-logout-btn {
-  width: 100%;
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #ef4444;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.admin-db-logout-btn:hover {
-  background: #fef2f2;
-  border-color: #fecaca;
-}
-
 /* Sidebar states */
 .admin-db-sidebar--closed {
   width: 0 !important;
@@ -267,6 +224,27 @@
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
+.admin-db-topbar-search {
+  padding: 0.5rem 0.75rem;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 0.5rem;
+  width: 12rem;
+  font-size: 0.875rem;
+  color: #374151;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.admin-db-topbar-search:focus {
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
+.admin-db-topbar-search::placeholder {
+  color: #9ca3af;
+}
+
 .admin-db-topbar-dropdown {
   position: absolute;
   top: 100%;
@@ -311,7 +289,7 @@
 /* ── Content area ─────────────────────────────── */
 .admin-db-content-area {
   flex: 1;
-  padding: 1.75rem 2rem;
+  padding: 2rem 2.5rem;
   overflow-y: auto;
   background: #f8fafc;
 }
@@ -346,21 +324,21 @@
 .admin-db-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 /* ── Two-column section ───────────────────────── */
 .admin-db-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 1.5rem;
 }
 
 /* ── Quick actions ────────────────────────────── */
 .admin-db-actions {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
