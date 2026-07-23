@@ -9,12 +9,20 @@ interface ActivityItemProps {
   isLast?: boolean;
 }
 
-const dotClasses: Record<string, string> = {
-  blue: 'bg-blue-500 border-blue-200',
-  green: 'bg-emerald-500 border-emerald-200',
-  red: 'bg-rose-500 border-rose-200',
-  yellow: 'bg-amber-500 border-amber-200',
-  purple: 'bg-violet-500 border-violet-200',
+const dotColors: Record<string, string> = {
+  blue: 'bg-blue-500',
+  green: 'bg-emerald-500',
+  red: 'bg-rose-500',
+  yellow: 'bg-amber-500',
+  purple: 'bg-violet-500',
+};
+
+const dotRings: Record<string, string> = {
+  blue: 'ring-blue-200',
+  green: 'ring-emerald-200',
+  red: 'ring-rose-200',
+  yellow: 'ring-amber-200',
+  purple: 'ring-violet-200',
 };
 
 const iconBg: Record<string, string> = {
@@ -29,9 +37,9 @@ export function ActivityItem({ icon: Icon, title, description, time, color = 'bl
   return (
     <div className="group flex items-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 relative">
       <div className="relative flex flex-col items-center flex-shrink-0">
-        <div className={`w-3 h-3 rounded-full border-2 ${dotClasses[color]} z-10`} />
+        <div className={`w-3.5 h-3.5 rounded-full ring-4 ${dotColors[color]} ${dotRings[color]} z-10`} />
         {!isLast && (
-          <div className="w-px h-full bg-gray-200 absolute top-3" />
+          <div className="w-0.5 h-full bg-gray-200 absolute top-3.5" />
         )}
       </div>
       <div className="flex items-start gap-3 flex-1 min-w-0 pt-0.5">
