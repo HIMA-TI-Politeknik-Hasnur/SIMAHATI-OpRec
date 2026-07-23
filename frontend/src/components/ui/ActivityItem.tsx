@@ -6,6 +6,7 @@ interface ActivityItemProps {
   description: string;
   time: string;
   color?: string;
+  isLast?: boolean;
 }
 
 const dotColors: Record<string, string> = {

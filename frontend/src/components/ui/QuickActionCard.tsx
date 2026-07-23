@@ -1,31 +1,30 @@
-import type { LucideIcon } from 'lucide-react';
+import { MaterialSymbol } from './MaterialSymbol';
 
 interface QuickActionCardProps {
-  icon: LucideIcon;
+  icon: string;
   label: string;
-  description?: string;
-  onClick: () => void;
+  description: string;
+  onClick?: () => void;
 }
 
-export function QuickActionCard({ icon: Icon, label, description, onClick }: QuickActionCardProps) {
+export function QuickActionCard({ icon, label, description, onClick }: QuickActionCardProps) {
   return (
     <button
       onClick={onClick}
-      className="bg-white rounded-2xl shadow-sm p-5 text-left hover:shadow-md hover:-translate-y-1 hover:border-orange-500 border border-transparent transition-all duration-200 group flex flex-col"
+      className="w-full text-left bg-white p-6 rounded-xl border border-white hover:border-primary/30 transition-all group cursor-pointer"
     >
-      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-orange-50 transition-colors">
-        <Icon size={20} className="text-gray-500 group-hover:text-orange-500 transition-colors" />
-      </div>
-      <p className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
-        {label}
-      </p>
-      {description && (
-        <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 flex-1">{description}</p>
-      )}
-      <div className="border-t border-gray-100 my-3" />
-      <div className="flex items-center gap-1 text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
-        <span>Buka</span>
-        <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+      <div className="flex gap-4 items-start">
+        <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:bg-primary/10 group-hover:text-primary transition-colors flex-shrink-0">
+          <MaterialSymbol icon={icon} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h5 className="font-bold text-on-background group-hover:text-primary transition-colors">{label}</h5>
+          <p className="text-body-md text-on-surface-variant mt-1">{description}</p>
+          <div className="mt-3 flex items-center gap-1 text-primary font-bold font-label-md">
+            <span>Buka</span>
+            <MaterialSymbol icon="arrow_forward" className="text-[18px] group-hover:translate-x-1 transition-transform" />
+          </div>
+        </div>
       </div>
     </button>
   );

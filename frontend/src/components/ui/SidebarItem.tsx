@@ -5,6 +5,7 @@ interface SidebarItemProps {
   label: string;
   active?: boolean;
   onClick?: () => void;
+  emoji?: string;
 }
 
 function SidebarItemSection({ label }: { label: string }) {

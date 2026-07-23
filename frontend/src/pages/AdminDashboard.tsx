@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  LayoutDashboard, Shield, UserCheck, Mail, UserPlus,
-  Building2, Calendar, VolumeX, BarChart3, LayoutList, Settings,
-  Users, Clock, XCircle, Star, AlertTriangle, RefreshCw,
+  BarChart3, AlertTriangle, RefreshCw,
   LogOut, Search, Bell, ChevronDown, Menu,
   PanelLeftClose, Sun, Filter
 } from 'lucide-react';
@@ -62,43 +60,43 @@ const navGroups = [
   {
     label: 'Utama',
     items: [
-      { key: 'dashboard', label: 'Dashboard', emoji: '🏠', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'dashboard', label: 'Dashboard', emoji: '🏠', icon: 'dashboard', roles: ['super_admin', 'admin', 'panitia'] },
     ],
   },
   {
     label: 'Manajemen',
     items: [
-      { key: 'role-management', label: 'Role Management', emoji: '👥', icon: Shield, roles: ['super_admin', 'admin'] },
-      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', emoji: '📋', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'verifikasi-email', label: 'Verifikasi Email', emoji: '📧', icon: Mail, roles: ['super_admin'] },
-      { key: 'tambah-staff', label: 'Tambah Staff', emoji: '👤', icon: UserPlus, roles: ['super_admin'] },
+      { key: 'role-management', label: 'Role Management', emoji: '👥', icon: 'shield', roles: ['super_admin', 'admin'] },
+      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', emoji: '📋', icon: 'verified_user', roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'verifikasi-email', label: 'Verifikasi Email', emoji: '📧', icon: 'mail', roles: ['super_admin'] },
+      { key: 'tambah-staff', label: 'Tambah Staff', emoji: '👤', icon: 'person_add', roles: ['super_admin'] },
     ],
   },
   {
     label: 'Kegiatan',
     items: [
-      { key: 'divisi', label: 'Divisi', emoji: '🏢', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'interview', label: 'Interview', emoji: '📅', icon: Calendar, roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
-      { key: 'pengumuman', label: 'Pengumuman', emoji: '📢', icon: VolumeX, roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'penilaian', label: 'Penilaian', emoji: '⭐', icon: BarChart3, roles: ['super_admin', 'interviewer'] },
+      { key: 'divisi', label: 'Divisi', emoji: '🏢', icon: 'business', roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'interview', label: 'Interview', emoji: '📅', icon: 'calendar_month', roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
+      { key: 'pengumuman', label: 'Pengumuman', emoji: '📢', icon: 'campaign', roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'penilaian', label: 'Penilaian', emoji: '⭐', icon: 'bar_chart', roles: ['super_admin', 'interviewer'] },
     ],
   },
   {
     label: 'Pengaturan',
     items: [
-      { key: 'benefit', label: 'Benefit', emoji: '🎁', icon: LayoutList, roles: ['super_admin', 'admin'] },
-      { key: 'settings', label: 'Settings', emoji: '⚙️', icon: Settings, roles: ['super_admin', 'admin'] },
+      { key: 'benefit', label: 'Benefit', emoji: '🎁', icon: 'list', roles: ['super_admin', 'admin'] },
+      { key: 'settings', label: 'Settings', emoji: '⚙️', icon: 'settings', roles: ['super_admin', 'admin'] },
     ],
   },
 ];
 
 const quickActions = [
-  { label: 'Kelola Role', key: 'role-management', icon: Shield, roles: ['super_admin', 'admin'], description: 'Kelola hak akses pengguna' },
-  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar baru' },
-  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: Mail, roles: ['super_admin'], description: 'Verifikasi alamat email' },
-  { label: 'Tambah Staff', key: 'tambah-staff', icon: UserPlus, roles: ['super_admin'], description: 'Tambahkan anggota staff baru' },
-  { label: 'Atur Divisi', key: 'divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'], description: 'Kelola divisi open recruitment' },
-  { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'], description: 'Konfigurasi konten website' },
+  { label: 'Kelola Role', key: 'role-management', icon: 'shield', roles: ['super_admin', 'admin'], description: 'Kelola hak akses pengguna' },
+  { label: 'Verifikasi Pendaftar', key: 'verifikasi-pendaftar', icon: 'verified_user', roles: ['super_admin', 'admin', 'panitia'], description: 'Verifikasi data pendaftar baru' },
+  { label: 'Verifikasi Email', key: 'verifikasi-email', icon: 'mail', roles: ['super_admin'], description: 'Verifikasi alamat email' },
+  { label: 'Tambah Staff', key: 'tambah-staff', icon: 'person_add', roles: ['super_admin'], description: 'Tambahkan anggota staff baru' },
+  { label: 'Atur Divisi', key: 'divisi', icon: 'business', roles: ['super_admin', 'admin', 'panitia'], description: 'Kelola divisi open recruitment' },
+  { label: 'Pengaturan', key: 'settings', icon: 'settings', roles: ['super_admin', 'admin'], description: 'Konfigurasi konten website' },
 ];
 
 
@@ -247,28 +245,28 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <div className="mb-8">
                 <div className="admin-db-cards">
                   <StatCard
-                    icon={Users}
+                    icon="group"
                     title="Total Pendaftar"
                     value={stats?.total_pendaftar ?? 0}
                     description="Jumlah seluruh pendaftar"
                     color="blue"
                   />
                   <StatCard
-                    icon={Clock}
+                    icon="schedule"
                     title="Pending Verifikasi"
                     value={stats?.pending_verifikasi ?? 0}
                     description="Menunggu review"
                     color="yellow"
                   />
                   <StatCard
-                    icon={UserCheck}
+                    icon="verified_user"
                     title="Lolos Administrasi"
                     value={stats?.lolos_administrasi ?? 0}
                     description="Tahap dokumen lolos"
                     color="green"
                   />
                   <StatCard
-                    icon={XCircle}
+                    icon="cancel"
                     title="Ditolak"
                     value={stats?.ditolak_administrasi ?? 0}
                     description="Tidak memenuhi syarat"
@@ -366,14 +364,14 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </p>
                     </div>
                     <ActivityItem
-                      icon={Users}
+                      icon="group"
                       title="Total Pendaftar"
                       description={`${stats?.total_pendaftar ?? 0} pendaftar terdaftar`}
                       time="10 menit lalu"
                       color="blue"
                     />
                     <ActivityItem
-                      icon={Calendar}
+                      icon="calendar_month"
                       title="Interview Berjalan"
                       description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
                       time="1 jam lalu"
@@ -385,7 +383,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </p>
                     </div>
                     <ActivityItem
-                      icon={Star}
+                      icon="star"
                       title="Lolos Seleksi"
                       description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
                       time="Kemarin, 14:30"
