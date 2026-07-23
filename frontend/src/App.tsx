@@ -236,6 +236,7 @@ function App() {
 
   return (
     <div>
+      {currentPage !== 'admin-dashboard' && (
       <nav className="navbar">
         <div className="nav-logo" onClick={() => setCurrentPage('landing')}>
           {appName}
@@ -277,6 +278,7 @@ function App() {
           </ul>
         )}
       </nav>
+      )}
 
       {currentPage === 'landing' && (
         <LandingPage
