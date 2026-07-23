@@ -1,40 +1,44 @@
-import type { LucideIcon } from 'lucide-react';
+import { MaterialSymbol } from './MaterialSymbol';
 
 interface StatCardProps {
-  icon: LucideIcon;
+  icon?: string;
   title: string;
   value: number | string;
   description?: string;
-  trend?: { value: string; direction: 'up' | 'down' };
-  trendLabel?: string;
-  color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
+  color?: 'blue' | 'green' | 'yellow' | 'red';
+  trend?: { direction: 'up' | 'down' | 'neutral'; value: string };
 }
 
-const colorMap: Record<string, string> = {
-  blue: 'text-blue-600 bg-blue-50',
-  green: 'text-green-600 bg-green-50',
-  red: 'text-red-600 bg-red-50',
-  yellow: 'text-yellow-600 bg-yellow-50',
-  purple: 'text-purple-600 bg-purple-50',
+const colorMap: Record<string, { border: string; bg: string; text: string; hoverBg: string }> = {
+  blue:    { border: 'hover:border-primary/20',     bg: 'bg-primary/10',   text: 'text-primary',   hoverBg: 'group-hover:bg-primary' },
+  green:   { border: 'hover:border-primary/20',     bg: 'bg-primary/10',   text: 'text-primary',   hoverBg: 'group-hover:bg-primary' },
+  yellow:  { border: 'hover:border-tertiary/20',    bg: 'bg-tertiary-fixed/40', text: 'text-tertiary', hoverBg: 'group-hover:bg-tertiary' },
+  red:     { border: 'hover:border-error/20',       bg: 'bg-error-container/40', text: 'text-error', hoverBg: 'group-hover:bg-error' },
 };
 
-export function StatCard({ icon: Icon, title, value, trend, trendLabel, color = 'blue' }: StatCardProps) {
+export function StatCard({ icon, title, value, description, color = 'blue', trend }: StatCardProps) {
+  const c = colorMap[color];
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${colorMap[color]}`}>
-        <Icon size={20} />
+    <div className={`bg-white p-6 rounded-xl border border-white ${c.border} transition-all group cursor-default`}>
+      <div className="flex items-start justify-between">
+        <div className="space-y-3">
+          <p className="font-label-md text-on-surface-variant">{title}</p>
+          <h3 className="text-headline-lg font-bold text-on-background">{value}</h3>
+          {trend ? (
+            <div className="flex items-center gap-1 font-bold text-[11px]">
+              <MaterialSymbol icon={trend.direction === 'up' ? 'trending_up' : trend.direction === 'down' ? 'trending_down' : 'remove'} className={`text-[14px] ${trend.direction === 'neutral' ? 'text-outline' : c.text}`} />
+              <span className={trend.direction === 'neutral' ? 'text-outline' : c.text}>{trend.value}</span>
+            </div>
+          ) : description ? (
+            <p className="text-body-sm text-outline">{description}</p>
+          ) : null}
+        </div>
+        {icon && (
+          <div className={`w-12 h-12 rounded-lg ${c.bg} flex items-center justify-center ${c.text} ${c.hoverBg} group-hover:text-white transition-all`}>
+            <MaterialSymbol icon={icon} />
+          </div>
+        )}
       </div>
-      <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-      <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
-      {trend && (
-        <p className={`text-sm font-medium flex items-center gap-1 ${
-          trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
-        }`}>
-          <span>{trend.direction === 'up' ? '↑' : '↓'}</span>
-          <span>{trend.value}</span>
-          {trendLabel && <span className="text-xs text-gray-400 font-normal">{trendLabel}</span>}
-        </p>
-      )}
     </div>
   );
 }
