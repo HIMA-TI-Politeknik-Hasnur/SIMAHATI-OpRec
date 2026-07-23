@@ -3,7 +3,8 @@ import {
   LayoutDashboard, Shield, UserCheck, Mail, UserPlus,
   Building2, Calendar, VolumeX, BarChart3, LayoutList, Settings,
   Users, Clock, XCircle, Star, AlertTriangle, RefreshCw,
-  LogOut, Search, Bell, ChevronDown, Menu
+  LogOut, Search, Bell, ChevronDown, Menu,
+  PanelLeftClose, Sun, Filter
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiFetch, getAuthToken, isSessionAuth, sessionFetch } from '../api';
@@ -61,32 +62,32 @@ const navGroups = [
   {
     label: 'Utama',
     items: [
-      { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'dashboard', label: 'Dashboard', emoji: '🏠', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'panitia'] },
     ],
   },
   {
     label: 'Manajemen',
     items: [
-      { key: 'role-management', label: 'Role Management', icon: Shield, roles: ['super_admin', 'admin'] },
-      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'verifikasi-email', label: 'Verifikasi Email', icon: Mail, roles: ['super_admin'] },
-      { key: 'tambah-staff', label: 'Tambah Staff', icon: UserPlus, roles: ['super_admin'] },
+      { key: 'role-management', label: 'Role Management', emoji: '👥', icon: Shield, roles: ['super_admin', 'admin'] },
+      { key: 'verifikasi-pendaftar', label: 'Verifikasi Pendaftar', emoji: '📋', icon: UserCheck, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'verifikasi-email', label: 'Verifikasi Email', emoji: '📧', icon: Mail, roles: ['super_admin'] },
+      { key: 'tambah-staff', label: 'Tambah Staff', emoji: '👤', icon: UserPlus, roles: ['super_admin'] },
     ],
   },
   {
     label: 'Kegiatan',
     items: [
-      { key: 'divisi', label: 'Divisi', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'interview', label: 'Interview', icon: Calendar, roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
-      { key: 'pengumuman', label: 'Pengumuman', icon: VolumeX, roles: ['super_admin', 'admin', 'panitia'] },
-      { key: 'penilaian', label: 'Penilaian', icon: BarChart3, roles: ['super_admin', 'interviewer'] },
+      { key: 'divisi', label: 'Divisi', emoji: '🏢', icon: Building2, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'interview', label: 'Interview', emoji: '📅', icon: Calendar, roles: ['super_admin', 'admin', 'panitia', 'interviewer'] },
+      { key: 'pengumuman', label: 'Pengumuman', emoji: '📢', icon: VolumeX, roles: ['super_admin', 'admin', 'panitia'] },
+      { key: 'penilaian', label: 'Penilaian', emoji: '⭐', icon: BarChart3, roles: ['super_admin', 'interviewer'] },
     ],
   },
   {
     label: 'Pengaturan',
     items: [
-      { key: 'benefit', label: 'Benefit', icon: LayoutList, roles: ['super_admin', 'admin'] },
-      { key: 'settings', label: 'Settings', icon: Settings, roles: ['super_admin', 'admin'] },
+      { key: 'benefit', label: 'Benefit', emoji: '🎁', icon: LayoutList, roles: ['super_admin', 'admin'] },
+      { key: 'settings', label: 'Settings', emoji: '⚙️', icon: Settings, roles: ['super_admin', 'admin'] },
     ],
   },
 ];
@@ -100,33 +101,7 @@ const quickActions = [
   { label: 'Pengaturan', key: 'settings', icon: Settings, roles: ['super_admin', 'admin'], description: 'Konfigurasi konten website' },
 ];
 
-const pageTitles: Record<string, string> = {
-  dashboard: 'Dashboard',
-  'role-management': 'Role Management',
-  'verifikasi-pendaftar': 'Verifikasi Pendaftar',
-  'verifikasi-email': 'Verifikasi Email',
-  'tambah-staff': 'Tambah Staff',
-  pengumuman: 'Pengumuman',
-  benefit: 'Kelola Benefit',
-  divisi: 'Kelola Divisi',
-  interview: 'Penjadwalan Interview',
-  penilaian: 'Penilaian Interview',
-  settings: 'Content Management',
-};
 
-const roleLabels: Record<string, string> = {
-  super_admin: 'Super Admin',
-  admin: 'Admin',
-  panitia: 'Panitia',
-  interviewer: 'Interviewer',
-};
-
-function getRoleLabel(roles: string[]): string {
-  for (const r of roles) {
-    if (roleLabels[r]) return roleLabels[r];
-  }
-  return roles[0] || 'User';
-}
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
@@ -254,14 +229,19 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           return (
             <div className="max-w-[1440px] mx-auto">
 
-              <div className="mb-8">
-                <p className="text-sm font-semibold text-orange-500 uppercase tracking-wider mb-2">Dashboard</p>
-                <h1 className="text-[28px] font-extrabold text-gray-900 leading-tight">
-                  Selamat datang kembali, {user?.name?.split(' ')[0] || 'Admin'}
-                </h1>
-                <p className="text-base text-gray-500 mt-1.5">
-                  Pantau proses Open Recruitment secara real-time.
-                </p>
+              <div className="flex items-start justify-between mb-8">
+                <div>
+                  <h1 className="text-[28px] font-extrabold text-gray-900 leading-tight">
+                    Selamat datang, {user?.name?.split(' ')[0] || 'Admin'}
+                  </h1>
+                  <p className="text-base text-gray-500 mt-1.5">
+                    Pantau proses Open Recruitment secara real-time.
+                  </p>
+                </div>
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow-md transition-all duration-200 flex-shrink-0">
+                  <Filter className="w-4 h-4" />
+                  Filter
+                </button>
               </div>
 
               <div className="mb-8">
@@ -314,6 +294,20 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <ChevronDown className="w-3.5 h-3.5" />
                     </div>
                   </div>
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-orange-500 to-orange-300" />
+                      <span>Data Pendaftar</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-green-500" />
+                      <span>Lolos</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
+                      <span>Pending</span>
+                    </div>
+                  </div>
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={chartData} barCategoryGap="20%">
                       <defs>
@@ -322,7 +316,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                           <stop offset="100%" stopColor="#fb923c" stopOpacity={0.5} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 3" stroke="#f0f0f0" vertical={false} strokeWidth={0.5} />
                       <XAxis
                         dataKey="name"
                         tick={{ fontSize: 12, fontWeight: 600 }}
@@ -336,6 +330,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         stroke="#9ca3af"
                         axisLine={false}
                         tickLine={false}
+                        width={30}
                       />
                       <Tooltip
                         contentStyle={{
@@ -355,20 +350,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       />
                     </BarChart>
                   </ResponsiveContainer>
-                  <div className="flex items-center gap-4 mt-5 pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-orange-500 to-orange-300" />
-                      <span>Data Pendaftar</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-green-500" />
-                      <span>Lolos</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
-                      <span>Pending</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
@@ -379,25 +360,35 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                     <h3 className="text-base font-bold text-gray-900">Aktivitas Terkini</h3>
                   </div>
                   <div className="space-y-0">
+                    <div className="mb-3 mt-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400 px-1">
+                        Hari Ini
+                      </p>
+                    </div>
                     <ActivityItem
                       icon={Users}
                       title="Total Pendaftar"
                       description={`${stats?.total_pendaftar ?? 0} pendaftar terdaftar`}
-                      time="Update real-time"
+                      time="10 menit lalu"
                       color="blue"
                     />
                     <ActivityItem
                       icon={Calendar}
                       title="Interview Berjalan"
                       description={`${stats?.dalam_interview ?? 0} dalam tahap interview`}
-                      time="Update real-time"
+                      time="1 jam lalu"
                       color="yellow"
                     />
+                    <div className="my-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400 px-1">
+                        Kemarin
+                      </p>
+                    </div>
                     <ActivityItem
                       icon={Star}
                       title="Lolos Seleksi"
                       description={`${stats?.lolos_seleksi ?? 0} telah diterima`}
-                      time="Update real-time"
+                      time="Kemarin, 14:30"
                       color="green"
                       isLast
                     />
@@ -546,12 +537,13 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             if (visible.length === 0) return null;
             return (
               <div key={group.label}>
-                <p className="admin-db-nav-group-label">{group.label}</p>
+                <SidebarItem.Section label={group.label} />
                 {visible.map((item) => (
                   <SidebarItem
                     key={item.key}
                     icon={item.icon}
                     label={item.label}
+                    emoji={item.emoji}
                     active={adminPage === item.key}
                     onClick={() => handleSidebarClick(item.key)}
                   />
@@ -561,24 +553,15 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           })}
         </nav>
 
-        <div className="admin-db-sidebar-footer">
-          {user && (
-            <>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                  {user.name?.charAt(0)?.toUpperCase() || 'A'}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="admin-db-sidebar-user">{user.name}</div>
-                  <div className="admin-db-sidebar-role">{getRoleLabel(user.roles)}</div>
-                </div>
-              </div>
-              <button className="admin-db-logout-btn" onClick={handleLogoutClick}>
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </>
-          )}
+        <div className="admin-db-sidebar-collapse">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="admin-db-collapse-btn"
+            aria-label="Persempit sidebar"
+          >
+            <PanelLeftClose className="w-5 h-5" />
+            <span>Persempit</span>
+          </button>
         </div>
       </aside>
 
@@ -592,31 +575,35 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="admin-db-breadcrumb">
-              <span className="text-gray-400">Dashboard</span>
-              {adminPage !== 'dashboard' && (
-                <>
-                  <span className="admin-db-breadcrumb-sep">/</span>
-                  <span className="admin-db-breadcrumb-current">{pageTitles[adminPage]}</span>
-                </>
-              )}
+            <div className="admin-db-topbar-search">
+              <Search className="w-[18px] h-[18px] text-gray-400 flex-shrink-0" strokeWidth={2} />
+              <input
+                type="text"
+                placeholder="Cari menu..."
+                className="admin-db-topbar-search-input"
+              />
             </div>
           </div>
 
           <div className="admin-db-topbar-right">
-            <button className="admin-db-topbar-icon-btn" aria-label="Search">
-              <Search className="w-[18px] h-[18px]" strokeWidth={2} />
+            <button className="admin-db-topbar-icon-btn" aria-label="Toggle theme">
+              <Sun className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
-            <button className="admin-db-topbar-icon-btn" aria-label="Notifications">
+            <button className="admin-db-topbar-icon-btn relative" aria-label="Notifications">
               <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
             </button>
             <div className="relative" ref={dropdownRef}>
               <button
-                className="admin-db-topbar-avatar"
+                className="admin-db-topbar-user-btn"
                 onClick={() => setTopbarDropdownOpen(v => !v)}
                 aria-label="User menu"
               >
-                {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                <div className="admin-db-topbar-avatar">
+                  {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                </div>
+                <span className="admin-db-topbar-user-name">{user?.name?.split(' ')[0] || 'Admin'}</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${topbarDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               {topbarDropdownOpen && (
                 <div className="admin-db-topbar-dropdown">

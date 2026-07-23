@@ -9,17 +9,17 @@ interface SidebarItemProps {
   onClick?: () => void;
 }
 
-export function SidebarItem({ icon: Icon, emoji, label, active, section, onClick }: SidebarItemProps) {
-  if (section) {
-    return (
-      <div className="px-4 py-1.5">
-        <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-gray-400">
-          {label}
-        </span>
-      </div>
-    );
-  }
+function SidebarItemSection({ label }: { label: string }) {
+  return (
+    <div className="px-4 py-1.5">
+      <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-gray-400">
+        {label}
+      </span>
+    </div>
+  );
+}
 
+function SidebarItemComponent({ icon: Icon, emoji, label, active, onClick }: SidebarItemProps) {
   return (
     <button
       onClick={onClick}
@@ -38,3 +38,5 @@ export function SidebarItem({ icon: Icon, emoji, label, active, section, onClick
     </button>
   );
 }
+
+export const SidebarItem = Object.assign(SidebarItemComponent, { Section: SidebarItemSection });
