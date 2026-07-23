@@ -414,14 +414,14 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden animate-fade-in"
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* ── Sidebar ── */}
       <aside className={`
-        fixed left-0 top-0 h-full bg-white border-r border-outline-variant flex flex-col z-50
+        fixed left-0 top-0 h-full bg-white border-r border-outline-variant flex flex-col z-40
         transition-[width] duration-300 ease-in-out overflow-hidden
         ${sidebarOpen ? 'w-[264px]' : 'w-0'}
       `}>
@@ -498,7 +498,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       <main className={`flex-1 min-h-screen flex flex-col transition-[margin] duration-300 ease-in-out ${sidebarOpen ? 'lg:ml-[264px]' : ''}`}>
 
         {/* ── Topbar ── */}
-        <header className="h-16 px-4 md:px-6 flex items-center gap-3 bg-white sticky top-0 z-40 border-b border-outline-variant/60">
+        <header className="h-16 px-4 md:px-6 flex items-center gap-3 bg-white sticky top-0 z-50 border-b border-outline-variant/60">
           {/* Hamburger */}
           <button
             onClick={() => setSidebarOpen(v => !v)}
